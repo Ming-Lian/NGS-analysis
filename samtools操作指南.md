@@ -20,7 +20,7 @@
 ![](/sam-format.PNG "SAM-format")
 
 
-<a name="high-quality"><h3>提取比对质量高的reads</h3></a>
+<a name="high-quality"><h3>提取比对质量高的reads [目录](#content)</h3></a>
 
 ```
 $ samtools view -q <int> -O bam -o sample1.highQual.bam [sample1.sam|sample1.bam]
@@ -31,7 +31,7 @@ $ samtools view -q <int> -O bam -o sample1.highQual.bam [sample1.sam|sample1.bam
 > 通过 **BWA** 比对得到的sam文件的第五列MAPQ值，直接通过它可以区分unique mapping和mutiple mapping的情况。在使用bwa这个软件来把测序数据比对到参考基因组的时候如果没有加上-a这个参数，那么输出的sam文件里面，bwa会对每一个有multiple mapping情况的reads的MAPQ值设置为0，所以提取unique mapping的reads是非常容易的：
 > `samtools view -q 1 -O bam -o sample1.highQual.bam [sample1.sam|sample1.bam]`
 
-<a name="split-chrom"><h3>按染色体分割bam/sam文件 [<sup>2</sup>](#2)</h3></a> 
+<a name="split-chrom"><h3>按染色体分割bam/sam文件 [<sup>2</sup>](#2) [目录](#content)</h3></a> 
 
 ```
 for chrom in `seq 1 22` X Y MT;
@@ -47,7 +47,7 @@ done
 ```
 $ bamtools split -in file.bam -reference 
 ```
-<a name="get-unmap"><h3>提取未比对的reads [<sup>3</sup>](#3)</h3></a>
+<a name="get-unmap"><h3>提取未比对的reads [<sup>3</sup>](#3) [目录](#content)</h3></a>
 
 ```
 $ samtools view -f4 sample.bam > sample.unmapped.sam
@@ -86,26 +86,26 @@ $ bamtools -split -in my.bam -mapped
 ```
 > 注意：它只考虑了PE reads**均未比对成功**的情况。
 
-<a name="filt-unmap"><h3>滤除未比对的reads</h3></a>
+<a name="filt-unmap"><h3>滤除未比对的reads [目录](#content)</h3></a>
 
 ```
 $ samtools view -h -F4 input.bam
 ```
 
-<a name="filt-pcr"><h3>过滤PCR重复</h3></a>
+<a name="filt-pcr"><h3>过滤PCR重复 [目录](#content)</h3></a>
 
 ```
 $ samtools rmdup input.sorted.bam output.rmdup.bam
 ```
 
-<a name="diff-map"><h3>提取左右端测序数据比对到不同染色体的PE reads [<sup>4</sup>](#4)</h3></a>
+<a name="diff-map"><h3>提取左右端测序数据比对到不同染色体的PE reads [<sup>4</sup>](#4) [目录](#content)</h3></a>
 
 sam文件的第3，7列指明了该reads比对到哪条染色体，以及该reads的配对reads比对到了哪条染色体(如果比对到同一条染色体，那么第7列是=符号)。所以我们只需要写脚本来提取即可
 ```
 $ samtools view input.bam|perl -alne '{print if $F[6] ne "="}' 
 ```
 
-<a name="depth-coverage"><h3>根据比对结果来统计测序深度和覆盖度 [<sup>5</sup>](#5)</h3></a>
+<a name="depth-coverage"><h3>根据比对结果来统计测序深度和覆盖度 [<sup>5</sup>](#5) [目录](#content)</h3></a>
 
 这个统计主要依赖于samtools的depth功能，或者说mpileup功能，输入文件都是sort好bam格式的比对文件。<font color="red">事实上，其实depth功能调用的就是mpileup的函数。但是mpileup可以设置一系列的过滤参数。而depth命令是纯天然的，所以mpileup的结果一定会小于depth的测序深度。</font>
 
