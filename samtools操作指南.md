@@ -17,7 +17,7 @@
 
 对sam文件的操作是基因多sam文件格式的理解：
 
-![](/sam-format.png "SAM-format")
+![](/sam-format.PNG "SAM-format")
 
 
 <a name="high-quality"><h3>提取比对质量高的reads</h3></a>
