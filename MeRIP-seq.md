@@ -14,7 +14,7 @@
 	- [MEME](#meme) 
 - [Differential binding analysis](#diff-bind)
 	- [Merge peaks](#merge-peaks)
-	- [Preparing ChIP-seq count table](#cout-table)
+	- [Preparing ChIP-seq count table](#count-table)
 	- [Differential binding by DESeq2](#deseq2)
 
 
@@ -34,7 +34,7 @@
 ---
 在 ChIP-seq 中一般用 BWA 或者 Bowtie 进行完全比对就可以了，但是在 MeRIP-seq 中，由于分析的 RNA ，那么就存在**可变剪切**，对于存在可变剪切的 mapping 用 **Tophat** 或者 Tophat 的升级工具 **HISAT2** 更合适
 
-<a name="tophat"><h4><u>Tophat</u></h4></a>
+<a name="tophat"><u>Tophat</u></a>
 
 ```
 # build reference index
