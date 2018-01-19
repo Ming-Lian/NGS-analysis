@@ -10,7 +10,7 @@
 - [提取左右端测序数据比对到不同染色体的PE reads](#diff-map)
 - [根据比对结果来统计测序深度和覆盖度](#depth-coverage)
 	- [计算每条染色体平均的测序深度和覆盖度](#chrom-depth-coverage)
-	- [以WIG文件输出测序深度](#ouput-wig)
+	- [以WIG文件输出测序深度](#output-wig)
 
 
 <a name="title"><h1>samtools 操作指南</h1></a>
