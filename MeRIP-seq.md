@@ -27,6 +27,7 @@
 由于m6A-seq数据分析的原理与过程和ChIP-seq十分相似，所以这里略过前面的质控，简单说明比对和peak calling步骤，具体内容可以参考[**ChIP-seq分析流程**](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md)
 
 <a name="map"><h3>比对参考基因组</h3></a>
+
 ---
 在 ChIP-seq 中一般用 BWA 或者 Bowtie 进行完全比对就可以了，但是在 MeRIP-seq 中，由于分析的 RNA ，那么就存在**可变剪切**，对于存在可变剪切的 mapping 用 **Tophat** 或者 Tophat 的升级工具 **HISAT2** 更合适
 
