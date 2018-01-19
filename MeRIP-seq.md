@@ -1,5 +1,4 @@
 <a name="content">目录</a>
-
 [Analysis pipeline for MeRIP-seq](#title)
 - [比对参考基因组](#map)
 	- [Tophat](#tophat)
@@ -12,7 +11,10 @@
 - [Motif识别](#motif)
 	- [HOMER](#homer)
 	- [MEME](#meme) 
-- [Differential binding](#diff-bind)
+- [Differential binding analysis](#diff-bind)
+	- [Merge peaks](#merge-peaks)
+	- [Preparing ChIP-seq count table](#cout-table)
+	- [Differential binding by DESeq2](#deseq2)
 
 
 
@@ -76,7 +78,7 @@ $ hisat2 -p 10 --dta -x chrX_tran -1 reads1_1.fastq -2 reads1_2.fastq | samtools
 > - -2 The 2nd input fastq file of paired-end reads
 > - -S File for SAM output (default: stdout)
 
-<a name="peak"><h3>Peak calling</h3></a>
+<a name="peak"><h3>Peak calling [<sup>目录</sup>](#content)</h3></a>
 
 ---
 
@@ -120,8 +122,7 @@ ceas --name=H3K36me3_ceas --pf-res=20 --gn-group-names='Top 10%,Bottom 10%'  \
 > - -b BED file of ChIP regions
 > - -w WIG file for either wig profiling or genome background annotation.
 
-<a name="motif"><h3>Motif识别 [<sup>目录</sup>](#content)</h3></a>
-
+<a name="motif"><h3>Motif识别</h3></a>
 ---
 
 <a name="homer"><h4>HOMER </h4></a>
@@ -195,9 +196,58 @@ meme output.fasta -dna -mod oops -pal
 > - -mod Distribution of motifs,3 options: oops | zoops | anr
 > - -pal Force palindromes (requires -dna)
 
-<a name="diff-bind"><h3>Differential binding [<sup>目录</sup>](#content)</h3></a>
+<a name="diff-bind"><h3>Differential binding analysis [<sup>目录</sup>](#content)</h3></a>
 
 ---
+
+<a name="merge-peaks"><h4>Merge peaks</h4></a>
+
+当ChIP-seq数据中有多分组，多样本以及多个重复时，需要进行样本间peaks的merge
+
+```
+bedtools intersect -a Mcf7H3k27acUcdAlnRep1_peaks.filtered.bed -b Mcf7H3k27acUcdAlnRep2_peaks.filtered.bed -wa | cut -f1-3 | sort | uniq > Mcf7Rep1_peaks.bed
+bedtools intersect -a Mcf7H3k27acUcdAlnRep1_peaks.filtered.bed -b Mcf7H3k27acUcdAlnRep2_peaks.filtered.bed -wb | cut -f1-3 | sort | uniq > Mcf7Rep2_peaks.bed
+bedtools intersect -a Panc1H3k27acUcdAlnRep1_peaks.filtered.bed -b Panc1H3k27acUcdAlnRep2_peaks.filtered.bed -wa | cut -f1-3 | sort | uniq > Panc1Rep1_peaks.bed
+bedtools intersect -a Panc1H3k27acUcdAlnRep1_peaks.filtered.bed -b Panc1H3k27acUcdAlnRep2_peaks.filtered.bed -wb | cut -f1-3 | sort | uniq > Panc1Rep2_peaks.bed
+
+rm *filtered*
+
+cat *bed | sort -k1,1 -k2,2n | bedtools merge > merge.bed 
+```
+
+<a name="count-table"><h4>Preparing ChIP-seq count table</h4></a>
+
+用**bedtools**
+```
+# Make a bed file adding peak id as the fourth colum
+$ awk '{$3=$3"\t""peak_"NR}1' OFS="\t" merge.bed > bed_for_multicov.bed
+# 输入的bam文件要提前做好index，可同时提供多个bam文件
+$ bedtools multicov -bams input1.bam input2.bam ... -bed bed_for_multicov.bed > counts_multicov.txt
+```
+> - NR 表示awk开始执行程序后所读取的数据行数
+> - OFS Out of Field Separator，输出字段分隔符
+
+用**featureCounts** (subread工具包中的组件）
+```
+# Make a saf(simplified annotation format) file for featureCount in the subread package,
+
+shown below:
+GeneID	Chr	Start	End	Strand
+497097	chr1	3204563	3207049	-
+497097	chr1	3411783	3411982	-
+497097	chr1	3660633	3661579	-
+...
+
+$ awk -F "\t" '{$1="peak_"NR FS$1;$4=$4FS"."}1' merge.bed > subread.saf
+$ featureCounts -T 4 -a subread.saf -F SAF -o counts_subread.txt ../../data/*bam
+```
+`Usage: featureCounts [options] -a <annotation_file> -o <output_file> input_file1 [input_file2] ...`
+> - -a Name of an annotation file
+> - -F Specify format of the provided annotation file. Acceptable formats include 'GTF' (or compatible GFF format) and 'SAF'. 'GTF' by default
+> - -o Name of the output file including read counts
+> - -T Number of the threads
+
+<a name="deseq2"><h4>Differential binding by DESeq2</h4></a>
 
 
 
@@ -211,3 +261,5 @@ meme output.fasta -dna -mod oops -pal
 (3) [ChIP-seq-pipeline](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md)
 
 (4) [ChIPseq pipeline on jmzeng1314's github](https://github.com/jmzeng1314/NGS-pipeline/tree/master/CHIPseq)
+
+(5) [ChIPseq pipeline on crazyhottommy's github](https://github.com/crazyhottommy/ChIP-seq-analysis)
