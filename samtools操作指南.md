@@ -14,7 +14,7 @@
 
 
 <a name="title"><h1>samtools 操作指南</h1></a>
----
+
 <p align="right">以下内容整理自【直播我的基因组】系列文章</p>
 
 对sam文件的操作是基因多sam文件格式的理解：
