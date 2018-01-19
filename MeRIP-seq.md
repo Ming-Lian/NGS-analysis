@@ -26,7 +26,7 @@
 
 由于m6A-seq数据分析的原理与过程和ChIP-seq十分相似，所以这里略过前面的质控，简单说明比对和peak calling步骤，具体内容可以参考[**ChIP-seq分析流程**](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md)
 
-<a name="map"><h3>比对参考基因组</h3></a>
+<a name="map"><h3>比对参考基因组 [<sup>目录</sup>](#content)</h3></a>
 
 ---
 在 ChIP-seq 中一般用 BWA 或者 Bowtie 进行完全比对就可以了，但是在 MeRIP-seq 中，由于分析的 RNA ，那么就存在**可变剪切**，对于存在可变剪切的 mapping 用 **Tophat** 或者 Tophat 的升级工具 **HISAT2** 更合适
@@ -91,7 +91,7 @@ peakranger ccat --format bam SRR1042594.sorted.bam SRR1042593.sorted.bam  \
 Xu_MUT_rep1_ccat_report --report --gene_annot_file hg19refGene.txt -q 0.05 -t 4 
 ```
 
-<a name="peak-anno"><h3>Peaks注释</h3></a>
+<a name="peak-anno"><h3>Peaks注释 [<sup>目录</sup>](#content)</h3></a>
 
 ---
 
@@ -120,7 +120,7 @@ ceas --name=H3K36me3_ceas --pf-res=20 --gn-group-names='Top 10%,Bottom 10%'  \
 > - -b BED file of ChIP regions
 > - -w WIG file for either wig profiling or genome background annotation.
 
-<a name="motif"><h3>Motif识别</h3></a>
+<a name="motif"><h3>Motif识别 [<sup>目录</sup>](#content)</h3></a>
 
 ---
 
@@ -195,7 +195,7 @@ meme output.fasta -dna -mod oops -pal
 > - -mod Distribution of motifs,3 options: oops | zoops | anr
 > - -pal Force palindromes (requires -dna)
 
-<a name="diff-bind"><h3>Differential_binding</h3></a>
+<a name="diff-bind"><h3>Differential binding [<sup>目录</sup>](#content)</h3></a>
 
 ---
 
