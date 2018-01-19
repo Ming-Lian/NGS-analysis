@@ -34,7 +34,7 @@
 ---
 在 ChIP-seq 中一般用 BWA 或者 Bowtie 进行完全比对就可以了，但是在 MeRIP-seq 中，由于分析的 RNA ，那么就存在**可变剪切**，对于存在可变剪切的 mapping 用 **Tophat** 或者 Tophat 的升级工具 **HISAT2** 更合适
 
-<a name="tophat"><u>Tophat</a>
+<a name="tophat"><h4>1. Tophat</h4></a>
 
 ```
 # build reference index
@@ -57,7 +57,7 @@ Tophat参数
 samtools view 参数
 > - -q only include reads with mapping quality >= INT [0]
 
-<a name="hisat2"><h4><u>HISAT2</u></h4></a>
+<a name="hisat2"><h4>2. HISAT2</h4></a>
 
 ```
 # build reference index
@@ -83,11 +83,11 @@ $ hisat2 -p 10 --dta -x chrX_tran -1 reads1_1.fastq -2 reads1_2.fastq | samtools
 
 ---
 
-<a name="macs2"><h4><u>MACS2</u></h4></a>
+<a name="macs2"><h4>1. MACS2</h4></a>
 
 参考ChIP-seq分析流程中的[peak calling](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md#peak-calling)过程
 
-<a name="peakranger"><h4><u>PeakRanger</u></h4></a>
+<a name="peakranger"><h4>2. PeakRanger</h4></a>
 
 ```
 peakranger ccat --format bam SRR1042594.sorted.bam SRR1042593.sorted.bam  \
@@ -98,7 +98,7 @@ Xu_MUT_rep1_ccat_report --report --gene_annot_file hg19refGene.txt -q 0.05 -t 4
 
 ---
 
-<a name="ceas"><h4><u>CEAS</u></h4></a>
+<a name="ceas"><h4>CEAS</h4></a>
 
 哈佛刘小乐实验室出品的软件，可以跟MACS软件call到的peaks文件无缝连接，实现peaks的注释以及可视化分析
 
@@ -126,7 +126,7 @@ ceas --name=H3K36me3_ceas --pf-res=20 --gn-group-names='Top 10%,Bottom 10%'  \
 <a name="motif"><h3>Motif识别</h3></a>
 ---
 
-<a name="homer"><h4><u>HOMER</u></h4></a>
+<a name="homer"><h4>1. HOMER</h4></a>
 
 安装旧版本的HOMER比较复杂，因为旧版依赖于调用其他几个工具：
 > - blat
@@ -170,7 +170,7 @@ $ findMotifsGenome.pl homer_peaks.bed hg19 motifDir -bg peaks_shuffle.bed -size 
 
 ![](http://homer.ucsd.edu/homer/ngs/peakMotifs.output.png)
 
-<a name="meme"><h4><u>MEME</u></h4></a>
+<a name="meme"><h4>2. MEME</h4></a>
 
 下载安装MEME
 ```
@@ -201,7 +201,7 @@ meme output.fasta -dna -mod oops -pal
 
 ---
 
-<a name="merge-peaks"><h4><u>Merge peaks</u></h4></a>
+<a name="merge-peaks"><h4>1. Merge peaks</h4></a>
 
 当ChIP-seq数据中有多分组，多样本以及多个重复时，需要进行样本间peaks的merge
 
@@ -216,7 +216,7 @@ rm *filtered*
 cat *bed | sort -k1,1 -k2,2n | bedtools merge > merge.bed 
 ```
 
-<a name="count-table"><h4><u>Preparing ChIP-seq count table</u></h4></a>
+<a name="count-table"><h4>2. Preparing ChIP-seq count table</h4></a>
 
 用**bedtools**
 ```
@@ -248,7 +248,7 @@ $ featureCounts -T 4 -a subread.saf -F SAF -o counts_subread.txt ../../data/*bam
 > - -o Name of the output file including read counts
 > - -T Number of the threads
 
-<a name="deseq2"><h4><u>Differential binding by DESeq2</u></h4></a>
+<a name="deseq2"><h4>3. Differential binding by DESeq2</h4></a>
 
 
 
