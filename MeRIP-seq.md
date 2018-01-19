@@ -77,6 +77,7 @@ $ hisat2 -p 10 --dta -x chrX_tran -1 reads1_1.fastq -2 reads1_2.fastq | samtools
 > - -S File for SAM output (default: stdout)
 
 <a name="peak"><h3>Peak calling</h3></a>
+
 ---
 
 <a name="macs2"><h4>MACS2</h4></a>
@@ -91,6 +92,7 @@ Xu_MUT_rep1_ccat_report --report --gene_annot_file hg19refGene.txt -q 0.05 -t 4
 ```
 
 <a name="peak-anno"><h3>Peaks注释</h3></a>
+
 ---
 
 <a name="ceas"><h4>CEAS</h4></a>
@@ -119,6 +121,7 @@ ceas --name=H3K36me3_ceas --pf-res=20 --gn-group-names='Top 10%,Bottom 10%'  \
 > - -w WIG file for either wig profiling or genome background annotation.
 
 <a name="motif"><h3>Motif识别</h3></a>
+
 ---
 
 <a name="homer"><h4>HOMER </h4></a>
@@ -193,6 +196,7 @@ meme output.fasta -dna -mod oops -pal
 > - -pal Force palindromes (requires -dna)
 
 <a name="diff-bind"><h3>Differential_binding</h3></a>
+
 ---
 
 
