@@ -123,7 +123,8 @@ ceas --name=H3K36me3_ceas --pf-res=20 --gn-group-names='Top 10%,Bottom 10%'  \
 > - -b BED file of ChIP regions
 > - -w WIG file for either wig profiling or genome background annotation.
 
-<a name="motif"><h3>Motif识别</h3></a>
+<a name="motif"><h3>Motif识别 [<sup>目录</sup>](#content)</h3></a>
+
 ---
 
 <a name="homer"><h4>1. HOMER</h4></a>
