@@ -224,6 +224,8 @@ cat *bed | sort -k1,1 -k2,2n | bedtools merge > merge.bed
 # Make a bed file adding peak id as the fourth colum
 $ awk '{$3=$3"\t""peak_"NR}1' OFS="\t" merge.bed > bed_for_multicov.bed
 # 输入的bam文件要提前做好index，可同时提供多个bam文件
+$ samtools sort -@ 8 -O BAM -o input1.sort.bam input1.bam 
+$ samtools index -@ 8 input1.sort.bam input1.sort.bam.bai # 注意：生成的索引文件的文件名必须为在原bam文件名后追加".bai"，否则bedtools multicov无法识别
 $ bedtools multicov -bams input1.bam input2.bam ... -bed bed_for_multicov.bed > counts_multicov.txt
 ```
 > - NR 表示awk开始执行程序后所读取的数据行数
