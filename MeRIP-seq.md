@@ -331,7 +331,7 @@ resOrdered=as.data.frame(resOrdered)
 > DESeq2中默认使用 Full library size bam (bFullLibrarySize =TRUE)，在ChIP-seq中使用 Effective library size 更合适，所有应该设置为bFullLibrarySize =FALSE
 
 
-
+---
 
 参考资料：
 
