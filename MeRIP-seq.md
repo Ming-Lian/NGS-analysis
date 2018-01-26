@@ -281,6 +281,38 @@ dds<-estimateDispersions(dds,fitType="local")
 
 ```
 dds <- nbinomWaldTest(dds)
+res <- results(dds)
+res
+
+## log2 fold change (MLE): condition treated vs untreated 
+## Wald test p-value: condition treated vs untreated 
+## DataFrame with 9921 rows and 6 columns
+##                baseMean log2FoldChange     lfcSE        stat     pvalue
+##               <numeric>      <numeric> <numeric>   <numeric>  <numeric>
+## FBgn0000008   95.144292    0.002276428 0.2237292  0.01017493 0.99188172
+## FBgn0000014    1.056523   -0.495113878 2.1431096 -0.23102593 0.81729466
+## FBgn0000017 4352.553569   -0.239918945 0.1263378 -1.89902705 0.05756092
+## FBgn0000018  418.610484   -0.104673913 0.1484903 -0.70492106 0.48085936
+## FBgn0000024    6.406200    0.210848562 0.6895923  0.30575830 0.75978868
+## ...                 ...            ...       ...         ...        ...
+## FBgn0261570 3208.388610     0.29553289 0.1273514  2.32061001  0.0203079
+## FBgn0261572    6.197188    -0.95882276 0.7753130 -1.23669125  0.2162017
+## FBgn0261573 2240.979511     0.01271946 0.1133028  0.11226079  0.9106166
+## FBgn0261574 4857.680373     0.01539243 0.1925619  0.07993497  0.9362890
+## FBgn0261575   10.682520     0.16356865 0.9308661  0.17571663  0.8605166
+##                  padj
+##             <numeric>
+## FBgn0000008 0.9972093
+## FBgn0000014        NA
+## FBgn0000017 0.2880108
+## FBgn0000018 0.8268644
+## FBgn0000024 0.9435005
+## ...               ...
+## FBgn0261570 0.1442486
+## FBgn0261572 0.6078453
+## FBgn0261573 0.9826550
+## FBgn0261574 0.9881787
+## FBgn0261575 0.9679223
 ```
 
 注意两个概念：
@@ -304,3 +336,7 @@ dds <- nbinomWaldTest(dds)
 (4) [ChIPseq pipeline on jmzeng1314's github](https://github.com/jmzeng1314/NGS-pipeline/tree/master/CHIPseq)
 
 (5) [ChIPseq pipeline on crazyhottommy's github](https://github.com/crazyhottommy/ChIP-seq-analysis)
+
+(6) [library size and normalization for ChIP-seq](https://github.com/crazyhottommy/ChIP-seq-analysis/blob/master/part3.1_Differential_binding_DiffBind_lib_size.md)
+
+(7) [Bioconductor tutorial: Analyzing RNA-seq data with DESeq2](http://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
