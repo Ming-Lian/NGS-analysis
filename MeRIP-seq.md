@@ -274,7 +274,6 @@ colData <- data.frame(row.names=colnames(count_matrix), group_list=group_list))
 dds <- DESeqDataSetFromMatrix(countData = count_matrix,
 	colData = colData,
 	design = ~ group_list)
-
 ```
 
 - 接着计算每个样本的 library size 用于后续的标准化。library size 等于落在该样本所有peaks上的reads的总数，即 counts 矩阵中每列的加和。如果bFullLibrarySize设为TRUE，则会使用library的总reads数（根据原BAM/BED文件统计获得）。然后使用`estimateDispersions`估计统计分布，需要将参数`fitType`设为'local'
