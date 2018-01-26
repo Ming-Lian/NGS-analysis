@@ -25,12 +25,12 @@
 
 <table>
 <tr>
-<td align="top"><img src=/picture/MeRIP-seq.jpg border=0></td>
-<td><img src=/picture/MeRIP-seq-workflow.jpg border=0></td>
+	<td><img src=/picture/MeRIP-seq.jpg border=0></td>
+	<td><img src=/picture/MeRIP-seq-workflow.jpg border=0></td>
 </tr>
 <tr>
-<p align="center"><strong>Schematic diagram of the MeRIP-seq protocol</strong></p>
-<p align="center"><strong>Data analysis workflow</strong></p>
+	<td><p align="center"><strong>Schematic diagram of the MeRIP-seq protocol</strong></p></td>
+	<td><p align="center"><strong>Data analysis workflow</strong></p></td>
 </tr>
 </table>
 
