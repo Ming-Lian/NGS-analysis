@@ -23,11 +23,14 @@
 
 <a name="title"><h1>Analysis pipeline for MeRIP-seq</h1></a>
 
-![](/picture/MeRIP-seq.jpg "MeRIP-seq")
+<table><tr>
+<td><img src=/picture/MeRIP-seq.jpg border=0></td>
+<td><img src=/picture/MeRIP-seq-workflow.jpg border=0></td>
+</tr></table>
+
 
 <p align="center"><strong>Schematic diagram of the MeRIP-seq protocol</strong></p>
 
-![](/picture/MeRIP-seq-workflow.jpg "Workflow")
 
 <p align="center"><strong>Data analysis workflow</strong></p>
 
