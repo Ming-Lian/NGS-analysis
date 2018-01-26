@@ -315,6 +315,14 @@ res
 ## FBgn0261575 0.9679223
 ```
 
+若存在多个分组需要进行两两比较，则需要提取指定的两个分组之间的比较结果
+```
+## 提取你想要的差异分析结果，我们这里是treated组对untreated组进行比较
+res <-  results(dds2, contrast=c("group_list","treated","untreated"))
+resOrdered <- res[order(res$padj),]
+resOrdered=as.data.frame(resOrdered)
+```
+
 注意两个概念：
 > - Full library size: bam文件中reads的总数
 > 
