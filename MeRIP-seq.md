@@ -24,7 +24,7 @@
 <a name="title"><h1>Analysis pipeline for MeRIP-seq</h1></a>
 
 <table><tr>
-<td><img src=/picture/MeRIP-seq.jpg border=0><p></p><p></p><p></p><p align="center"><strong>Schematic diagram of the MeRIP-seq protocol</strong></p></td>
+<td><img src=/picture/MeRIP-seq.jpg border=0><p> </p><p> </p><p> </p><p align="center"><strong>Schematic diagram of the MeRIP-seq protocol</strong></p></td>
 <td><img src=/picture/MeRIP-seq-workflow.jpg border=0><p></p><p align="center"><strong>Data analysis workflow</strong></p></td>
 </tr></table>
 
