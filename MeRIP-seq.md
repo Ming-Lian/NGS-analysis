@@ -253,6 +253,43 @@ $ featureCounts -T 4 -a subread.saf -F SAF -o counts_subread.txt ../../data/*bam
 
 <a name="deseq2"><h4>3. Differential binding by DESeq2</h4></a>
 
+- 对 contrast 构建一个 counts 矩阵，第一组的每个样本占据一列，紧接着的是第二组的样本，也是每个样本一列。
+
+```
+# 做好表达矩阵
+count_table<-read.delim("count_multicov.txt",header=F)
+count_matrix<-as.matrix(count_table[,c(-1,-2,-3,-4)])
+rownames(count_matrix)<-count_table$V4
+# 做好分组因子即可
+group_list<-factor(c("control","control","control","treat","treat","treat"))
+colData <- data.frame(row.names=colnames(count_matrix), group_list=group_list))
+# 构建 DESeqDataSet 对象
+dds <- DESeqDataSetFromMatrix(countData = count_matrix,
+	colData = colData,
+	design = ~ group_list)
+
+```
+
+- 接着计算每个样本的 library size 用于后续的标准化。library size 等于落在该样本所有peaks上的reads的总数，即 counts 矩阵中每列的加和。如果bFullLibrarySize设为TRUE，则会使用library的总reads数（根据原BAM/BED文件统计获得）。然后使用`estimateDispersions`估计统计分布，需要将参数`fitType`设为'local'
+
+```
+dds<-estimateSizeFactors(dds)
+dds<-estimateDispersions(dds,fitType="local")
+```
+
+- 对负二项分布进行显著性检验（Negative Binomial GLM fitting and Wald statistics）
+
+```
+dds <- nbinomWaldTest(dds)
+```
+
+注意两个概念：
+> - Full library size: bam文件中reads的总数
+> 
+> - Effective library size: 落在peaks区域的reads的总数
+> 
+> DESeq2中默认使用 Full library size bam (bFullLibrarySize =TRUE)，在ChIP-seq中使用 Effective library size 更合适，所有应该设置为bFullLibrarySize =FALSE
+
 
 
 
