@@ -31,6 +31,7 @@
 <tr>
 <p align="center"><strong>Schematic diagram of the MeRIP-seq protocol</strong></p>
 <p align="center"><strong>Data analysis workflow</strong></p>
+</tr>
 </table>
 
 由于m6A-seq数据分析的原理与过程和ChIP-seq十分相似，所以这里略过前面的质控，简单说明比对和peak calling步骤，具体内容可以参考[**ChIP-seq分析流程**](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md)
