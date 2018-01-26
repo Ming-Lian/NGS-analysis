@@ -204,7 +204,7 @@ meme output.fasta -dna -mod oops -pal
 
 <a name="merge-peaks"><h4>1. Merge peaks</h4></a>
 
-当ChIP-seq数据中有多分组，多样本以及多个重复时，需要进行样本间peaks的merge
+当ChIP-seq数据中有多分组，多样本以及多个重复时，需要进行样本间peaks的merge，先找出各组中至少出现一次(overlap)的peaks作为consensus peakset，然后对不同分组的consensus peakset进行merge
 
 ```
 bedtools intersect -a Mcf7H3k27acUcdAlnRep1_peaks.filtered.bed -b Mcf7H3k27acUcdAlnRep2_peaks.filtered.bed -wa | cut -f1-3 | sort | uniq > Mcf7Rep1_peaks.bed
