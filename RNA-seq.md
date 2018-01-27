@@ -220,6 +220,8 @@ res_Day1_Day0=as.data.frame(resOrdered)
 
 <h4 name="ballgown">使用Ballgown进行差异分析</h4>
 
+紧接着stringtie的定量结果进行分析
+
 - 载入R包
 ```
 require(ballgown)
