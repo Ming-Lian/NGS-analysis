@@ -21,7 +21,7 @@
 
 <h1 name="title">Analysis pipeline for RNA-seq</h1>
 
-![](/picture/hisat2-stringtie-ballgown.jpg)
+<img src=/picture/hisat2-stringtie-ballgown.jpg align="center" width=100>
 
 <a name="download"><h3 >测序数据下载 [<sup>目录</sup>](#content)</h3></a>
 
