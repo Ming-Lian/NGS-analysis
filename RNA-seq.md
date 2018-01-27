@@ -261,3 +261,5 @@ write.csv(result_trans_sort,file=paste("SingleCell_process/Cleandata/Expression/
 (1) [【PANDA姐的转录组入门】拟南芥实战项目-定量、差异表达、功能分析](https://mp.weixin.qq.com/s/74xmKy30ecQ2ciCqOq8MdQ)
 
 (2) [一步法差异分析](https://github.com/jmzeng1314/my-R/tree/master/DEG_scripts)
+
+(3) Pertea M, Kim D, Pertea G M, et al. Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie and Ballgown.[J]. Nature Protocols, 2016, 11(9):1650.
