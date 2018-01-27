@@ -17,7 +17,7 @@
 		- [stringtie定量](#stringtie-quant)
 - [差异表达分析](#diff-exp)
 	- [DESeq2](#deseq2)
-	- [Ballgown)(#ballgown)
+	- [Ballgown](#ballgown)
 
 <h1 name="title">Analysis pipeline for RNA-seq</h1>
 
