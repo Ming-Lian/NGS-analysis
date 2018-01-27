@@ -91,7 +91,7 @@ nohup $featureCounts/featureCounts  -T 5 -p -t exon -g gene_name -a $gtf -o  $co
 nohup $featureCounts/featureCounts  -T 5 -p -t exon -g gene_id -a $gtf -o  $count/counts_id.txt   *.bam &
 ```
 
-<h3 name="hisat2-stringtie">hisat2-stringtie流程</h3>
+<h3 name="hisat2-stringtie">hisat2-stringtie流程 [<sup>目录</sup>](#content)</h3>
 
 <h4 name="hisat2-index">hisat2创建索引</h4>
 
@@ -142,7 +142,7 @@ $ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
 > - -e only estimate the abundance of given reference transcripts (requires -G)
 > -  -B enable output of Ballgown table files which will be created in the same directory as the output GTF (requires -G, -o recommended)
 
-<h3 name="diff-exp">差异表达分析</h3>
+<h3 name="diff-exp">差异表达分析 [<sup>目录</sup>](#content)</h3>
 
 <h4 name="deseq2">使用DESeq2进行差异分析</h4>
 
