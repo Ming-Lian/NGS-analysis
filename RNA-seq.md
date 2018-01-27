@@ -20,7 +20,7 @@
 
 <h1 name="title">Analysis pipeline for RNA-seq</h1>
 
-<h3 name="download">测序数据下载 [<sup>目录</sup>](#content)</h3>
+<a name="download"><h3 >测序数据下载 [<sup>目录</sup>](#content)</h3></a>
 
 参见： https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md#get-data
 
