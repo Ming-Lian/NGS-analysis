@@ -17,6 +17,7 @@
 		- [stringtie定量](#stringtie-quant)
 - [差异表达分析](#diff-exp)
 	- [DESeq2](#deseq2)
+	- [Ballgown)(#ballgown)
 
 <h1 name="title">Analysis pipeline for RNA-seq</h1>
 
@@ -217,6 +218,41 @@ res_Day1_Day0=as.data.frame(resOrdered)
 ```
 
 
+<h4 name="ballgown>使用Ballgown进行差异分析</h4>
+
+- 载入R包
+```
+require(ballgown)
+require(dplyr)
+require(genefilter)
+setwd("/share/disk5/lianm")
+```
+- 载入stringtie输出的表达数据，并设置表型信息（即分组信息）
+```
+bg_Z1Z4<-ballgown(dataDir="SingleCell_process/Cleandata/Expression",samplePattern=“Z[14]T",meas="FPKM")
+pData(bg_Z1Z4)<-data.frame(id=sampleNames(bg_Z1Z4),group=c(rep(1,num_group1),rep(0,num_group2)))
+```
+- 过滤低丰度的基因
+```
+bg_Z1Z4_filt<-subset(bg_Z1Z4,"rowVars(texpr(bg_Z1Z4))>1",genomesubset=T)
+```
+- 差异表达基因分析
+```
+result_genes<-stattest(bg_Z1Z4_filt,feature="gene",covariate="group",getFC=T)
+result_genes<-data.frame(geneNames=geneNames(bg_Z1Z4_filt)[match(result_genes$id,geneIDs(bg_Z1Z4_filt))],geneIDs=geneIDs(bg_Z1Z4_filt)[match(result_genes$id,geneIDs(bg_Z1Z4_filt))],result_genes)
+result_genes_sort<-arrange(result_genes,pval)
+write.csv(result_genes_sort,file=paste("SingleCell_process/Cleandata/Expression/",name_group1,"_VS_",name_group2,"_geneDiff_results.csv",sep=""),row.names=F)
+```
+> 分组设置对差异表达分析的影响：
+> - FC = group_1/group_0，所以分组标签互换后FC会变为原来的倒数
+
+- 差异转录本分析
+```
+result_trans<-stattest(bg_Z1Z4_filt,feature="transcript",covariate="group",getFC=T)
+result_trans<-data.frame(geneNames=geneNames(bg_Z1Z4_filt),geneIDs=geneIDs(bg_Z1Z4_filt),result_trans)
+result_trans_sort<-arrange(result_transs,pval)
+write.csv(result_trans_sort,file=paste("SingleCell_process/Cleandata/Expression/",name_group1,"_VS_",name_group2,"_transDiff_results.csv",sep=""),row.names=F)
+```
 
 ---
 
