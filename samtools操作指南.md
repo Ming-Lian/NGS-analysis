@@ -17,9 +17,9 @@
 
 <p align="right">以下内容整理自【直播我的基因组】系列文章</p>
 
-对sam文件的操作是基因多sam文件格式的理解：
+对sam文件的操作是基于对sam文件格式的理解：
 
-![](/sam-format.PNG "SAM-format")
+![](/picture/sam-format.PNG "SAM-format")
 
 
 <a name="high-quality"><h3>提取比对质量高的reads</h3></a>
