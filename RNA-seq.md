@@ -218,7 +218,7 @@ res_Day1_Day0=as.data.frame(resOrdered)
 ```
 
 
-<h4 name="ballgown>使用Ballgown进行差异分析</h4>
+<h4 name="ballgown">使用Ballgown进行差异分析</h4>
 
 - 载入R包
 ```
