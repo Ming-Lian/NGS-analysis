@@ -22,7 +22,13 @@
 
 <a name="download"><h3 >测序数据下载 [<sup>目录</sup>](#content)</h3></a>
 
+---
+
 参见： https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md#get-data
+
+<h3 name="map-quant">比对与定量</h3>
+
+---
 
 <a name="salmon"><h3 >Salmon流程 [<sup>目录</sup>](#content)</h3></a>
 
@@ -143,6 +149,8 @@ $ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
 > -  -B enable output of Ballgown table files which will be created in the same directory as the output GTF (requires -G, -o recommended)
 
 <a name="diff-exp"><h3 >差异表达分析 [<sup>目录</sup>](#content)</h3></a>
+
+---
 
 <h4 name="deseq2">使用DESeq2进行差异分析</h4>
 
