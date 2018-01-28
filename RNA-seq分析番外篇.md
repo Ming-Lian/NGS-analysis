@@ -56,6 +56,10 @@ bwa sampe -f $wd/$map_dir/cds_${sample}.sam $wd/$ref_cds $wd/$map_dir/cds_${samp
 echo "[saturation] Finish pair-end mapping for $sample"
 ```
 
+接下来是饱和度分析，有两种分析策略：
+> - 按照比例
+> - 按照测序深度
+
 <a name="percent"><h4>按照比例</h4></a>
 
 ```
