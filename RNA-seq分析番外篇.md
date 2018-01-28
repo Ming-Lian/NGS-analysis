@@ -45,6 +45,7 @@ echo "[filt] Finish filt bac contaminate"
 
 <a name="saturation"><h3>饱和度分析 [<sup>目录</sup>](#content)</h3></a>
 
+第一步，先要将reads mapping 到 knownGene或是RefSeq上，而不是完整的参考基因组
 ```
 bwa aln -t 10 -f $wd/$map_dir/cds_${sample}_1.sai $wd/$ref_cds $wd/$cleandata_dir/${sample}_Clean_Data1.filtBacLib.fq 1>$wd/$map_dir/cds_${sample}_1.sai.log 2>&1
 echo "[saturation] Finish search SA coordinate for ${sample}_Clean_Data1.filtBacLib.fq"
