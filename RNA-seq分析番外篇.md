@@ -19,11 +19,12 @@
 ```
 bwa aln -t 10 -f $wd/$map_dir/${1}_BacLib_1.sai $wd/Ref/NCBI_bacteria/referance.fasta $wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_1.sai.log 2>&1
 echo "[filt] Finish searching SA coordinate for ${1}_Clean_Data1.${mate_str}fq"
-bwa aln -t 10 -f $wd/$map_dir/${1}_BacLib_2.sai $wd/Ref/NCBI_bacteria/referance.fasta $wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sai.log 2>&1
+bwa aln -t 10 -f $wd/$map_dir/${1}_BacLib_2.sai $wd/Ref/NCBI_bacteria/referance.fasta \
+	$wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sai.log 2>&1
 echo "[filt] Finish searching SA coordinate for ${1}_Clean_Data2.${mate_str}fq"
-bwa samse -f $wd/$map_dir/${1}_BacLib_1.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_1.sai $wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_1.sam.log 2>&1
+bwa samse -f $wd/$map_dir/${1}_BacLib_1.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_1.sai \			$wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_1.sam.log 2>&1
 echo "[filt] Finish single-end mapping for ${1}_Clean_Data1.${mate_str}fq"
-bwa samse -f $wd/$map_dir/${1}_BacLib_2.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_2.sai $wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sam.log 2>&1
+bwa samse -f $wd/$map_dir/${1}_BacLib_2.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_2.sai \		 	$wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sam.log 2>&1
 echo "[filt] Finish single-end mapping for ${1}_Clean_Data2.${mate_str}fq"
 ```
 
@@ -35,8 +36,8 @@ perl -ane 'chomp;next if (/^\@/);if ($F[2] ne "*"){print "$_\n"}' $wd/$map_dir/$
 ```
 <a name="remove-bac"><h4>过滤<font color="red">掉</font>mapping上细菌库的序列</h4></a>
 ```
-perl $wd/perlscript/sel_seq_for_Hiseq3000.pl $wd/$map_dir/${1}_BacLib_1.sam.filt $wd/$map_dir/${1}_BacLib_2.sam.filt $wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq $wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq \
-$wd/$cleandata_dir/${1}_Clean_Data1.filtBacLib.fq $wd/$cleandata_dir/${1}_Clean_Data2.filtBacLib.fq 
+perl $wd/perlscript/sel_seq_for_Hiseq3000.pl $wd/$map_dir/${1}_BacLib_1.sam.filt $wd/$map_dir/${1}_BacLib_2.sam.filt \ 			$wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq $wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq \
+	$wd/$cleandata_dir/${1}_Clean_Data1.filtBacLib.fq $wd/$cleandata_dir/${1}_Clean_Data2.filtBacLib.fq 
 echo "[filt] Finish filt bac contaminate"
 ```
 
