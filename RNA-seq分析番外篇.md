@@ -17,7 +17,8 @@
 <a name="filt-map"><h4>与细菌库比对（进行单端mapping)</h4></a>
 
 ```
-bwa aln -t 10 -f $wd/$map_dir/${1}_BacLib_1.sai $wd/Ref/NCBI_bacteria/referance.fasta $wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_1.sai.log 2>&1
+bwa aln -t 10 -f $wd/$map_dir/${1}_BacLib_1.sai $wd/Ref/NCBI_bacteria/referance.fasta \
+	$wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_1.sai.log 2>&1
 echo "[filt] Finish searching SA coordinate for ${1}_Clean_Data1.${mate_str}fq"
 bwa aln -t 10 -f $wd/$map_dir/${1}_BacLib_2.sai $wd/Ref/NCBI_bacteria/referance.fasta \
 	$wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sai.log 2>&1
