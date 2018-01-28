@@ -138,18 +138,48 @@ $ stringtie --merge -p 16 -G Ref/hg19/grch37_tran/Homo_sapiens.GRCh37.75.gtf -o 
 `Transcript merge usage mode: stringtie --merge [Options] { gtf_list | strg1.gtf ...}`
 
 > - -p number of threads (CPUs) to use
-> - -G    reference annotation to include in the merging (GTF/GFF3)
+> - -G reference annotation to include in the merging (GTF/GFF3)
 > - -o output path/file name for the assembled transcripts GTF
 > - -l name prefix for output transcripts (default: STRG)
 
-<h4 name="stringtie-quant">定量并以ballgown格式输出</h4>
+<h4 name="stringtie-quant">定量</h4>
+
+> **以ballgown格式输出**
 
 ```
 $ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
 	Map/read1.bam 1>quant/read1/read1_strg_quant.log 2>&1
 ```
 > - -e only estimate the abundance of given reference transcripts (requires -G)
-> -  -B enable output of Ballgown table files which will be created in the same directory as the output GTF (requires -G, -o recommended)
+> - -B enable output of Ballgown table files which will be created in the same directory as the output GTF (requires -G, -o recommended)
+
+> **以read count进行定量，作为DESeq2或edgeR的输入**
+
+```
+$ stringtie -e -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
+	Map/read1.bam 1>quant/read1/read1_strg_quant.log 2>&1
+$ python prepDE.py -i sample_lst.txt
+```
+注意：
+- stringtie的用法与上面相同，除了少了一个参数`-B`
+- `prepDE.py`脚本需要到stringtie官网下载：http://ccb.jhu.edu/software/stringtie/dl/prepDE.py
+
+prepDE.py参数
+> - -i the parent directory of the sample sub-directories or a textfile listing the paths to GTF files [default: ballgown]
+
+samplelist textfile 格式如下：
+```
+ERR188021 <PATH_TO_ERR188021.gtf>
+ERR188023 <PATH_TO_ERR188023.gtf>
+ERR188024 <PATH_TO_ERR188024.gtf>
+ERR188025 <PATH_TO_ERR188025.gtf>
+ERR188027 <PATH_TO_ERR188027.gtf>
+ERR188028 <PATH_TO_ERR188028.gtf>
+ERR188030 <PATH_TO_ERR188030.gtf>
+ERR188033 <PATH_TO_ERR188033.gtf>
+ERR188034 <PATH_TO_ERR188034.gtf>
+ERR188037 <PATH_TO_ERR188037.gtf>
+```
 
 <a name="diff-exp"><h3 >差异表达分析 [<sup>目录</sup>](#content)</h3></a>
 
