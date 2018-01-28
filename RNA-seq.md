@@ -35,7 +35,7 @@
 
 <a name="salmon"><h3 >Salmon流程 [<sup>目录</sup>](#content)</h3></a>
 
-<br size=2 />
+<br size=1 />
 
 不需要比对，直接对转录水平进行定量
 
