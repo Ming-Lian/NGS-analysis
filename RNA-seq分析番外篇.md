@@ -56,6 +56,13 @@ bwa sampe -f $wd/$map_dir/cds_${sample}.sam $wd/$ref_cds $wd/$map_dir/cds_${samp
 echo "[saturation] Finish pair-end mapping for $sample"
 ```
 
+`bwa aln` Usage:  `bwa aln [options] <prefix> <in.fq>`
+> - -t Number of threads
+> - -f File to write output to instead of stdout
+
+`bwa sampe` Usage: `bwa sampe [options] <prefix> <in1.sai> <in2.sai> <in1.fq> <in2.fq>`
+> - -f SAM file to output results to [stdout]
+
 接下来是饱和度分析，有两种分析策略：
 > - 按照比例
 > - 按照测序深度
