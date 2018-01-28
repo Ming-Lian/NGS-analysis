@@ -142,9 +142,9 @@ $ stringtie --merge -p 16 -G Ref/hg19/grch37_tran/Homo_sapiens.GRCh37.75.gtf -o 
 > - -o output path/file name for the assembled transcripts GTF
 > - -l name prefix for output transcripts (default: STRG)
 
-<h4 name="stringtie-quant">定量</h4>
+<h4 name="stringtie-quant">stringtie定量</h4>
 
-> **以ballgown格式输出**
+**以ballgown格式输出**
 
 ```
 $ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
@@ -153,7 +153,7 @@ $ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
 > - -e only estimate the abundance of given reference transcripts (requires -G)
 > - -B enable output of Ballgown table files which will be created in the same directory as the output GTF (requires -G, -o recommended)
 
-> **以read count进行定量，作为DESeq2或edgeR的输入**
+**以read count进行定量，作为DESeq2或edgeR的输入**
 
 ```
 $ stringtie -e -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
