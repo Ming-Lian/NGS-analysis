@@ -157,6 +157,8 @@ $ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
 
 <h4 name="deseq2">使用DESeq2进行差异分析</h4>
 
+DESeq2要求输入的表达矩阵是**read counts**
+
 构建 DESeqDataSet 对象
 
 ```
@@ -223,6 +225,18 @@ res_Day1_Day0=as.data.frame(resOrdered)
 <h4 name="ballgown">使用Ballgown进行差异分析</h4>
 
 紧接着stringtie的定量结果进行分析
+
+stringtie的定量结果提供多种表达值的表示方法，有read counts, RPKM/FPKM, TPM 。其中read counts是原始reads计算，RPKM/FPKM 和 TPM 都是基因表达值的归一化后的，因为本身的某些缺点，主流科学家强烈要求它就被TPM取代了。
+
+下面对 RPKM/FPKM 和 TPM 的说明摘抄自健明大大的简书：https://www.jianshu.com/p/e9d5d7206124 ，说得通俗易懂
+
+**TPM是什么？**
+
+我不喜欢看公式，直接说事情，我有一个基因A，它在这个样本的转录组数据中被测序而且mapping到基因组了 5000个的reads，而这个基因A长度是10K，我们总测序文库是50M，所以这个基因A的RPKM值是 5000除以10，再除以50，为10. 就是把基因的reads数量根据基因长度和样本测序文库来normalization 。
+
+那么它的TPM值是多少呢？ 这个时候这些信息已经不够了，需要知道该样本其它基因的RPKM值是多少，加上该样本有3个基因，另外两个基因的RPKM值是5和35，那么我们的基因A的RPKM值为10需要换算成TPM值就是 1,000,000 \*10/(5+10+35)=200,000， 看起来是不是有点大呀！其实主要是因为我们假设的基因太少了，一般个体里面都有两万多个基因的，总和会大大的增加，这样TPM值跟RPKM值差别不会这么恐怖的。
+
+
 
 - 载入R包
 ```
