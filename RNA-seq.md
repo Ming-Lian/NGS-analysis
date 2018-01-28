@@ -35,6 +35,8 @@
 
 <a name="salmon"><h3 >Salmon流程 [<sup>目录</sup>](#content)</h3></a>
 
+<br size=5 />
+
 不需要比对，直接对转录水平进行定量
 
 <h4 name="salmon-index">创建索引</h4>
