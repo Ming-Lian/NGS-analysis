@@ -63,7 +63,7 @@ done
 # quant_salmon.sh
 ```
 
-<a name="subread"><h3 >subread流程 [<sup>目录</sup>](#content)</h3></a>
+<a name="subread"><h3><li>subread流程 [<sup>目录</sup>](#content)</li></h3></a>
 
 <h4 name="subread-index">创建索引</h4>
 
@@ -102,7 +102,7 @@ nohup $featureCounts/featureCounts  -T 5 -p -t exon -g gene_name -a $gtf -o  $co
 nohup $featureCounts/featureCounts  -T 5 -p -t exon -g gene_id -a $gtf -o  $count/counts_id.txt   *.bam &
 ```
 
-<a name="hisat2-stringtie"><h3 >hisat2-stringtie流程 [<sup>目录</sup>](#content)</h3></a>
+<a name="hisat2-stringtie"><h3><li>hisat2-stringtie流程 [<sup>目录</sup>](#content)</li></h3></a>
 
 <h4 name="hisat2-index">hisat2创建索引</h4>
 
@@ -187,7 +187,7 @@ ERR188037 <PATH_TO_ERR188037.gtf>
 
 ---
 
-<h4 name="deseq2">使用DESeq2进行差异分析</h4>
+<h4 name="deseq2"><li>使用DESeq2进行差异分析</li></h4>
 
 DESeq2要求输入的表达矩阵是**read counts**
 
@@ -254,7 +254,7 @@ res_Day1_Day0=as.data.frame(resOrdered)
 ```
 
 
-<h4 name="ballgown">使用Ballgown进行差异分析</h4>
+<h4 name="ballgown"><li>使用Ballgown进行差异分析</li></h4>
 
 紧接着stringtie的定量结果进行分析
 
