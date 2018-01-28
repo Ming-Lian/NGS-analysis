@@ -22,9 +22,11 @@ echo "[filt] Finish searching SA coordinate for ${1}_Clean_Data1.${mate_str}fq"
 bwa aln -t 10 -f $wd/$map_dir/${1}_BacLib_2.sai $wd/Ref/NCBI_bacteria/referance.fasta \
 	$wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sai.log 2>&1
 echo "[filt] Finish searching SA coordinate for ${1}_Clean_Data2.${mate_str}fq"
-bwa samse -f $wd/$map_dir/${1}_BacLib_1.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_1.sai \			$wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_1.sam.log 2>&1
+bwa samse -f $wd/$map_dir/${1}_BacLib_1.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_1.sai \
+	$wd/$cleandata_dir/${1}_Clean_Data1.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_1.sam.log 2>&1
 echo "[filt] Finish single-end mapping for ${1}_Clean_Data1.${mate_str}fq"
-bwa samse -f $wd/$map_dir/${1}_BacLib_2.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_2.sai \		 	$wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sam.log 2>&1
+bwa samse -f $wd/$map_dir/${1}_BacLib_2.sam $wd/Ref/NCBI_bacteria/referance.fasta $wd/$map_dir/${1}_BacLib_2.sai \
+	$wd/$cleandata_dir/${1}_Clean_Data2.${mate_str}fq 1>$wd/$map_dir/${1}_BacLib_2.sam.log 2>&1
 echo "[filt] Finish single-end mapping for ${1}_Clean_Data2.${mate_str}fq"
 ```
 
