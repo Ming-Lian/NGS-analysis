@@ -47,13 +47,16 @@ echo "[filt] Finish filt bac contaminate"
 
 第一步，先要将reads mapping 到 knownGene或是RefSeq上，而不是完整的参考基因组
 ```
-bwa aln -t 10 -f $wd/$map_dir/cds_${sample}_1.sai $wd/$ref_cds $wd/$cleandata_dir/${sample}_Clean_Data1.filtBacLib.fq 1>$wd/$map_dir/cds_${sample}_1.sai.log 2>&1
-echo "[saturation] Finish search SA coordinate for ${sample}_Clean_Data1.filtBacLib.fq"
-bwa aln -t 10 -f $wd/$map_dir/cds_${sample}_2.sai $wd/$ref_cds $wd/$cleandata_dir/${sample}_Clean_Data2.filtBacLib.fq 1>$wd/$map_dir/cds_${sample}_2.sai.log 2>&1
-echo "[saturation] Finish search SA coordinate for ${sample}_Clean_Data2.filtBacLib.fq"
-bwa sampe -f $wd/$map_dir/cds_${sample}.sam $wd/$ref_cds $wd/$map_dir/cds_${sample}_1.sai \
+# 寻找 SA coordinates，生成sai文件
+$ bwa aln -t 10 -f $wd/$map_dir/cds_${sample}_1.sai $wd/$ref_cds $wd/$cleandata_dir/${sample}_Clean_Data1.filtBacLib.fq 1>$wd/$map_dir/cds_${sample}_1.sai.log 2>&1
+$ echo "[saturation] Finish search SA coordinate for ${sample}_Clean_Data1.filtBacLib.fq"
+$ bwa aln -t 10 -f $wd/$map_dir/cds_${sample}_2.sai $wd/$ref_cds $wd/$cleandata_dir/${sample}_Clean_Data2.filtBacLib.fq 1>$wd/$map_dir/cds_${sample}_2.sai.log 2>&1
+$ echo "[saturation] Finish search SA coordinate for ${sample}_Clean_Data2.filtBacLib.fq"
+
+# 双端mapping，生成sam文件
+$ bwa sampe -f $wd/$map_dir/cds_${sample}.sam $wd/$ref_cds $wd/$map_dir/cds_${sample}_1.sai \
 	$wd/$map_dir/cds_${sample}_2.sai $wd/$cleandata_dir/${sample}_Clean_Data1.filtBacLib.fq $wd/$cleandata_dir/${sample}_Clean_Data2.filtBacLib.fq 1>$wd/$map_dir/cds_${sample}.sam.log 2>&1
-echo "[saturation] Finish pair-end mapping for $sample"
+$ echo "[saturation] Finish pair-end mapping for $sample"
 ```
 
 `bwa aln` Usage:  `bwa aln [options] <prefix> <in.fq>`
