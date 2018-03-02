@@ -1,6 +1,7 @@
 <a name="content">目录</a>
 
 [Analysis pipeline for MeRIP-seq](#title)
+- [m6A背景知识](#backgroud-knowledge)
 - [比对参考基因组](#map)
 	- [Tophat](#tophat)
 	- [HISAT2](#hisat2)
@@ -35,6 +36,14 @@
 </table>
 
 由于m6A-seq数据分析的原理与过程和ChIP-seq十分相似，所以这里略过前面的质控，简单说明比对和peak calling步骤，具体内容可以参考[**ChIP-seq分析流程**](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md)
+
+<a name="backgroud-knowledge"><h3>m6A背景知识</h3></a>
+
+目前已知有100多种RNA修饰，涉及到mRNAs、tRNAs、rRNAs、small nuclear RNA (snRNAs) 以及 small nucleolar RNAs (snoRNAs)等。其中甲基化修饰是一种非常广泛的修饰，N6-methyl adenosine (m6A)是真核生物mRNA上最为广泛的甲基化修饰之一，并存在于多种多样的物种中。
+
+腺嘌呤可以被**编码器**METTL3、METTL14和WTAP及其他组分组成的甲基转移酶复合体甲基化，甲基化的腺嘌呤可以被**读码器**（目前发现m6A读码器主要有四个，定位于细胞核内的YTHDC1以及定位在细胞质中的YTHDF1、YTHDF2、YTHDF3、YTHDC2）识别，同时m6A可以被**擦除器**FTO和ALKBH5这两个去甲基化酶催化去甲基化。
+
+在哺乳动物mRNA中，m6A修饰存在于7000多个基因中，**保守基序为RRACH** (R = G, A; H = A, C, U)。m6A修饰富集在mRNA**终止密码子**附近。
 
 <a name="map"><h3>比对参考基因组 [<sup>目录</sup>](#content)</h3></a>
 
@@ -343,14 +352,17 @@ resOrdered=as.data.frame(resOrdered)
 
 (1) Zhang C, Chen Y, Sun B, et al. m(6)A modulates haematopoietic stem and progenitor cell specification[J]. Nature, 2017, 549(7671):273.
 
-(2) Pertea M, Kim D, Pertea G, et al. Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie, and Ballgown[J]. Nature Protocols, 2016, 11(9):1650. 
+(2) [BIG科研 | 细胞质内的m6A结合蛋白YTHDF3促进mRNA的翻译](http://mp.weixin.qq.com/s/TKwWKEgfZWskP9NWjYO_Ug)
 
-(3) [ChIP-seq-pipeline](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md)
+(3) Pertea M, Kim D, Pertea G, et al. Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie, and Ballgown[J]. Nature Protocols, 2016, 11(9):1650. 
 
-(4) [ChIPseq pipeline on jmzeng1314's github](https://github.com/jmzeng1314/NGS-pipeline/tree/master/CHIPseq)
 
-(5) [ChIPseq pipeline on crazyhottommy's github](https://github.com/crazyhottommy/ChIP-seq-analysis)
+(4) [ChIP-seq-pipeline](https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md)
 
-(6) [library size and normalization for ChIP-seq](https://github.com/crazyhottommy/ChIP-seq-analysis/blob/master/part3.1_Differential_binding_DiffBind_lib_size.md)
+(5) [ChIPseq pipeline on jmzeng1314's github](https://github.com/jmzeng1314/NGS-pipeline/tree/master/CHIPseq)
 
-(7) [Bioconductor tutorial: Analyzing RNA-seq data with DESeq2](http://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+(6) [ChIPseq pipeline on crazyhottommy's github](https://github.com/crazyhottommy/ChIP-seq-analysis)
+
+(7) [library size and normalization for ChIP-seq](https://github.com/crazyhottommy/ChIP-seq-analysis/blob/master/part3.1_Differential_binding_DiffBind_lib_size.md)
+
+(8) [Bioconductor tutorial: Analyzing RNA-seq data with DESeq2](http://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
