@@ -278,7 +278,7 @@ count_matrix<-as.matrix(count_table[,c(-1,-2,-3,-4)])
 rownames(count_matrix)<-count_table$V4
 # 做好分组因子
 group_list<-factor(c("control","control","control","treat","treat","treat"))
-colData <- data.frame(row.names=colnames(count_matrix), group_list=group_list))
+colData <- data.frame(row.names=colnames(count_matrix), group_list=group_list)
 # 构建 DESeqDataSet 对象
 dds <- DESeqDataSetFromMatrix(countData = count_matrix,
 	colData = colData,
