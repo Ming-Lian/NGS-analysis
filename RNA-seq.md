@@ -47,6 +47,19 @@ $ salmon index -t Arabidopsis_thaliana.TAIR10.28.cdna.all.fa.gz -i athal_index_s
 
 <h4 name="salmon-quant">定量</h4>
 
+salmon quant 有两种运行模式：
+> - **Salmon's quasi-mapping-based mode**： using raw reads
+> 输入以下命令查看该模式下的help文档
+> ```
+> salmon quant --help-reads
+> ```
+> - **Salmon's alignment-based mode**： makes use of already-aligned reads (in BAM/SAM format)
+> 当使用参数`-a`时，启用该模式，否则默认使用quasi-mapping-based mode
+> 输入以下命令查看该模式下的help文档
+> ```
+> salmon quant --help-alignment
+> ```
+
 ```
 #! /bin/bash
 index=~/rna_seq_practice_2/data/ref/athal_index_salmon ## 指定索引文件夹
@@ -62,6 +75,15 @@ do
 done
 # quant_salmon.sh
 ```
+
+salmon quant 参数：
+
+> - -i Salmon index
+> - -l Format string describing the library type. `-l A` tells salmon that it should automatically determine the library type of the sequencing reads (e.g. stranded vs. unstranded etc.)
+> - -1 File containing the #1 mates
+> - -2 File containing the #2 mates
+> - -p The number of threads to use
+> - -o Output quantification file.
 
 <a name="subread"><h3><li>subread流程 [<sup>目录</sup>](#content)</li></h3></a>
 
