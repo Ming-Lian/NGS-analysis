@@ -49,12 +49,17 @@ $ salmon index -t Arabidopsis_thaliana.TAIR10.28.cdna.all.fa.gz -i athal_index_s
 
 salmon quant 有两种运行模式：
 > - **Salmon's quasi-mapping-based mode**： using raw reads
+> 
 > 输入以下命令查看该模式下的help文档
+> 
 > ```
 > salmon quant --help-reads
 > ```
+> 
 > - **Salmon's alignment-based mode**： makes use of already-aligned reads (in BAM/SAM format)
+> 
 > 当使用参数`-a`时，启用该模式，否则默认使用quasi-mapping-based mode
+> 
 > 输入以下命令查看该模式下的help文档
 > ```
 > salmon quant --help-alignment
