@@ -12,7 +12,7 @@
 
 <h1 name="title">重复nature23883中MeRIP-seq分析</h1>
 
-<a name="ideas"><h3>研究思路 [<sup>目录</sup>]()</h3></a>
+<a name="ideas"><h3>研究思路 [<sup>目录</sup>](#content)</h3></a>
 
 <p align="left"> <li>基因敲低技术发现了m6A对斑马鱼胚胎的早期发育有重要作用，并选择了该实验室擅长的斑马鱼造血系统作为研究对象。</li></p>
 
@@ -34,7 +34,7 @@
 
 结合之前发表的研究，m6A结合蛋白YTHDF2参与RNA的降解，通过RIP-seq技术，发现ythdf2能够结合notch1a，
 
-<a name="introduct-technology"><h3>科普：MeRIP–seq和miCLIP–seq技术 [<sup>目录</sup>]()</h3></a>
+<a name="introduct-technology"><h3>科普：MeRIP–seq和miCLIP–seq技术 [<sup>目录</sup>](#content)</h3></a>
 
 **MeRIP–seq**: 通过识别m6A修饰的抗体来富集含有m6A的RNA片段，然后对这些片段进行建库和高通量测序，并通过和input比较，可以得到m6A peak的修饰强度。缺点：分辨率有限，不能够准确定位到底是哪个碱基发生化学修饰
 
@@ -78,3 +78,5 @@
 参考资料：
 
 (1) [探索m6A修饰在早期胚胎造血过程中的作用 | 专访基因组所Nature 共同第一作者陈宇晟](http://mp.weixin.qq.com/s/vIZXp60JM838-qE4vmszcw)
+
+(2) [Epigenetics application spotlight: miCLIP](http://www.abcam.com/epigenetics/epigenetics-application-spotlight-miclip)
