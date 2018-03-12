@@ -55,6 +55,7 @@
 <p>3. UV cross-linking of RNA to the bound antibody.</p>
 <br>
 <br>
+<br>
 <p>4. Recovery of antibody-RNA complexes with protein A/G affinity purification, SDS-PAGE and nitrocellulose membrane transfer.</p>
 <br>
 <br>
