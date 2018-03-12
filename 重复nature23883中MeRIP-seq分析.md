@@ -83,7 +83,10 @@
 HOMER基因组准备
 
 ```
-perl configureHomer.pl -install mm10
+# 查看HOMER官方提供的数据包列表，寻找斑马鱼(zebrafish)的基因组数据包
+$ perl configureHomer.pl -list | grep "zebrafish"
+# HOMER官方提供了两个版本的斑马鱼(zebrafish)的基因组数据包，为danRer7和danRer10，我们下载较新的danRer10
+$ perl configureHomer.pl -install danRer10
 ```
 
 接着进行Motif Identification
@@ -94,13 +97,21 @@ perl configureHomer.pl -install mm10
 #		chr1	1454086	1454256	MACS_peak_1	59.88 
 #to   
 #		MACS_peak_1	chr1	1454086	1454256	+
-$ awk '{print $4"\t"$1"\t"$2"\t"$3"\t+"}' macs_merged_peaks.bed >homer_peaks.bed
 
-# 创建
+$ awk '{print $4"\tchr"$1"\t"$2"\t"$3"\t+"}' merge.bed >homer_peaks.bed
+
+
 # 自己指定background sequences，用bedtools shuffle构造随机的suffling peaks
-$ bedtools shuffle -i peaks.bed -g <GENOME> >peaks_shuffle.bed
+## 创建mm10的genome文件
+$ mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from danRer10.chromInfo" >Ref/danRer10/danRer10.genome
+## 注意：bed文件与genome文件的染色体表示格式是否一致，如果不一致，请先统一改为chr[1-22]|[XY]或者[1-22]|[XY]
+$ awk '{print "chr"$0}' merge.bed >merge.chr.bed
+$ bedtools shuffle -i merge.chr.bed -g Ref/danRer10/danRer10.genome >peaks_shuffle.bed
+## 提取对应的列给HOMER作为输入文件
+$ awk '{print $4"\t"$1"\t"$2"\t"$3"\t+"}' peaks_shuffle.bed >homer_peaks_shuffle.bed
+
 # 用参数"-bg"指定background sequences，MeRIP-seq 中 motif 的长度为6个 nt
-$ findMotifsGenome.pl homer_peaks.bed hg19 motifDir -bg peaks_shuffle.bed -size 200 -len 8,10,12
+$ findMotifsGenome.pl homer_peaks.bed danRer10 Motif -bg homer_peaks_shuffle.bed -size 200 -len 6
 ```
 
 最后输出的motif信息保存在你指定的输出目录的homerResults.html
