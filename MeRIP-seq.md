@@ -181,7 +181,22 @@ $ bedtools shuffle -i peaks.bed -g <GENOME> >peaks_shuffle.bed
 $ findMotifsGenome.pl homer_peaks.bed hg19 motifDir -bg peaks_shuffle.bed -size 200 -len 8,10,12
 ```
 `Usage: findMotifsGenome.pl <pos file> <genome> <output directory> [additional options]`
-> 注意：<genome> 参数只需要写出genome的序号，不需要写出具体路径
+
+注意：
+
+> - `<genome>` 参数只需要写出genome的序号，不需要写出具体路径
+> - `bedtools shuffle`中的genome文件的格式要求：<chromName><TAB><chromSize>
+> ```
+> For example, Human (hg19):
+>        chr1    249250621
+>        chr2    243199373
+>        ...
+>        chr18_gl000207_random   4262
+> ```
+> 可以使用 UCSC Genome Browser's MySQL database 来获取 chromosome sizes 信息并构建genome文件
+> ```
+> mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from hg19.chromInfo" >hg19.genome
+> ```
 
 最后得到的文件夹里面有一个详细的网页版报告
 
