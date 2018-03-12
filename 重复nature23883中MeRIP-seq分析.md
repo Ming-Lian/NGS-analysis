@@ -61,6 +61,7 @@
 <br>
 <p>5. Adapter ligation, and release of RNA with proteinase K.</p>
 <br>
+<br>
 <p>6. Reverse transcription of RNA to cDNA, PCR amplification and sequencing.</p>
 <br>
 <p>7. Identification of C-T transitions or truncations and alignment against known genomic sequences. Mapping and annotation of these binding sites, identified as m6A/m6Am residues, to the transcriptome.</p>
