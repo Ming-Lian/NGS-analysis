@@ -51,6 +51,7 @@
 <p>2. Fragmentation of RNA to 30–130 nucleotide lengths, and incubation with anti-m6A antibody.</p>
 <br>
 <br>
+<br>
 <p>3. UV cross-linking of RNA to the bound antibody.</p>
 <br>
 <br>
