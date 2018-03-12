@@ -3,6 +3,8 @@
 [重复nature23883中MeRIP-seq分析](#title)
 - [研究思路与成果](#ideas-and-result)
 - [科普：MeRIP–seq和miCLIP–seq技术](#introduct-technology)
+- [分析复现](#analysis)
+	- [Sequence motif identified](#motif)
 
 
 
@@ -72,7 +74,42 @@
 </tr>
 </table>
 
+<a name="analysis"><h3>分析复现 [<sup>目录</sup>](#content)</h3></a>
 
+<a name="motif"><h4>Sequence motif identified [<sup>目录</sup>](#content)</h4></a>
+
+先获得各个样本peaks并集： [Merge peaks](https://github.com/Ming-Lian/NGS-analysis/blob/master/MeRIP-seq.md#merge-peaks)
+
+HOMER基因组准备
+
+```
+perl configureHomer.pl -install mm10
+```
+
+接着进行Motif Identification
+
+```
+# 提取对应的列给HOMER作为输入文件
+# change 
+#		chr1	1454086	1454256	MACS_peak_1	59.88 
+#to   
+#		MACS_peak_1	chr1	1454086	1454256	+
+$ awk '{print $4"\t"$1"\t"$2"\t"$3"\t+"}' macs_merged_peaks.bed >homer_peaks.bed
+
+# 创建
+# 自己指定background sequences，用bedtools shuffle构造随机的suffling peaks
+$ bedtools shuffle -i peaks.bed -g <GENOME> >peaks_shuffle.bed
+# 用参数"-bg"指定background sequences，MeRIP-seq 中 motif 的长度为6个 nt
+$ findMotifsGenome.pl homer_peaks.bed hg19 motifDir -bg peaks_shuffle.bed -size 200 -len 8,10,12
+```
+
+最后输出的motif信息保存在你指定的输出目录的homerResults.html
+
+富集到的第一个motif (P=1e-203) 为：
+
+<img src=./picture/MeRIP-seq-inAction-homer-motif.png width=500 />
+
+符合保守基序为RRACH (R = G, A; H = A, C, U)的结论
 
 
 参考资料：
