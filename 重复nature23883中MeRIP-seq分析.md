@@ -46,17 +46,17 @@
 <tr>
 <td>
 <p>1. RNA extraction from HEK293 cell lines (human) or liver nuclei (mouse) using Trizol.</p>
-
+<br>
 <p>2. Fragmentation of RNA to 30–130 nucleotide lengths, and incubation with anti-m6A antibody.</p>
-
+<br>
 <p>3. UV cross-linking of RNA to the bound antibody.</p>
-
+<br>
 <p>4. Recovery of antibody-RNA complexes with protein A/G affinity purification, SDS-PAGE and nitrocellulose membrane transfer.</p>
-
+<br>
 <p>5. Adapter ligation, and release of RNA with proteinase K.</p>
-
+<br>
 <p>6. Reverse transcription of RNA to cDNA, PCR amplification and sequencing.</p>
-
+<br>
 <p>7. Identification of C-T transitions or truncations and alignment against known genomic sequences. Mapping and annotation of these binding sites, identified as m6A/m6Am residues, to the transcriptome.</p>
 </td>
 <td>
