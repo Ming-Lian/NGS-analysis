@@ -17,6 +17,7 @@
 	- [Merge peaks](#merge-peaks)
 	- [Preparing ChIP-seq count table](#count-table)
 	- [Differential binding by DESeq2](#deseq2)
+	- [Differential binding peaks annotation](#diffbind-peaks-annotation)
 
 
 
@@ -360,6 +361,32 @@ resOrdered=as.data.frame(resOrdered)
 > 
 > DESeq2中默认使用 Full library size bam (bFullLibrarySize =TRUE)，在ChIP-seq中使用 Effective library size 更合适，所有应该设置为bFullLibrarySize =FALSE
 
+<a name="diffbind-peaks-annotation"><h4><u>Differential binding peaks annotation</u></h4></a>
+
+在`Differential binding analysis: 2. Preparing ChIP-seq count table`得到的`bed_for_multicov.bed`中找DiffBind peaks的bed格式信息
+
+```
+# 用R进行取交集操作
+merge_bed<-read.delim("m6A_seq/CallPeak/bed_for_multicov.bed",header=F)
+peaks_diffbind<-read.delim("m6A_seq/CallPeak/res_diffBind.txt",header=T)
+peaks_diffbind_bed<-merge_bed[merge_bed$V4 %in% rownames(peaks_diffbind),]
+# 保存文件
+write.table(peaks_diffbind_bed,"m6A_seq/CallPeak/peaks_diffBind.bed",sep="\t",col.names=F,row.names=F,quote=F)
+```
+
+接着，用基因组注释文件GFF/GTF注释peaks
+
+```
+$ bedtools intersect -wa -wb -a m6A_seq/CallPeak/peaks_diffBind.bed -b Ref/mm10/mm10_trans/Mus_musculus.GRCm38.91.gtf >m6A_seq/CallPeak/peaks_diffbind.anno.bed
+
+$ head m6A_seq/CallPeak/peaks_diffbind.anno.bed
+
+## 1       7120312 7120526 peak_9  1       ensembl_havana  exon    7120194 7120615 .       +       .       gene_id "ENSMUSG00000051285"; gene_version "17"; transcript_id "ENSMUST00000061280"; transcript_version "16"; exon_number "2"; gene_name "Pcmtd1"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; havana_gene "OTTMUSG00000043373"; havana_gene_version "5"; transcript_name "Pcmtd1-201"; transcript_source "ensembl_havana"; transcript_biotype "protein_coding"; tag "CCDS"; ccds_id "CCDS35508"; havana_transcript "OTTMUST00000113805"; havana_transcript_version "2"; exon_id "ENSMUSE00000553965"; exon_version "2"; tag "basic"; transcript_support_level "1";
+## 1       7120312 7120526 peak_9  1       ensembl_havana  CDS     7120309 7120615 .       +       0       gene_id "ENSMUSG00000051285"; gene_version "17"; transcript_id "ENSMUST00000061280"; transcript_version "16"; exon_number "2"; gene_name "Pcmtd1"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; havana_gene "OTTMUSG00000043373"; havana_gene_version "5"; transcript_name "Pcmtd1-201"; transcript_source "ensembl_havana"; transcript_biotype "protein_coding"; tag "CCDS"; ccds_id "CCDS35508"; havana_transcript "OTTMUST00000113805"; havana_transcript_version "2"; protein_id "ENSMUSP00000059261"; protein_version "9"; tag "basic"; transcript_support_level "1";
+## 1       7120312 7120526 peak_9  1       ensembl_havana  gene    7088920 7173628 .       +       .       gene_id "ENSMUSG00000051285"; gene_version "17"; gene_name "Pcmtd1"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; havana_gene "OTTMUSG00000043373"; havana_gene_version "5";
+## 1       7120312 7120526 peak_9  1       ensembl_havana  transcript      7088920 7173628 .       +       .       gene_id "ENSMUSG00000051285"; gene_version "17"; transcript_id "ENSMUST00000061280"; transcript_version "16"; gene_name "Pcmtd1"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; havana_gene "OTTMUSG00000043373"; havana_gene_version "5"; transcript_name "Pcmtd1-201"; transcript_source "ensembl_havana"; transcript_biotype "protein_coding"; tag "CCDS"; ccds_id "CCDS35508"; havana_transcript "OTTMUST00000113805"; havana_transcript_version "2"; tag "basic"; transcript_support_level "1";
+## 1       7120312 7120526 peak_9  1       havana  transcript      7088930 7169598 .       +       .       gene_id "ENSMUSG00000051285"; gene_version "17"; transcript_id "ENSMUST00000182114"; transcript_version "7"; gene_name "Pcmtd1"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; havana_gene "OTTMUSG00000043373"; havana_gene_version "5"; transcript_name "Pcmtd1-202"; transcript_source "havana"; transcript_biotype "protein_coding"; havana_transcript "OTTMUST00000113813"; havana_transcript_version "2"; tag "cds_end_NF"; tag "mRNA_end_NF"; transcript_support_level "1";
+```
 
 ---
 
