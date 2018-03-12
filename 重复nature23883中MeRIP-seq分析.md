@@ -12,7 +12,7 @@
 
 <h1 name="title">重复nature23883中MeRIP-seq分析</h1>
 
-<a name="ideas"><h3>研究思路 [<sup>目录</sup>](#content)</h3></a>
+<a name="ideas-and-result"><h3>研究思路与成果 [<sup>目录</sup>](#content)</h3></a>
 
 <p align="left"> <li>基因敲低技术发现了m6A对斑马鱼胚胎的早期发育有重要作用，并选择了该实验室擅长的斑马鱼造血系统作为研究对象。</li></p>
 
