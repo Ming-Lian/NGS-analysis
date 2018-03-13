@@ -18,7 +18,8 @@
 	- [Preparing ChIP-seq count table](#count-table)
 	- [Differential binding by DESeq2](#deseq2)
 	- [Differential binding peaks annotation](#diffbind-peaks-annotation)
-
+- [peaks注释基因的富集分析](#enrichment-analysis)
+	- [clusterProfiler: GO enrichment analysis](#go-enrichment)
 
 
 
@@ -388,6 +389,117 @@ $ head m6A_seq/CallPeak/peaks_diffbind.anno.bed
 ## 1       7120312 7120526 peak_9  1       havana  transcript      7088930 7169598 .       +       .       gene_id "ENSMUSG00000051285"; gene_version "17"; transcript_id "ENSMUST00000182114"; transcript_version "7"; gene_name "Pcmtd1"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; havana_gene "OTTMUSG00000043373"; havana_gene_version "5"; transcript_name "Pcmtd1-202"; transcript_source "havana"; transcript_biotype "protein_coding"; havana_transcript "OTTMUST00000113813"; havana_transcript_version "2"; tag "cds_end_NF"; tag "mRNA_end_NF"; transcript_support_level "1";
 ```
 
+<a name="enrichment-analysis"><h3>peaks注释基因的富集分析 [<sup>目录</sup>](#content)</h3></a>
+
+<a name="go-enrichment"><h4>clusterProfiler: GO enrichment analysis [<sup>目录</sup>](#content)</h4></a>
+
+多数人进行GO富集分析时喜欢使用DAVID，但是由于DAVID的最新版本是在2016年更新的，数据并不是最新的，所以不推荐使用DAVID。
+
+推荐使用bioconductor包**clusterProfiler**
+
+**准备geneList**
+
+```
+# 先要载入geneList，变量类型为vector
+x <- c("GPX3",  "GLRX",   "LBP",   "CRYAB", "DEFB1", "HCLS1",   "SOD2",   "HSPA2",
+       "ORM1",  "IGFBP1", "PTHLH", "GPC3",  "IGFBP3","TOB1",    "MITF",   "NDRG1",
+       "NR1H4", "FGFR3",  "PVR",   "IL6",   "PTPRM", "ERBB2",   "NID2",   "LAMB1",
+       "COMP",  "PLS3",   "MCAM",  "SPP1",  "LAMC1", "COL4A2",  "COL4A1", "MYOC",
+       "ANXA4", "TFPI2",  "CST6",  "SLPI",  "TIMP2", "CPM",     "GGT1",   "NNMT",
+       "MAL",   "EEF1A2", "HGD",   "TCN2",  "CDA",   "PCCA",    "CRYM",   "PDXK",
+       "STC1",  "WARS",  "HMOX1", "FXYD2", "RBP4",   "SLC6A12", "KDELR3", "ITM2B")
+       
+# ID转换，转换需要的信息来自于对应物种的数据包（orgDB），所以使用前需要提前安装好数据包
+eg = bitr(x, fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Hs.eg.db")
+
+## ID转换支持的ID类型可以通过以下方式查看
+keytypes(org.Hs.eg.db)
+
+## 当ID转换涉及KEGG ID时需要使用特殊的函数bitr_kegg，只能在kegg，ncbi-geneid，ncbi-proteinid和uniprot之间进行转换
+eg2np <- bitr_kegg(hg, fromType='kegg', toType='ncbi-proteinid', organism='hsa')
+```
+**GO over-representation test**
+
+```
+ego <- enrichGO(gene         = gene.df$ENSEMBL,
+                OrgDb         = org.Hs.eg.db,
+        		keytype       = 'ENSEMBL',
+                ont           = "CC",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05,
+                readable      = TRUE)
+```
+
+参数说明：
+
+> - gene: a vector of entrez gene id
+> - OrgDb: OrgDb
+> - keytype: keytype of input gene
+> - ont: One of "MF", "BP", and "CC" subontologies
+> - pvalueCutoff: Cutoff value of pvalue
+> - pAdjustMethod: one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"
+> - qvalueCutoff: qvalue cutoff
+> - readable: whether mapping gene ID to gene Name
+
+```
+head(ego)
+
+##                    ID                              Description GeneRatio
+## GO:0005819 GO:0005819                                  spindle    25/198
+## GO:0000779 GO:0000779 condensed chromosome, centromeric region    15/198
+## GO:0000775 GO:0000775           chromosome, centromeric region    18/198
+## GO:0000776 GO:0000776                              kinetochore    15/198
+## GO:0000793 GO:0000793                     condensed chromosome    18/198
+## GO:0005876 GO:0005876                      spindle microtubule    10/198
+##              BgRatio       pvalue     p.adjust       qvalue
+## GO:0005819 238/11745 2.090374e-13 5.518588e-11 4.950886e-11
+## GO:0000779  90/11745 2.241220e-11 2.958411e-09 2.654077e-09
+## GO:0000775 152/11745 7.936845e-11 6.984424e-09 6.265930e-09
+## GO:0000776 103/11745 1.649359e-10 8.919109e-09 8.001593e-09
+## GO:0000793 159/11745 1.689225e-10 8.919109e-09 8.001593e-09
+## GO:0005876  45/11745 2.821374e-09 1.241405e-07 1.113700e-07
+##                                                                                                                                                         geneID
+## GO:0005819 CDCA8/CDC20/KIF23/CENPE/ASPM/DLGAP5/SKA1/NUSAP1/TPX2/TACC3/NEK2/CDK1/MAD2L1/KIF18A/BIRC5/KIF11/TTK/AURKB/PRC1/KIFC1/KIF18B/KIF20A/AURKA/CCNB1/KIF4A
+## GO:0000779                                                            CENPE/NDC80/HJURP/SKA1/NEK2/CENPM/CENPN/ERCC6L/MAD2L1/CDT1/BIRC5/NCAPG/AURKB/AURKA/CCNB1
+## GO:0000775                                           CDCA8/CENPE/NDC80/HJURP/SKA1/NEK2/CENPM/CENPN/ERCC6L/MAD2L1/KIF18A/CDT1/BIRC5/TTK/NCAPG/AURKB/AURKA/CCNB1
+## GO:0000776                                                             CENPE/NDC80/HJURP/SKA1/NEK2/CENPM/CENPN/ERCC6L/MAD2L1/KIF18A/CDT1/BIRC5/TTK/AURKB/CCNB1
+## GO:0000793                                          CENPE/NDC80/TOP2A/NCAPH/HJURP/SKA1/NEK2/CENPM/CENPN/ERCC6L/MAD2L1/CDT1/BIRC5/NCAPG/AURKB/CHEK1/AURKA/CCNB1
+## GO:0005876                                                                                         SKA1/NUSAP1/CDK1/KIF18A/KIF11/AURKB/PRC1/KIF18B/AURKA/KIF4A
+##            Count
+## GO:0005819    25
+## GO:0000779    15
+## GO:0000775    18
+## GO:0000776    15
+## GO:0000793    18
+## GO:0005876    10
+```
+
+富集分析结果可视化
+
+```
+# 绘制气泡图
+
+## 可以使用clusterProfiler中提供的绘图函数dotplot
+dotplot(ego)
+
+## 也可以使用ggplot2进行自定义绘图
+library(ggplot2)
+p<-ggplot(ego)+geom_point(aes(x=) 
+```
+
+<img src=./picture/MeRIP-seq-GOenrich-dotplot.png width=600 />
+
+```
+# 绘制GOterm拓扑关系网，依赖topGO和Rgraphviz
+library(topGO)
+library(Rgraphviz)
+# 画出来的拓扑图中节点的文字太小，看不清，这是一个问题
+plotGOgraph(ego)
+```
+
+<img src=./picture/MeRIP-seq-GOtop-graph.png width=600 />
+
 ---
 
 参考资料：
@@ -408,3 +520,5 @@ $ head m6A_seq/CallPeak/peaks_diffbind.anno.bed
 (7) [library size and normalization for ChIP-seq](https://github.com/crazyhottommy/ChIP-seq-analysis/blob/master/part3.1_Differential_binding_DiffBind_lib_size.md)
 
 (8) [Bioconductor tutorial: Analyzing RNA-seq data with DESeq2](http://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+
+(9) [Bioconductor tutorial: clusterProfiler](http://www.bioconductor.org/packages/release/bioc/vignettes/clusterProfiler/inst/doc/clusterProfiler.html#introduction)
