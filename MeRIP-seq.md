@@ -399,6 +399,14 @@ $ head m6A_seq/CallPeak/peaks_diffbind.anno.bed
 
 **准备geneList**
 
+从`DiffBind peaks annotation`中获得的peaks_diffbind.anno.bed文件中提取geneID
+
+```
+$ cut -f 13 m6A_seq/CallPeak/peaks_diffbind.anno.bed | \
+	awk 'BEGIN{FS=";"} {print $1}' | \
+	perl -ane 'chomp;$F[1]=~ s/\"//g;print "$F[1]\n"' | sort | uniq >m6A_seq/CallPeak/peaks_diffbind_geneList.txt
+```
+
 ```
 # 先要载入geneList，变量类型为vector
 x <- c("GPX3",  "GLRX",   "LBP",   "CRYAB", "DEFB1", "HCLS1",   "SOD2",   "HSPA2",
