@@ -102,7 +102,7 @@ $ awk '{print $4"\tchr"$1"\t"$2"\t"$3"\t+"}' merge.bed >homer_peaks.bed
 
 
 # 自己指定background sequences，用bedtools shuffle构造随机的suffling peaks
-## 创建mm10的genome文件
+## 创建danRer10的genome文件
 $ mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from danRer10.chromInfo" >Ref/danRer10/danRer10.genome
 ## 注意：bed文件与genome文件的染色体表示格式是否一致，如果不一致，请先统一改为chr[1-22]|[XY]或者[1-22]|[XY]
 $ awk '{print "chr"$0}' merge.bed >merge.chr.bed
