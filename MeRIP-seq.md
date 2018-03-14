@@ -496,7 +496,7 @@ library(ggplot2)
 p<-ggplot(ego)+geom_point(aes(x=) 
 ```
 
-<img src=./picture/MeRIP-seq-GOenrich-dotplot.png width=600 />
+<p align="center"><img src=./picture/MeRIP-seq-GOenrich-dotplot.png width=600 /></p>
 
 ```
 # 绘制GOterm拓扑关系网，依赖topGO和Rgraphviz
@@ -506,7 +506,7 @@ library(Rgraphviz)
 plotGOgraph(ego)
 ```
 
-<img src=./picture/MeRIP-seq-GOtop-graph.png width=600 />
+<p align="center"><img src=./picture/MeRIP-seq-GOtop-graph.png width=600 /></p>
 
 ---
 
