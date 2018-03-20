@@ -29,7 +29,7 @@
 
 参见： https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md#get-data
 
-<h3 name="map-quant">比对与定量</h3>
+<a name="map-quant"><h3>比对与定量 [<sup>目录</sup>](#content)</h3></a>
 
 ---
 
@@ -39,13 +39,13 @@
 
 不需要比对，直接对转录水平进行定量
 
-<h4 name="salmon-index">创建索引</h4>
+<a name="salmon-index"><h4>创建索引 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ salmon index -t Arabidopsis_thaliana.TAIR10.28.cdna.all.fa.gz -i athal_index_salmon
 ```
 
-<h4 name="salmon-quant">定量</h4>
+<a name="salmon-quant"><h4>定量 [<sup>目录</sup>](#content)</h4></a>
 
 salmon quant 有两种运行模式：
 > - **Salmon's quasi-mapping-based mode**： using raw reads
@@ -92,14 +92,14 @@ salmon quant 参数：
 
 <a name="subread"><h3><li>subread流程 [<sup>目录</sup>](#content)</li></h3></a>
 
-<h4 name="subread-index">创建索引</h4>
+<a name="subread-index"><h4>创建索引 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ gunzip Arabidopsis_thaliana.TAIR10.28.dna.genome.fa.gz
 $ subread-buildindex -o athal_index_subread   Arabidopsis_thaliana.TAIR10.28.dna.genome.fa
 ```
 
-<h4 name="subread-map">比对</h4>
+<a name="subread-map"><h4>比对 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 #! /bin/bash
@@ -118,7 +118,7 @@ done
 # map_subjunc.sh
 ```
 
-<h4 name="subread-quant">定量</h4>
+<a name="subread-quant"><h4>定量 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 featureCounts=~/anaconda2/bin
@@ -131,7 +131,7 @@ nohup $featureCounts/featureCounts  -T 5 -p -t exon -g gene_id -a $gtf -o  $coun
 
 <a name="hisat2-stringtie"><h3><li>hisat2-stringtie流程 [<sup>目录</sup>](#content)</li></h3></a>
 
-<h4 name="hisat2-index">hisat2创建索引</h4>
+<a name="hisat2-index"><h4>hisat2创建索引 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 # build reference index
@@ -143,7 +143,7 @@ $ extract_exons.py chrX_data/genes/chrX.gtf >chrX.exon
 $ hisat2-build --ss chrX.ss --exon chrX.exon chrX_data/genome/chrX.fa chrX_tran
 ```
 
-<h4 name="hisat2-map">hisat2比对</h4>
+<a name="hisat2-map"><h4>hisat2比对 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ hisat2 -p 10 --dta -x chrX_tran -1 reads1_1.fastq -2 reads1_2.fastq | samtools sort -@ 8 -O bam -o reads1.sort.bam 1>map.log 2>&1
@@ -157,7 +157,7 @@ $ hisat2 -p 10 --dta -x chrX_tran -1 reads1_1.fastq -2 reads1_2.fastq | samtools
 > - -S File for SAM output (default: stdout)
 
 
-<h4 name="stringtie-assm">stringtie转录本拼接</h4>
+<a name="stringtie-assm"><h4>stringtie转录本拼接 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ stringtie -p 16 -G Ref/hg19/grch37_tran/Homo_sapiens.GRCh37.75.gtf -o Asm/read1.gtf -l prefix Map/read1.bam 1>Asm/read1_strg_assm.log 2>&1
@@ -171,7 +171,7 @@ $ stringtie --merge -p 16 -G Ref/hg19/grch37_tran/Homo_sapiens.GRCh37.75.gtf -o 
 > - -o output path/file name for the assembled transcripts GTF
 > - -l name prefix for output transcripts (default: STRG)
 
-<h4 name="stringtie-quant">stringtie定量</h4>
+<a name="stringtie-quant"><h4>stringtie定量 [<sup>目录</sup>](#content)</h4></a>
 
 1. 以ballgown格式输出
 
@@ -192,9 +192,12 @@ $ python prepDE.py -i sample_lst.txt
 注意：
 - stringtie的用法与上面相同，除了少了一个参数`-B`
 - `prepDE.py`脚本需要到stringtie官网下载：http://ccb.jhu.edu/software/stringtie/dl/prepDE.py ，注意该脚本是用**python2**编写的
+- `prepDE.py` 会以csv格式，分别输出基因和转录本的count matrices
 
 prepDE.py参数
 > - -i the parent directory of the sample sub-directories or a textfile listing the paths to GTF files [default: ballgown]
+> - -g where to output the gene count matrix [default: gene_count_matrix.csv]
+> - -t where to output the transcript count matrix [default: transcript_count_matrix.csv]
 
 samplelist textfile 格式如下：
 ```
@@ -214,7 +217,7 @@ ERR188037 <PATH_TO_ERR188037.gtf>
 
 ---
 
-<h4 name="deseq2"><li>使用DESeq2进行差异分析</li></h4>
+<a name="deseq2"><h4><li>使用DESeq2进行差异分析 [<sup>目录</sup>](#content)</li></h4></a>
 
 DESeq2要求输入的表达矩阵是**read counts**
 
@@ -281,7 +284,7 @@ res_Day1_Day0=as.data.frame(resOrdered)
 ```
 
 
-<h4 name="ballgown"><li>使用Ballgown进行差异分析</li></h4>
+<a name="ballgown"><h4><li>使用Ballgown进行差异分析 [<sup>目录</sup>](#content)</li></h4></a>
 
 紧接着stringtie的定量结果进行分析
 
