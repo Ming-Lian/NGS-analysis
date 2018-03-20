@@ -191,7 +191,7 @@ $ python prepDE.py -i sample_lst.txt
 ```
 注意：
 - stringtie的用法与上面相同，除了少了一个参数`-B`
-- `prepDE.py`脚本需要到stringtie官网下载：http://ccb.jhu.edu/software/stringtie/dl/prepDE.py
+- `prepDE.py`脚本需要到stringtie官网下载：http://ccb.jhu.edu/software/stringtie/dl/prepDE.py ，注意该脚本是用**python2**编写的
 
 prepDE.py参数
 > - -i the parent directory of the sample sub-directories or a textfile listing the paths to GTF files [default: ballgown]
