@@ -225,11 +225,10 @@ DESeq2要求输入的表达矩阵是**read counts**
 
 ```
 # 构建表达矩阵
-count_table<-read.delim("count_multicov.txt",header=F)
-count_matrix<-as.matrix(count_table[,c(-1,-2,-3,-4)])
-rownames(count_matrix)<-count_table$V4
+count_table<-read.csv("/path/to/gene_count_matrix.csv",row.names="gene_id")
+count_matrix<-as.matrix(count_table)
 # 构建分组矩阵
-group_list<-factor(c("control","control","control","treat","treat","treat"))
+group_list<-factor(rep(c("control","treat"),c(3,3)))
 colData <- data.frame(row.names=colnames(count_matrix), group_list=group_list)
 # 构建 DESeqDataSet 对象
 dds <- DESeqDataSetFromMatrix(countData = count_matrix,
@@ -273,12 +272,13 @@ dds <- DESeqDataSetFromMatrix(countData = count_matrix,
 ```
 ## 数据过滤
 # dds <- dds[ rowSums(counts(dds)) > 1 ,]
-# dim(dds)
 dds <- DESeq(dds)
-plotDispEsts(dds, main="Dispersion plot")
-rld <- rlogTransformation(dds)
-exprMatrix_rlog=assay(rld)
-res <- results(dds, contrast=c("condition",'Day1','Day0'))
+# plotDispEsts(dds, main="Dispersion plot")
+# rld <- rlogTransformation(dds)
+# xprMatrix_rlog=assay(rld)
+## 若有多组，可以用参数contrast提取指定两组的比较结果
+res <- results(dds, contrast=c("group_list",'control','treat'))
+## 将比较结果依据p-adjust进行排序
 resOrdered <- res[order(res$padj),] 
 res_Day1_Day0=as.data.frame(resOrdered)
 ```
