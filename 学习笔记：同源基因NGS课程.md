@@ -22,7 +22,7 @@
 
 <a name="saturation"><h2>测序饱和度评估 [<sup>目录</sup>](#content)</h2></a>
 
-测序乘数与覆盖率之间的关系
+<p align="center">测序乘数与覆盖率之间的关系</p>
 
 <p align="center"><img src=./picture/NGS-course-depth-coverage.png width=700 /></p>
 
