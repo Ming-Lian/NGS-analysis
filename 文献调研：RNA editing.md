@@ -48,20 +48,20 @@
 
 包含三个主要脚本，用于处理来自同一样本/个体的DNA-seq和RNA-seq数据
 
-<li>REDItoolDnaRNA.py：检测候选的RNA editing位点，通过比较pre-aligned RNA-Seq 和 DNA-Seq reads（BAM format）获得</li>
+<li><strong>REDItoolDnaRNA.py</strong>：检测候选的RNA editing位点，通过比较pre-aligned RNA-Seq 和 DNA-Seq reads（BAM format）获得</li>
 
 实现步骤：
 
 > 1\. 对RNA-seq数据，逐一扫描基因组位点并返回一个表格，表格中包含
->
+> 
 > - coverage depth
 > - the mean quality score
 > - the observed base distribution
 > - the strand if available
 > - the list of observed substitutions as well as the frequency of variation
 > 
-> 2\. 若提供了DNA-seq数据，获得与步骤1中相似的表格数据，用于除去潜在的SNPs
->
+> 2\. 若提供了DNA-seq数据，获得与步骤1中相似的表格数据，用于之后除去潜在的SNPs
+> 
 > 3\. 对一些位点按照一定规则进行过滤： read coverage, base quality score, mapping quality, bases supporting the variation, type of substitution and frequency
 > 
 > 4\. 去除一些位点位于：
@@ -72,9 +72,10 @@
 > - sites not supported by DNA-Seq
 > - positions near read ends
 
-<li>**REDItoolKnown.py**：explore the RNA editing potential of RNA-Seq experiments by looking at known events only
+<li><strong>REDItoolKnown.py</strong>：explore the RNA editing potential of RNA-Seq experiments by looking at known events only
 
-<li>**REDItoolDenovo.py**：不需要重测序数据，只利用RNA-seq数据进行RNA editiong的denovo检测
+<li><strong>REDItoolDenovo.py</strong>：不需要重测序数据，只利用RNA-seq数据进行RNA editiong的denovo检测
+
 
 参考资料：
 
