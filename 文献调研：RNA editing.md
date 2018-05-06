@@ -11,7 +11,7 @@
 
 <h1 name="title">文献调研：RNA editing</h1>
 
-<a name="background"><h2>背景知识 [<sup>目录</sup>](#content")</h2></a>
+<a name="background"><h2>背景知识 [<sup>目录</sup>](#content)</h2></a>
 
 **RNA editing**: an important post-transcriptional mechanism that alters primary RNAs through the **insertion/deletion** or **modification of specific nucleotides**
 
@@ -29,7 +29,7 @@
 
 解决方法之一：use DNA-Seq data from single individuals, annotations in dbSNPs and several stringent filters
 
-<a name="sci-rep"><h2>*Sci.Rep*: Symmetrical RNA Editing Events in the Mitochondria of Salvia miltiorrhiza [<sup>目录</sup>](#content")</h2></a>
+<a name="sci-rep"><h2>*Sci.Rep*: Symmetrical RNA Editing Events in the Mitochondria of Salvia miltiorrhiza [<sup>目录</sup>](#content)</h2></a>
 
 <p align="center"><img src=./picture/RNA-editing-sci-rep-pipeline.png width=500 /></p>
 
@@ -44,7 +44,7 @@
 
 **解决策略二**："mapping-based"，尝试不同的mismatch值，2~10，最终选择最佳值7
 
-<a name="reditools"><h3>REDItools [<sup>目录</sup>](#content")</h3></a>
+<a name="reditools"><h3>REDItools [<sup>目录</sup>](#content)</h3></a>
 
 包含三个主要脚本，用于处理来自同一样本/个体的DNA-seq和RNA-seq数据
 
