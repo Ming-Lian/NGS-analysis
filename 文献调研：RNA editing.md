@@ -4,6 +4,8 @@
 - [背景知识](#background)
 - [*Sci.Rep*: Symmetrical RNA Editing Events in the Mitochondria of Salvia miltiorrhiza](#sci-rep)
 	- [REDItools](#reditools)
+- [*Nature*: Dynamic landscape and regulation of RNA editing in mammals](#nature)
+	- [科普：mmPCR-seq](#mmpcr-seq)
 
 
 
@@ -48,7 +50,7 @@
 
 包含三个主要脚本，用于处理来自同一样本/个体的DNA-seq和RNA-seq数据
 
-<li><strong>REDItoolDnaRNA.py</strong>：检测候选的RNA editing位点，通过比较pre-aligned RNA-Seq 和 DNA-Seq reads（BAM format）获得</li>
+- **REDItoolDnaRNA.py**：检测候选的RNA editing位点，通过比较pre-aligned RNA-Seq 和 DNA-Seq reads（BAM format）获得
 
 实现步骤：
 
@@ -72,9 +74,39 @@
 > - sites not supported by DNA-Seq
 > - positions near read ends
 
-<li><strong>REDItoolKnown.py</strong>：explore the RNA editing potential of RNA-Seq experiments by looking at known events only
+- **REDItoolKnown.py**：explore the RNA editing potential of RNA-Seq experiments by looking at known events only
 
-<li><strong>REDItoolDenovo.py</strong>：不需要重测序数据，只利用RNA-seq数据进行RNA editiong的denovo检测
+- **REDItoolDenovo.py**：不需要重测序数据，只利用RNA-seq数据进行RNA editiong的denovo检测
+
+<a name="nature"><h2>*Nature*: Dynamic landscape and regulation of RNA editing in mammals [<sup>目录</sup>](#content)</h2></a>
+
+研究成果：
+- dynamic spatiotemporal patterns
+- new regulators of RNA editing
+- discovered through an **extensive profiling of A-to-I RNA editing** from the Genotype-Tissue Expression (**GTEx**) project and in hundreds of other primate and mouse samples
+
+结论：
+- 与重复coding区域相比，非重复coding区域的RNA editing level在不同组织之间变化比较大
+- ADAR1主要编辑repetitive coding sites，ADAR2主要编辑non-repetitive coding sites，而ADAR3能抑制RNA editing
+
+<a name="mmpcr-seq"><h3>科普：mmPCR-seq [<sup>目录</sup>](#content)</h3></a>
+
+a targeted RNA sequencing method that couples **microfluidics-based multiplex PCR** and **deep sequencing**
+
+常规RNA-seq存在的问题：
+> - the large dynamic range of RNA expression, which leads to inaccurate quantification of allelic ratios for genes with low-to-moderate expression levels
+> - 即RNA丰度差异较大，对于中低丰度的RNA的定量不准
+
+mmPCR-seq优点：
+> - uniformly and simultaneously amplify up to 960 loci in 48 samples independently of their gene expression levels and to accurately and cost-effectively measure allelic ratios even for low-quantity or low-quality RNA samples
+> 
+> - 即成比例扩增RNA片段，而不影响基因表达水平的相对定量，同时能提高对低丰度RNA的灵敏度
+
+<p align="center"><img src=./picture/RNA-editing-nature-mmPCR-seq.png width=600 /></p>
+
+这个测序技术的关键在于进行类似454测序中用到的乳化PCR，即让每个RNA片段处于一个独立的PCR反应环境中
+
+
 
 
 参考资料：
@@ -82,4 +114,8 @@
 (1) Ernesto Picardi, Graziano Pesole; REDItools: high-throughput RNA editing detection made easy.[J]. Bioinformatics, 2013, 29:1813–1814
 
 (2) Wu B, Chen H, Shao J, et al. Identification of Symmetrical RNA Editing Events in the Mitochondria of Salvia miltiorrhiza by Strand-specific RNA Sequencing.[J]. Scientific Reports, 2017, 7:42250.
+
+(3) Tan M H, Li Q, Shanmugam R, et al. Dynamic landscape and regulation of RNA editing in mammals[J]. Nature, 2017, 550(7675):249-254.
+
+(4) Rui Z, Xin L, Ramaswami G, et al. Quantifying RNA allelic ratios by microfluidic multiplex PCR and sequencing[J]. Nature Methods, 2014, 11(1):51.
 
