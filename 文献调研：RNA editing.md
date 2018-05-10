@@ -120,6 +120,8 @@ mmPCR-seq优点：
 
 开发的新工具：[**GIREMI**](https://www.ibp.ucla.edu/research/xiao/GIREMI.html)
 
+<p align="center"><img src="https://www.ibp.ucla.edu/research/xiao/GIREMI_files/CoverArt.GIREMI.NMETH-BC22074E.png" width=300 /></p>
+
 优点：不需要genome sequence即可进行RNA editing位点的准确鉴定，即使RNA-seq dataset只有较低的测序深度
 
 <a name="giremi"><h3>GIREMI [<sup>目录</sup>](#content)</h3></a>
