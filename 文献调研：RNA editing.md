@@ -6,6 +6,8 @@
 	- [REDItools](#reditools)
 - [*Nature*: Dynamic landscape and regulation of RNA editing in mammals](#nature)
 	- [科普：mmPCR-seq](#mmpcr-seq)
+- [*Nat.Meth*: Genome sequence–independent identification of RNA editing sites](#nat-meth)
+	- [GIREMI](#giremi)
 
 
 
@@ -106,16 +108,45 @@ mmPCR-seq优点：
 
 这个测序技术的关键在于进行类似454测序中用到的乳化PCR，即让每个RNA片段处于一个独立的PCR反应环境中
 
+<a name="nat-meth"><h2>*Nat.Meth*: Genome sequence–independent identification of RNA editing sites [<sup>目录</sup>](#content)</h2></a>
+
+当前RNA editing位点鉴别存在的挑战：
+- 需要来自同一样本的genome sequence data 来过滤SNPs的影响
+- 即使提供了genome sequence data，但是由于测序覆盖度（sequencing coverage）不一致等原因，使得仍然无法完全去除SNPs的干扰
+
+> 其他不需要genome sequence data的方法：use multiple RNA-seq data sets to increase the confidence of finding individual sites
+>
+> 存在的问题：this precludes analysis of single data sets and may miss unique changes
+
+开发的新工具：[**GIREMI**](https://www.ibp.ucla.edu/research/xiao/GIREMI.html)
+
+优点：不需要genome sequence即可进行RNA editing位点的准确鉴定，即使RNA-seq dataset只有较低的测序深度
+
+<a name="giremi"><h3>GIREMI [<sup>目录</sup>](#content)</h3></a>
+
+鉴别RNA-editing/SNP的原理：
+
+<p align="center"><img src=./picture/RNA-editing-nat-meth-GIREMI-principle.png width=500 /></p>
+
+> A pair of SNPs in the same read (or read pair, in paired-end sequencing) maintains the same haplotype in the RNA as in reference genomic DNA
+>
+> In contrast, a SNP and an RNA editing site exhibit variable allelic linkage because RNA editing occurs post-transcriptionally to either allele randomly
+>
+> the allelic linkage for a pair of RNA editing sites may also appear random
+
+
 
 
 
 参考资料：
 
-(1) Ernesto Picardi, Graziano Pesole; REDItools: high-throughput RNA editing detection made easy.[J]. Bioinformatics, 2013, 29:1813–1814
+(1) Ernesto Picardi, Graziano Pesole; REDItools: high-throughput RNA editing detection made easy.[J]. Bioinformatics, 2013, 29:1813–1814.
 
 (2) Wu B, Chen H, Shao J, et al. Identification of Symmetrical RNA Editing Events in the Mitochondria of Salvia miltiorrhiza by Strand-specific RNA Sequencing.[J]. Scientific Reports, 2017, 7:42250.
 
 (3) Tan M H, Li Q, Shanmugam R, et al. Dynamic landscape and regulation of RNA editing in mammals[J]. Nature, 2017, 550(7675):249-254.
 
 (4) Rui Z, Xin L, Ramaswami G, et al. Quantifying RNA allelic ratios by microfluidic multiplex PCR and sequencing[J]. Nature Methods, 2014, 11(1):51.
+
+(5) Zhang Q, Xiao X. Genome Sequence-Independent Identification of RNA Editing Sites[J]. Nature Methods, 2015, 12(4):347.
 
