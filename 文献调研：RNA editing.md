@@ -173,8 +173,8 @@ mmPCR-seq优点：
 > - pile up
 > - remove duplicate reads, except the one with the highest-quality score at the mismatch position
 > - 保留满足以下条件的mismatch位点：
->  1. coverage ≥5
->  2. 差异位点至少出现在3条reads中
+>   1. coverage ≥5
+>   2. 差异位点至少出现在3条reads中
 
 3\. GIREMI：用机器学习方法来进行MI（Mutual information，互信息）的统计推断，并依此来预测RNA editing sites
 
