@@ -164,8 +164,8 @@ mmPCR-seq优点：
 > - 用bowtie和blat去mapping参考基因组，用bowtie去mapping转录组
 > - 将三种方法的mapping结果merge在一起，形成union
 > - 对union的结果进行过滤，将满足以下要求的mapped reads保留下来：<br>
->  1. 最多允许有n<sub>1</sub>个mismatches的情况下，reads有唯一的map
->  2. 最多允许有n<sub>2</sub>个mismatches的情况下(n<sub>2</sub>\>n<sub>1</sub>)，不mapping到其他位置上
+>   1. 最多允许有n<sub>1</sub>个mismatches的情况下，reads有唯一的map
+>   2. 最多允许有n<sub>2</sub>个mismatches的情况下(n<sub>2</sub>\>n<sub>1</sub>)，不mapping到其他位置上
 >
 >  n<sub>2</sub>和n<sub>1</sub>一般分别设置为reads长度的5%和12%
 
