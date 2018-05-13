@@ -142,6 +142,10 @@ mmPCR-seq优点：
 >
 > - I(X,Y)取0时，代表X与Y独立，此时H(Y)=H(Y|X)，意义为X的出现不影响Y
 
+互信息的物理解释：
+
+<p align="center"><img src=./picture/RNA-editing-nat-meth-introduction-of-mi-graphic-explain.jpg width=600 /></p>
+
 <a name="giremi"><h3>GIREMI [<sup>目录</sup>](#content)</h3></a>
 
 鉴别RNA-editing/SNP的原理：
