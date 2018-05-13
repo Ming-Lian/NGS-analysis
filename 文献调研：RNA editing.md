@@ -7,6 +7,7 @@
 - [*Nature*: Dynamic landscape and regulation of RNA editing in mammals](#nature)
 	- [科普：mmPCR-seq](#mmpcr-seq)
 - [*Nat.Meth*: Genome sequence–independent identification of RNA editing sites](#nat-meth)
+	- [科普：互信息](#what-is-mi)
 	- [GIREMI](#giremi)
 
 
@@ -124,6 +125,23 @@ mmPCR-seq优点：
 
 优点：不需要genome sequence即可进行RNA editing位点的准确鉴定，即使RNA-seq dataset只有较低的测序深度
 
+<a name="what-is-mi"><h3>科普：互信息 [<sup>目录</sup>](#content)</h3></a>
+
+互信息，Mutual Information，缩写为MI，表示两个变量X与Y是否有关系，以及关系的强弱。
+
+<p align="center"><img src=./picture/RNA-editing-nat-meth-introduction-of-mi-formula.png width=400 /></p>
+
+<p align="center"><img src=./picture/RNA-editing-nat-meth-introduction-of-mi-formula-derivation.png width=800 /></p>
+
+可以看出，I(X,Y)可以解释为由X引入而使Y的不确定度减小的量，这个减小的量为H(Y|X)
+
+性质：
+> - 如果X，Y关系越密切，I(X,Y)就越大
+>
+> - I(X,Y)最大的取值是H(Y)，此时H(Y|X)为0，意义为X和Y完全相关，在X确定的情况下Y是个定值，没有出现其他不确定情况的概率，所以为H(Y|X)为0
+>
+> - I(X,Y)取0时，代表X与Y独立，此时H(Y)=H(Y|X)，意义为X的出现不影响Y
+
 <a name="giremi"><h3>GIREMI [<sup>目录</sup>](#content)</h3></a>
 
 鉴别RNA-editing/SNP的原理：
@@ -136,15 +154,33 @@ mmPCR-seq优点：
 >
 > the allelic linkage for a pair of RNA editing sites may also appear random
 
+1\. Mapping of RNA-seq reads
+
 特殊的mapping策略：enable unbiased mapping of alternative RNA alleles corresponding to RNA editing or expressed SNPs
 > - 用bowtie和blat去mapping参考基因组，用bowtie去mapping转录组
 > - 将三种方法的mapping结果merge在一起，形成union
 > - 对union的结果进行过滤，将满足以下要求的mapped reads保留下来：<br>
->     1. 最多允许有n<sub>1</sub>个mismatches的情况下，reads有唯一的map
->     2. 最多允许有n<sub>2</sub>个mismatches的情况下(n<sub>2</sub>\>n<sub>1</sub>)，不mapping到其他位置上<br>
->   n<sub>2</sub>和n<sub>1</sub>一般分别设置为reads长度的5%和12%
+>  1. 最多允许有n<sub>1</sub>个mismatches的情况下，reads有唯一的map
+>  2. 最多允许有n<sub>2</sub>个mismatches的情况下(n<sub>2</sub>\>n<sub>1</sub>)，不mapping到其他位置上
+>
+>  n<sub>2</sub>和n<sub>1</sub>一般分别设置为reads长度的5%和12%
 
+2\. 识别与过滤mismatches
+> - pile up
+> - remove duplicate reads, except the one with the highest-quality score at the mismatch position
+> - 保留满足以下条件的mismatch位点：
+>  1. coverage ≥5
+>  2. 差异位点至少出现在3条reads中
 
+3\. GIREMI：用机器学习方法来进行MI（Mutual information，互信息）的统计推断，并依此来预测RNA editing sites
+
+Input
+> - list of SNVs (mismatches)
+> - known SNPs
+
+Output
+> - predicted RNA editing sites
+> - their editing levels
 
 
 参考资料：
@@ -158,4 +194,8 @@ mmPCR-seq优点：
 (4) Rui Z, Xin L, Ramaswami G, et al. Quantifying RNA allelic ratios by microfluidic multiplex PCR and sequencing[J]. Nature Methods, 2014, 11(1):51.
 
 (5) Zhang Q, Xiao X. Genome Sequence-Independent Identification of RNA Editing Sites[J]. Nature Methods, 2015, 12(4):347.
+
+(6) [CSDN博客：互信息（Mutual Information）的介绍](https://blog.csdn.net/lk7688535/article/details/52529610)
+
+
 
