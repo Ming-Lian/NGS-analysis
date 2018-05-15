@@ -135,7 +135,7 @@ mmPCR-seq优点：
 
 当存在n种可能的选择，如果每种选择等可能，即为1/n，则此时要做出选择没有任何其他可参考的信息，几乎就是瞎猜，则此时不确定性最大，则此时的信息熵也是最大，为log(n)，所以理论上：
 
-<p style="text-align:center;font-size:30px">max H(X) = log(n)</p>
+<p align="center"><font size=5>max H(X) = log(n)</font></p>
 
 - 接着来讨论什么是互信息
 
