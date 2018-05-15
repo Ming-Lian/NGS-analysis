@@ -145,7 +145,9 @@ mmPCR-seq优点：
 
 <p align="center"><img src=./picture/RNA-editing-nat-meth-introduction-of-mi-formula-derivation.png width=800 /></p>
 
-可以看出，I(X,Y)可以解释为由X引入而使Y的不确定度减小的量，这个减小的量为H(Y|X)
+可以看出，I(X,Y)可以解释为由X引入而使Y的不确定度减小的量，这个减小的量为H(Y|X)，，称为条件熵
+
+<p align="center"><img src=./picture/RNA-editing-nat-meth-introduction-of-mi-formula-conditional-entropy.png width=400 /></p>
 
 性质：
 > - 如果X，Y关系越密切，I(X,Y)就越大
