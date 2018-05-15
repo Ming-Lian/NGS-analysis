@@ -212,6 +212,7 @@ Output
 > 2\. 用genome-dependent的方法，从RNA-seq数据中预测得到RNA editing位点
 > 
 > 3\. 用最大似然法，计算P(S<sub>i</sub>)，P(S<sub>j</sub>) 和 P(S<sub>i</sub>,S<sub>j</sub>)，然后就是MI：
+>
 > <img src=./picture/RNA-editing-nat-meth-mi-formula-pair-site.png width=300 />
 > <img src=./picture/RNA-editing-nat-meth-mi-formula-per-site.png width=150 />
 
