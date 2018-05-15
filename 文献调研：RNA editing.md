@@ -127,6 +127,18 @@ mmPCR-seq优点：
 
 <a name="what-is-mi"><h3>科普：互信息 [<sup>目录</sup>](#content)</h3></a>
 
+- 首先要知道什么是信息熵
+
+<p align="center"><img src=./picture/RNA-editing-nat-meth-introduction-of-mi-formula-information-entropy.png width=300 /></p>
+
+一条信息的信息量与其不确定性有着直接的关系。信息熵是消除不确定性所需信息量的度量，所以可以认为，信息量就等于不确定性的多少。
+
+当存在n种可能的选择，如果每种选择等可能，即为1/n，则此时要做出选择没有任何其他可参考的信息，几乎就是瞎猜，则此时不确定性最大，则此时的信息熵也是最大，为log(n)，所以理论上：
+
+<p style="text-align:center;font-size:30px">max H(X) = log(n)</p>
+
+- 接着来讨论什么是互信息
+
 互信息，Mutual Information，缩写为MI，表示两个变量X与Y是否有关系，以及关系的强弱。
 
 <p align="center"><img src=./picture/RNA-editing-nat-meth-introduction-of-mi-formula.png width=400 /></p>
