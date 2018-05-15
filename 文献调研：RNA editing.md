@@ -164,7 +164,12 @@ mmPCR-seq优点：
 
 鉴别RNA-editing/SNP的原理：
 
-<p align="center"><img src=./picture/RNA-editing-nat-meth-GIREMI-principle.png width=500 /></p>
+<table>
+<tr>
+	<td><img src=./picture/RNA-editing-nat-meth-GIREMI-principle.png width=500 /></td>
+	<td><img src=./picture/RNA-editing-nat-meth-mi-compare.png width=500 /></td>
+</tr>
+</table>
 
 > A pair of SNPs in the same read (or read pair, in paired-end sequencing) maintains the same haplotype in the RNA as in reference genomic DNA
 >
@@ -199,6 +204,16 @@ Input
 Output
 > - predicted RNA editing sites
 > - their editing levels
+
+4\. 计算SNVs和RNA editing位点的MI
+
+> 1\. 从RNA-seq数据中提取出至少含有两个SNPs的reads
+>
+> 2\. 用genome-dependent的方法，从RNA-seq数据中预测得到RNA editing位点
+> 
+> 3\. 用最大似然法，计算P(S<sub>i</sub>)，P(S<sub>j</sub>) 和 P(S<sub>i</sub>,S<sub>j</sub>)，然后就是MI：
+> <img src=./picture/RNA-editing-nat-meth-mi-formula-pair-site.png width=300 />
+> <img src=./picture/RNA-editing-nat-meth-mi-formula-per-site.png width=150 />
 
 
 参考资料：
