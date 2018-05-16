@@ -6,6 +6,7 @@
 	- [REDItools](#reditools)
 - [*Nature*: Dynamic landscape and regulation of RNA editing in mammals](#nature)
 	- [科普：mmPCR-seq](#mmpcr-seq)
+	- [基于GATK4的分析流程](#workflow-base-on-gatk4)
 - [*Nat.Meth*: Genome sequence–independent identification of RNA editing sites](#nat-meth)
 	- [科普：互信息](#what-is-mi)
 	- [GIREMI](#giremi)
@@ -109,6 +110,28 @@ mmPCR-seq优点：
 <p align="center"><img src=./picture/RNA-editing-nature-mmPCR-seq.png width=600 /></p>
 
 这个测序技术的关键在于进行类似454测序中用到的乳化PCR，即让每个RNA片段处于一个独立的PCR反应环境中
+
+<a name="workflow-base-on-gatk4"><h3>基于GATK4的分析流程 [<sup>目录</sup>](#content)</h3></a>
+
+**1\. Mapping of RNA-seq and mmPCR–seq reads**
+
+**Mapping**：用BWA将RNA-seq reads mapping到reference genome和已知的剪接区域附近的exonic sequences
+
+**过滤**：过滤mapping结果，保留高质量的mapping结果（uniquely mapped且q > 10），并用samtools rmdup过滤PCR重复
+
+**重比对与重校正**：用GATK中的 IndelRealigner 和 TableRecalibration 对保留下来的高质量的Unique reads进行局部重比对（local realignment）和碱基值重校正（base score recalibration），
+
+**2\. Identification of editing sites from RNA-seq data**
+
+**variant calling**：用GATK中的UnifiedGenotyper来call variants，与普通的variant calling不同，这里采用了比较宽松的选项：stand_call_conf 0, stand_emit_conf 0, and output mode EMIT_VARIANTS_ONLY
+
+**remove all known SNPs**：利用dbSNP数据，过滤已知的SNPs
+
+**remove false positive variant calls**：过滤因技术操作原因导致的variant calling中的假阳性结果
+- required a variant call quality q > 20
+- 若variants落在read的头6个碱基里，过滤掉
+- 除去落在重复区域的variants
+- 过滤intron中离剪接位点4bp范围内的variants
 
 <a name="nat-meth"><h2>*Nat.Meth*: Genome sequence–independent identification of RNA editing sites [<sup>目录</sup>](#content)</h2></a>
 
