@@ -268,6 +268,8 @@ $ giremi [options] in1.bam [in2.bam [...]]
 > - -m, --min INT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minimal number of total reads covering candidate editing sites  [default: 5]
 > - -p, --paired-end INT &nbsp;&nbsp; 1:paired-end RNA-Seq reads; 0:single-end [default: 1]
 
+输出结果的格式说明：
+
 <p align="center"><img src=./picture/RNA-editing-GIREMI-output-format.png width=800 /></p>
 
 参考资料：
