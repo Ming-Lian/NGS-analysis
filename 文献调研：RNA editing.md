@@ -262,6 +262,11 @@ Usage：
 $ giremi [options] in1.bam [in2.bam [...]]
 ```
 
+重要参数：
+
+> -  -f, --fasta-ref FILE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  reference genome sequence file in fasta format 
+> - -m, --min INT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minimal number of total reads covering candidate editing sites  [default: 5]
+> - -p, --paired-end INT &nbsp;&nbsp; 1:paired-end RNA-Seq reads; 0:single-end [default: 1]
 
 参考资料：
 
