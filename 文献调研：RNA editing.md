@@ -9,7 +9,8 @@
 - [*Nat.Meth*: Genome sequence–independent identification of RNA editing sites](#nat-meth)
 	- [科普：互信息](#what-is-mi)
 	- [GIREMI](#giremi)
-
+		- [原理](#giremi-principle)
+		- [用法](#giremi-usage)
 
 
 
@@ -162,6 +163,8 @@ mmPCR-seq优点：
 
 <a name="giremi"><h3>GIREMI [<sup>目录</sup>](#content)</h3></a>
 
+<a name="giremi-principle"><h4>原理 [<sup>目录</sup>](#content)</h4></a>
+
 鉴别RNA-editing/SNP的原理：
 
 <table>
@@ -217,6 +220,48 @@ Output
 > <br>
 > <img src=./picture/RNA-editing-nat-meth-mi-formula-per-site.png width=150 />
 
+<a name="giremi-usage"><h4>用法 [<sup>目录</sup>](#content)</h4></a>
+
+该工具底层依赖的工具：
+
+- HTSlib：这是用于对SAM/BAM文件进行读写操作的库
+
+	若未安装好该库，请安装，使用conda可以实现一步式安装`conda install htslib`；若安装成功，请将库文件所在的路径添加进 `$LD_LIBRARY_PATH` 环境变量
+	
+	查看 `$LD_LIBRARY_PATH` 环境变量
+	
+	```
+	$ echo $LD_LIBRARY_PATH
+	
+	/home/miniconda2/lib/
+	```
+	
+	修改 `$LD_LIBRARY_PATH` 环境变量
+	
+	```
+	$ export LD_LIBRARY_PATH=/Path/To/lib:$LD_LIBRARY_PATH
+	```
+	
+	由于版本更新的原因，可能出现GIREMI内部默认使用的htslib和当前新系统中安装的htslib不一致的问题，具体体现在执行 `perl giremi.pl` 时，出现以下报错信息：
+	
+	`./giremi: error while loading shared libraries: libhts.so.1: cannot open shared object file: No such file or directory`
+	
+	解决方法：找到报错信息中指明的对应的htslib库文件，将当前库文件的文件名，比如是 **libhts.so.1.8** 改为 **libhts.so.1** ，简单粗暴 ╮(～▽～)╭
+	
+	最后执行 `perl giremi.pl` ，查看配置是否成功，若输出帮助文档信息，则说明配置成功
+	
+- samtools：用于构建参考基因组的faidx索引
+
+	在运行GIREMI前，请提前用 `samtools faidx`命令构建好参考基因组的faidx索引，而且要保证参考基因组的fasta文件与faidx文件要位于同一文件夹下
+	
+- R：用于GLM（广义线性模型）的训练与预测
+
+Usage：
+
+```
+$ giremi [options] in1.bam [in2.bam [...]]
+```
+
 
 参考资料：
 
@@ -232,5 +277,5 @@ Output
 
 (6) [CSDN博客：互信息（Mutual Information）的介绍](https://blog.csdn.net/lk7688535/article/details/52529610)
 
-
+(7) [GIREMI官方主页](https://www.ibp.ucla.edu/research/xiao/GIREMI.html)
 
