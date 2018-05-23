@@ -542,3 +542,10 @@ plotGOgraph(ego)
 (8) [Bioconductor tutorial: Analyzing RNA-seq data with DESeq2](http://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
 
 (9) [Bioconductor tutorial: clusterProfiler](http://www.bioconductor.org/packages/release/bioc/vignettes/clusterProfiler/inst/doc/clusterProfiler.html#introduction)
+
+(10) 国科大-韩春生《生物信息学应用 - 模序搜索》ppt
+
+
+
+
+
