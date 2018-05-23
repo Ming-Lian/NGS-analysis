@@ -208,7 +208,7 @@ $ findMotifsGenome.pl homer_peaks.bed hg19 motifDir -bg peaks_shuffle.bed -size 
 
 <a name="meme"><h4>2. MEME</h4></a>
 
-<a name="meme-principle"><h4>算法原理</h4></a>
+<a name="meme-principle"><h4>算法原理 [<sup>目录</sup>](#content)</h4></a>
 
 <p align="center"><img src=./picture/MeRIP-seq-meme-principle-1.png width=600/></p>
 
@@ -216,7 +216,7 @@ $ findMotifsGenome.pl homer_peaks.bed hg19 motifDir -bg peaks_shuffle.bed -size 
 
 <p align="center"><img src=./picture/MeRIP-seq-meme-principle-3.png width=600/></p>
 
-<a name="meme-usage"><h4>操作</h4></a>
+<a name="meme-usage"><h4>操作 [<sup>目录</sup>](#content)</h4></a>
 
 下载安装MEME
 ```
