@@ -7,6 +7,8 @@
 	- [一般分析流程](#basic-workflow)
 	- [比较宏基因组学的应用](#application-of-comparative-meta)
 	- [目前存在的技术问题](#challenge)
+- [实验设计](#study-design)
+	- [几点指导意见](#guide-for-study-design)
 - [宏基因组binning](#binning)
 	- [binning原理](#principle-of-binning)
 	- [binning具体操作](#how-to-binning)
@@ -17,8 +19,6 @@
 <h1 name="title">Analysis of Metagenome</h1>
 
 <p align="center"><img src=./picture/Metagenome-flowchart-1.jpg width=900 /></p>
-
-
 
 <a name="introduction"><h2>背景知识 [<sup>目录</sup>](#content)</h2></a>
 
@@ -117,8 +117,53 @@
 > 
 >    生物群落的结构不仅包括多样性和物种数量上的分布，而且应该包含物种间的相互作用关系，而这些关系在物质、能量、信息循环中起到了至关重要的作用。然而目前微生物物种间的相互作用往往法像宏观生态中予以观察和定性
 
+<a name="study-design"><h2>实验设计 [<sup>目录</sup>](#content)</h2></a>
 
+即使在同一个环境中获取的不同样本，其微生物组成也会存在比较大的差异，这使得在样本集之间，寻找具有统计学显著性和生物学意义的差异变得很困难。因此如何做到，在即使其影响因素的作用程度很小的情况下，也能有效地检测出差异就显得十分重要。
 
+- **评估实验与分析结果的可靠性**
+
+一种策略是，构造 pilot data，即将不同浓度的绝对定量 control (spike-in) 加入到样本中，来评估实验与分析方法的稳健性(robust)；
+
+另一种策略：two-tiered approach，即挑取少部分样本，既做 16s rDNA 测序，又做 shotgun metagenomics 测序，对比这两个层次的结果来评估实验结果的稳健性。
+
+- **横向/纵向 研究策略的比较**
+
+两种研究策略：
+> - **cross-sectional studies** —— 横向研究，又叫横断研究或横向比较研究，就是在同一时间内对每个对象进行观察与测定，在相互比较的基础上对特定因素或各种因素间的关系进行分析与考察的研究方案
+> - **longitudinal studies** —— 纵向追踪研究，亦称作纵向研究或追踪研究，是在比较长的时间内对相同对象进行有系统的定期研究，或者从时间的发展过程中考察研究对象的研究方案
+
+由于在研究宏基因组过程中，比如研究人类的微生物群，影响其微生物群的因素众多，包括宿主基因型，年龄，饮食习惯等等，当进行两个环境微生物群横向比较时，很难做到控制变量，使得在进行比较分析时混入了许多干扰因素；此时如果进行单一环境微生物群多时间点采样的纵向比较，就可以从很大程度上消除这种影响。
+
+<a name="guide-for-study-design"><h3>几点指导意见 [<sup>目录</sup>](#content)</h3></a>
+
+1\. 样本量与测序深度
+	
+当实验目的是检出显著性差异时，样本量与测序深度的选择取决于（1）不同样本间微生物组组成的一致性，（2）样本固有的微生物多样性，（3）影响因素的效应量(effect size)
+
+建议：参考前人在类似环境中的研究。若没有可参照的类似研究，选择marker gene做预实验
+
+2\. Confounding variables and control groups
+
+在进行宏基因组研究时，往往很难找到与目标样本集对应的没有其他干扰因素的对照组
+
+建议：目前最佳的解决策略是，尽可能地搜集各个样本群体的元数据 (metadata)，然后在随后的比较分析中将它们考虑进去。比如临床样本，包括性别、年龄、是否使用抗生素/药物、取样位置、饮食习惯等等。比如环境样本，包括地理位置、季节、pH、温度等等。
+
+3\. Sample collection/preservation
+
+样本的处理和保存过程的差异会带来系统偏差，比如when samples are provided from a number of locations by different research groups，或者在纵向研究中，不同取样时间点的样本的保存时间长短不一
+
+建议：尽可能按照相同的标准来进行取样和保存
+
+4\. Biomass/Contamination
+
+当前采用的基于测序的方法具有很高的灵敏度 (highly sensitive)，即使非常微量的DNA也能被检测出来。而实验室中使用到的常规仪器和试剂并不是无菌的，这样就很可能在实验操作过程中，人为地引入污染。由于检测方法的高灵敏度，当原样本的微生物量很少时，污染带来的信号很可能会盖过真实的信号。
+
+建议：在上机测序前，做好微生物量的定量 (qPCR)。当样品中的微生物数量少于10<sup>5</sup>数量级时，其极有可能会受到背景污染的干扰。此时，可以参照以下的方法进行细胞/DNA的富集：
+
+<p align="center"><img src=./picture/Metagenome-study-design-guide-enrich-cell-and-DNA.jpg width=900 /></p>
+
+可以增设负对照实验 (Negative control)，对其进行与实际样本相同的操作，使用相同的试剂，以此来找出污染的细菌类型，这样就可以在后续的生物信息学分析过程中将其过滤掉。
 
 <a name="binning"><h2>宏基因组binning [<sup>目录</sup>](#content)</h2></a>
 
