@@ -18,7 +18,7 @@
 
 <h1 name="title">Analysis of Metagenome</h1>
 
-<p align="center"><img src=./picture/Metagenome-flowchart-1.jpg width=900 /></p>
+<p align="center"><img src=./picture/Metagenome-logo.jpg width=800 /></p>
 
 <a name="introduction"><h2>背景知识 [<sup>目录</sup>](#content)</h2></a>
 
@@ -69,15 +69,13 @@
 而 read-based (mapping) approach 则受到reference databases的制约，因为细菌的遗传多样性很高，即便是同一个菌种，它的不同菌株，其基因组的组成也是有相对比较大的差异的，那么在mapping的时候就会出现mapping不上的问题，使得mapping效率不够高；而且只能分析reference databases中有的物种，对于reference databases未收录的新物种，是无法进行分析的
 
 
+
+
+
+
 <a name="application-of-comparative-meta"><h3>比较宏基因组学的应用 [<sup>目录</sup>](#content)</h3></a>
 
 - 了解微生物群体结构随着时间和地理环境的变化，以及通过比较不同个体、不同时间点、不同药物作用时微生物的变化与疾病的相关性
-
-
-
-
-
-
 
 <a name="challenge"><h3>目前存在的技术问题 [<sup>目录</sup>](#content)</h3></a>
 
@@ -117,6 +115,7 @@
 > 
 >    生物群落的结构不仅包括多样性和物种数量上的分布，而且应该包含物种间的相互作用关系，而这些关系在物质、能量、信息循环中起到了至关重要的作用。然而目前微生物物种间的相互作用往往法像宏观生态中予以观察和定性
 
+
 <a name="study-design"><h2>实验设计 [<sup>目录</sup>](#content)</h2></a>
 
 即使在同一个环境中获取的不同样本，其微生物组成也会存在比较大的差异，这使得在样本集之间，寻找具有统计学显著性和生物学意义的差异变得很困难。因此如何做到，在即使其影响因素的作用程度很小的情况下，也能有效地检测出差异就显得十分重要。
@@ -151,9 +150,11 @@
 
 建议：目前最佳的解决策略是，尽可能地搜集各个样本群体的元数据 (metadata)，然后在随后的比较分析中将它们考虑进去。比如临床样本，包括性别、年龄、是否使用抗生素/药物、取样位置、饮食习惯等等。比如环境样本，包括地理位置、季节、pH、温度等等。
 
+元数据的搜集可以参照MIMARKS (Minimum information about a marker gene sequence) 和 MIxS (minimum information about any (x) gene sequence) 标准
+
 3\. Sample collection/preservation
 
-样本的处理和保存过程的差异会带来系统偏差，比如when samples are provided from a number of locations by different research groups，或者在纵向研究中，不同取样时间点的样本的保存时间长短不一
+样本的处理和保存过程的差异会带来系统偏差，比如when samples are provided from a number of locations by different research groups，或者在纵向研究中，不同取样时间点的样本的保存时间长短不一。有时这些处理步骤的效应量可能比你感兴趣的生物学变量还大。
 
 建议：尽可能按照相同的标准来进行取样和保存
 
@@ -262,5 +263,3 @@ Binning的含义是分箱、聚类，指从微生物群体序列中将不同个�
 (4) Nielsen H B, Almeida M, Juncker A S, et al. Identification and assembly of genomes and genetic elements in complex metagenomic samples without using reference genomes[J]. Nature Biotechnology, 2014, 32(8):822-828.
 
 (5) Sangwan N, Xia F, Gilbert J A. Recovering complete and draft population genomes from metagenome datasets[J]. Microbiome, 2016, 4(1):8.
-
-
