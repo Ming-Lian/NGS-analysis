@@ -137,6 +137,8 @@
 
 <a name="guide-for-study-design"><h3>几点指导意见 [<sup>目录</sup>](#content)</h3></a>
 
+<p align="center"><img src=./picture/Metagenome-study-design.png width=900 /></p>
+
 1\. 样本量与测序深度
 	
 当实验目的是检出显著性差异时，样本量与测序深度的选择取决于（1）不同样本间微生物组组成的一致性，（2）样本固有的微生物多样性，（3）影响因素的效应量(effect size)
