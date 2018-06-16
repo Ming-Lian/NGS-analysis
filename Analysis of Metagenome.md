@@ -9,6 +9,8 @@
 	- [目前存在的技术问题](#challenge)
 - [实验设计](#study-design)
 	- [几点指导意见](#guide-for-study-design)
+	- [测序平台的选择](#choose-suitable-platform)
+- [Metagenome assembly](#metagenome-assembly)
 - [宏基因组binning](#binning)
 	- [binning原理](#principle-of-binning)
 	- [binning具体操作](#how-to-binning)
@@ -66,12 +68,9 @@
 
 简单来说，assembly-based approach 受到覆盖度的制约，因为组装时低覆盖度的区域是不会进行组装的，而是被丢弃，这样低丰度的细菌的信息就被丢弃了，反映在reads利用率上，就是往往reads利用率极低，往往低于50%
 
-而 read-based (mapping) approach 则受到reference databases的制约，因为细菌的遗传多样性很高，即便是同一个菌种，它的不同菌株，其基因组的组成也是有相对比较大的差异的，那么在mapping的时候就会出现mapping不上的问题，使得mapping效率不够高；而且只能分析reference databases中有的物种，对于reference databases未收录的新物种，是无法进行分析的
+而 read-based (mapping) approach 则受到reference databases的制约，因为细菌的遗传多样性很高，即便是同一个菌种，它的不同菌株，其基因组的组成也是有相对比较大的差异的，那么在mapping的时候就会出现mapping不上的问题，使得mapping效率不够高；而且只能分析reference databases中有的物种，对于reference databases未收录的新物种，是无法进行分析的。
 
-
-
-
-
+不过可用的微生物参考基因组正在迅速地增加，包括那些原先难以培养的细菌由于培养方法的改进，使得对其进行测序成为可能，再加上单细胞测序的途径和 metagenomic assembly的途径得到的基因组序列。现在一些类型的环境样品（如人肠道）的参考基因组的多样性已经可以满足 assembly-free taxonomic profiling 的要求。
 
 <a name="application-of-comparative-meta"><h3>比较宏基因组学的应用 [<sup>目录</sup>](#content)</h3></a>
 
@@ -103,7 +102,7 @@
 
 - **数据挖掘的层面上存在难点**
 
-> - 物种多样性(Taxonomy diversity)、功能多样性 (Functional diversity) 和遗传多样 性(Genetic diversity)的估算
+> - 物种多样性(Taxonomy diversity)、功能多样性 (Functional diversity) 和遗传多样性(Genetic diversity)的估算
 >
 >    因为稀有物种的大量检出，经典的估算方法如 Chao 等都会产生严重的偏差
 >
@@ -138,13 +137,13 @@
 
 <p align="center"><img src=./picture/Metagenome-study-design.png width=900 /></p>
 
-1\. 样本量与测序深度
+**1\. 样本量与测序深度**
 	
 当实验目的是检出显著性差异时，样本量与测序深度的选择取决于（1）不同样本间微生物组组成的一致性，（2）样本固有的微生物多样性，（3）影响因素的效应量(effect size)
 
 建议：参考前人在类似环境中的研究。若没有可参照的类似研究，选择marker gene做预实验
 
-2\. Confounding variables and control groups
+**2\. Confounding variables and control groups**
 
 在进行宏基因组研究时，往往很难找到与目标样本集对应的没有其他干扰因素的对照组
 
@@ -152,13 +151,13 @@
 
 元数据的搜集可以参照MIMARKS (Minimum information about a marker gene sequence) 和 MIxS (minimum information about any (x) gene sequence) 标准
 
-3\. Sample collection/preservation
+**3\. Sample collection/preservation**
 
 样本的处理和保存过程的差异会带来系统偏差，比如when samples are provided from a number of locations by different research groups，或者在纵向研究中，不同取样时间点的样本的保存时间长短不一。有时这些处理步骤的效应量可能比你感兴趣的生物学变量还大。
 
 建议：尽可能按照相同的标准来进行取样和保存
 
-4\. Biomass/Contamination
+**4\. Biomass/Contamination**
 
 当前采用的基于测序的方法具有很高的灵敏度 (highly sensitive)，即使非常微量的DNA也能被检测出来。而实验室中使用到的常规仪器和试剂并不是无菌的，这样就很可能在实验操作过程中，人为地引入污染。由于检测方法的高灵敏度，当原样本的微生物量很少时，污染带来的信号很可能会盖过真实的信号。
 
@@ -168,23 +167,99 @@
 
 可以增设负对照实验 (Negative control)，对其进行与实际样本相同的操作，使用相同的试剂，以此来找出污染的细菌类型，这样就可以在后续的生物信息学分析过程中将其过滤掉。
 
+**5\. 选择合适的DNA提取方法**
+
+DNA提取的效果会直接对后续的实验和分析产生巨大的影响。DNA提取方法的选择依赖于样品中细胞类型的组成，然而即使是相同类型的样品其微生物组成也具有较大的差异（当人粪便中革兰氏阴性菌主导时，细胞很容易裂解，而当由相对顽强的革兰氏阳性菌主导时，则相反）。
+
+因此不存在适用于所有样品的最佳的DNA提取方案。
+
+若方案选择不当，则获得的DNA主要来自于那些易裂解的细菌
+
+建议：
+
+<a name="choose-suitable-platform"><h3>测序平台的选择 [<sup>目录</sup>](#content)</h3></a>
+
+Illumina测序仪通量大 (up to 1.5 Tb per run)，且准确率高 (with a typical error rate of 0.1–1%)，通过在不同样本的序列上添加两重barcode，可以一次测序多个samples。
+
+然而，Illumina测序仪存在carryover (between runs) 和 carry-between (within runs)的问题。最新的测序仪由于使用了新的扩增方法 (ExAmp)，导致较高比例的‘index hopping’。
+
+虽然没有一个明确的指导意见，告诉你在哪个特定的环境样品中应该测多大的覆盖度，但是一个基本的原则就是通量要尽可能地大，这样低丰度的细菌也能被测到。Illumina HiSeq 2500/4000， NextSeq 和 NovaSeq 的测序通量都很大，都适用于 metagenomics 的研究。
+
+> HiSeq 2500 在 rapid-run 模式下能产生 2 × 250-nt 的 reads (up to 180 Gb per flow cell)，在 high-output 模式下能产生 2 × 125-nt 的 reads (up to 1 Tb)
+> 
+> 新一些的HiSeq 3000 和 4000，通量提高 (up to 1.5 Tb for the 4000)，但是测序长度限制在 150nt
+> 
+> NextSeq 的通量与 HiSeq 2500 的 high-output 模式相同，而花费只有Hiseq的一半，但是长度限制为 150nt
+> 
+> 最近才推出的 Novaseq 有望达到 3 Tb per flow cell
+> 
+> MiSeq 受制于它的通量 (up to 15 Gb in 2 × 300 mode)，但仍然是目前 single-marker-gene microbiome studies 的金标准
+
+<a name="metagenome-assembly"><h2>Metagenome assembly [<sup>目录</sup>](#content)</h2></a>
+
+Metagenome de novo assembly 采用的策略与 whole-genome assembly 相同，均为 de Bruijn 图方法
+
+用 de Bruijn 图方法进行宏基因组的从头组装时，面临着以下的挑战：
+
+- 测序覆盖度不均匀
+
+当进行单一基因组的组装时，其有一个前提假设：整个基因组的测序覆盖度是相对均匀的，这样就可以利用覆盖度信息来识别重复序列和鉴定测序错误和等位变异。
+
+而metagenome中，各个组成基因组的覆盖度取决于它们的物种丰度，低丰度物种的基因组就会由于总体测序深度不够而使得最终组装出来的基因组是支离破碎的。使用更短的 k-mer 有助于低丰度基因组的组装，但是这会使得图中重复 k-mer 的频率大大增加，降低了组装的准确性。
+
+这需要组装工具在考量低丰度物种与获得高丰度物种更长更准确的contig之间进行权衡，即选择合适的 k-mer ：
+
+```
+If k is too large, there will be a lot of gap problems in the graph. 
+If k is too small, there will a lot of branch problems.
+```
+
+> Meta-IDBA：使用多重 k-mer
+>
+> IDBA-UD：基于Meta-IDBA的升级，对测序深度不均匀数据的组装过程进行了优化
+
+- 同种细菌不同菌株的干扰
+
+同种细菌的不同菌株，它们的基因组组成很相近，常常就是一个碱基的变异或者整个基因/操纵子的丢失，当进行 de Bruijn 图组装时，就会在这些差异的位置出现分叉，组装工具在遇到这些分叉时，常常会停在这些位置，从而导致一个个不连续组装片段的产生。
+
+Meta-IDBA：将图依据其拓扑结构拆分成各个元件，每个元件代表各个亚种的共有区域
+
+```
+Meta-IDBA handles this problem grouping similar regions of similar subspecies by partitioning the graph into
+components based on the topological structure of the graph. Each component represents a similar region between
+subspecies from the same species or even from different species. After the components areseparated, all contigs
+in it are aligned to produced a consensus and also the multiple alignment. 
+```
+
+解决计算能力与内存不足的策略：
+
+> - 使用分布式 assemblers，例如 ABySS、Ray
+> 
+> - 将metagenome的组装图分割成相互连接的部分，然后在各个部分内部分别进行相对独立地组装，即分而治之的策略。
+
+
 <a name="binning"><h2>宏基因组binning [<sup>目录</sup>](#content)</h2></a>
 
-Binning的含义是分箱、聚类，指从微生物群体序列中将不同个体的序列（reads或contigs等）分离开来的过程。简单来说就是把宏基因组数据中来自同一菌株的序列聚到一起，得到一个菌株的基因组。是的，可以达到菌株水平。
+Metagenome 组装完成后，我们得到的是成千上万的 contigs，我们需要知道哪些 contigs 来自哪一个基因组，或者都有哪些微生物的基因组。所以需要将 contigs 按照物种水平进行分组归类，称为 **"bining"**
 
-宏基因组binning的两方面的重要应用：
-> - 关联分析
-> 
->     通过binning得到的bins（暂且简称为bins，更确切的说是strain-level clusters 或strain-level taxonomic units）可以进行宏基因组关联分析以及多组学联合分析，将特定功能代谢产物与特定物种、特定基因进行关联研究，推动其因果机制的探究，为疾病监控、环境监测提供了菌株水平的生物靶标。
-> - 单菌组装
-> 
->     对binning得到的bins进行后续组装，可以得到很多不能在实验室里培养的细菌、古菌、病毒的基因组草图，然后根据单菌组装结果进行菌株水平的基因和功能注释、比较基因组分析、进化分析
+```
+Supervised binning methods: use databases of already sequenced genomes to label contigs into taxonomic classes
+
+Unsupervised (clustering) methods: look for natural groups in the data
+
+Both supervised and unsupervised methods have two main elements: a metric to define the similarity between a given contig and
+a bin, and an algorithm to convert those similarities into assignments
+```
+
+一个很容易想到的策略就是，将组装得到的片段与已知物种的参考基因组进行比对，根据同源性进行归类。然而目前大多数的微生物的基因组还没有测序出来，因此限制了这种方法的可行性。
+
+目前主流的 bining 策略利用的是 contigs 的序列组成特点。
 
 <a name="principle-of-binning"><h3>binning原理 [<sup>目录</sup>](#content)</h3></a>
 
 <p align="center"><img src=./picture/Metagenome-gene-binning-1.gif width=800 /></p>
 
-- **根据核酸组成信息来进行binning**
+- **根据核酸组成信息来进行binning：k-mer frequencies**
 
 依据：来自同一菌株的序列，其核酸组成是相似的
 
