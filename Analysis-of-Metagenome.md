@@ -15,7 +15,8 @@
 	- [binning原理](#principle-of-binning)
 	- [binning具体操作](#how-to-binning)
 	- [目前binning工具存在的问题](#problems-in-binning)
-
+- [Taxonomic profiling](#taxonomic-profiling)
+	- [Assembly-free strategy](#assembly-free)
 
 
 <h1 name="title">Analysis of Metagenome</h1>
@@ -324,6 +325,42 @@ a bin, and an algorithm to convert those similarities into assignments
 
 想要获得高质量的bins经常需要手动调整
 
+<a name="taxonomic-profiling"><h2>Taxonomic profiling [<sup>目录</sup>](#content)</h2></a>
+
+Taxonomic profiling: identifies which microbial species are present in a metagenome and estimates their abundance
+
+<a name="assembly-free"><h3>Assembly-free strategy [<sup>目录</sup>](#content)</h3></a>
+
+- **reference-based approaches**
+
+> mitigate assembly problems
+> 
+> speed up computation
+> 
+> enable profiling of low-abundance organisms that cannot be assembled de novo
+
+当然它也有局限性
+
+对于与人类密切相关的样品，比如人肠道，可以使用该策略，而且已经有相关的成功实践
+
+- **Marker-based approaches**: by selecting representative or discriminative genes (markers)
+
+`By looking at co-abundant markers from preassembled environment-specific gene catalogs`
+
+即前人研究 (MetaHIT consortium) 已经得出特定环境下的微生物的组成，这些微生物中有某些 co-abundant markers（这些 marker genes 的丰度与其物种的丰度成正比），这样就可以基于对这些 markers 的定量得到对应的物种丰度
+
+选择 markers 的不同策略：
+
+> **mOTU**: universally conserved but phylogenetically informative markers
+> 
+> **MetaPhlAn**: several thousand clade-specific markers
+> 
+> ```
+> with high discriminatory power and was effective to quantitatively profile the microbiome from multiple 
+> body areas for the Human Microbiome Project (HMP) with a very low false positive discovery rate
+> ```
+
+当样本量巨大，都进行组装是明显不切实际的，此时采用 marker-based approaches 是一个不错的选择；而且，如果该环境来源的样本其组成微生物是研究比较充分时，marker-based approaches 能得到比较准确的物种定量结果。
 
 
 
