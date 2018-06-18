@@ -17,6 +17,9 @@
 	- [目前binning工具存在的问题](#problems-in-binning)
 - [Taxonomic profiling](#taxonomic-profiling)
 	- [Assembly-free strategy](#assembly-free)
+	- [比较 Assembly-based profiling 与 Read-based profiling](#compare-2-types-profiling)
+- [Genes and metabolic pathways](#gene-and-pathway)
+
 
 
 <h1 name="title">Analysis of Metagenome</h1>
@@ -362,6 +365,43 @@ Taxonomic profiling: identifies which microbial species are present in a metagen
 
 当样本量巨大，都进行组装是明显不切实际的，此时采用 marker-based approaches 是一个不错的选择；而且，如果该环境来源的样本其组成微生物是研究比较充分时，marker-based approaches 能得到比较准确的物种定量结果。
 
+<a name="compare-2-types-profiling"><h3>比较 Assembly-based profiling 与 Read-based profiling [<sup>目录</sup>](#content)</h3></a>
+
+<table>
+<tr>
+	<td><img src=./picture/Metagenome-taxonomic-profiling-assembly-based.jpg width=450 /></td>
+	<td><img src=./picture/Metagenome-taxonomic-profiling-reads-based.jpg width=450 /></td>
+</tr>
+</table>
+
+<a name="gene-and-pathway"><h2>Genes and metabolic pathways [<sup>目录</sup>](#content)</h2></a>
+
+**Gene identification**
+
+> homology-based annotation pipelines
+> 
+> translated sequence searches against functionally characterized protein families, such as KEGG or UniProt
+
+**Characterization of the functional potential of the microbiome**
+
+<p align="center"><img src=./picture/Metagenome-gene-and-pathway-HUMAnN-flowchart.jpg width=900 /></p>
+<p align="center">Overview of the HUMAnN method for metabolic and functional reconstruction from metagenomic data <br>(Sahar Abubucker, PLoS Comput Biol. 2012)</p>
+
+> Cleaned short DNA reads are aligned to the KEGG Orthology(or any other characterized sequence database) using accelerated translated BLAST. 
+> 
+> Gene family abundances are calculated as weighted sums of the alignments from each read, normalized by gene length and alignment quality.
+>
+> <p align="center"><img src=/picture/Metagenome-gene-and-pathway-HUMAnN-weighted-sums-formula.jpg width=200 /></p>
+> 
+> Assigning gene families to pathways and modules
+> 
+> <p align="center"><img src=/picture/Metagenome-gene-and-pathway-HUMAnN-pathway-assignment.png width=400 /></p>
+> 
+> Pathway reconstruction is performed using a maximum parsimony approach followed by taxonomic limitation (to remove false positive pathway identifications) and gap filling (to account for rare genes in abundant pathways).
+> 
+>  The resulting output is a set of matrices of pathway coverages (presence/absence) and abundances
+
+
 
 
 参考资料：
@@ -375,3 +415,7 @@ Taxonomic profiling: identifies which microbial species are present in a metagen
 (4) Nielsen H B, Almeida M, Juncker A S, et al. Identification and assembly of genomes and genetic elements in complex metagenomic samples without using reference genomes[J]. Nature Biotechnology, 2014, 32(8):822-828.
 
 (5) Sangwan N, Xia F, Gilbert J A. Recovering complete and draft population genomes from metagenome datasets[J]. Microbiome, 2016, 4(1):8.
+
+(6) Abubucker, S. et al. Metabolic reconstruction for metagenomic data and its application to the human microbiome. PLoS Comput. Biol. 8, e1002358(2012).
+
+
