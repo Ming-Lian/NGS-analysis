@@ -18,7 +18,7 @@
 - [Taxonomic profiling](#taxonomic-profiling)
 	- [Assembly-free strategy](#assembly-free)
 	- [比较 Assembly-based profiling 与 Read-based profiling](#compare-2-types-profiling)
-- [Genes and metabolic pathways](#gene-and-pathway)
+- [Metabolic function profiling](#metabolic-function-profiling)
 
 
 
@@ -374,7 +374,7 @@ Taxonomic profiling: identifies which microbial species are present in a metagen
 </tr>
 </table>
 
-<a name="gene-and-pathway"><h2>Genes and metabolic pathways [<sup>目录</sup>](#content)</h2></a>
+<a name="metabolic-function-profiling"><h2>Metabolic function profiling [<sup>目录</sup>](#content)</h2></a>
 
 **Gene identification**
 
@@ -383,6 +383,8 @@ Taxonomic profiling: identifies which microbial species are present in a metagen
 > translated sequence searches against functionally characterized protein families, such as KEGG or UniProt
 
 **Characterization of the functional potential of the microbiome**
+
+- 策略一：Aggregate single protein families into higher-level metabolic pathways and functional modules
 
 <p align="center"><img src=./picture/Metagenome-gene-and-pathway-HUMAnN-flowchart.jpg width=900 /></p>
 <p align="center">Overview of the HUMAnN method for metabolic and functional reconstruction from metagenomic data <br>(Sahar Abubucker, PLoS Comput Biol. 2012)</p>
@@ -400,6 +402,15 @@ Taxonomic profiling: identifies which microbial species are present in a metagen
 > Pathway reconstruction is performed using a maximum parsimony approach followed by taxonomic limitation (to remove false positive pathway identifications) and gap filling (to account for rare genes in abundant pathways).
 > 
 >  The resulting output is a set of matrices of pathway coverages (presence/absence) and abundances
+
+**局限性**： lack of annotations for accessory genes in most microbial species
+
+因为在评估微生物群体的代谢潜能时，只对那些高度保守和 housekeeping 类型的功能进行了注释，这就解释了，为什么来自不同环境的不同样品，它们的功能特征常常是十分相似的，即使它们的物种组成有很大差异。
+
+- 策略二：An in-depth characterization of specific functions of interest
+
+例如，鉴定出微生物群落中的抗生素抗性基因，该方法高度依赖特定功能相关基因集注释的质量。
+
 
 
 
