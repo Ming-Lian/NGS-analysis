@@ -3,7 +3,8 @@
 [Algorithms in Bioinformatics](#title)
 - [Sequence Alignment](#alignment)
 	- [DIAMOND](#diamond)
-
+- [Bining for Metageonome](#bining)
+	- [CONCOCT](#concoct)
 
 
 
@@ -54,13 +55,60 @@ DIAMOND is a new high-throughput program for aligning DNA reads or protein seque
 > weight 12 by default. The most sensitive version of DIAMOND uses 16 shapes of weight 9.
 > ```
 
+<a name="bining"><h2>Bining for Metageonome [<sup>目录</sup>](#content)</h2></a>
 
+<a name="concoct"><h3>CONCOCT [<sup>目录</sup>](#content)</h3></a>
 
+结合序列组成特征 (sequence composition) 和跨样本覆盖度特征 (coverage across multiple samples) 进行bining
 
+在进行bining之前需要将所有样本的reads进行混拼 (coassembly) 得到contigs
 
+- Sequence composition features
 
+以 k-mer 长度等于5为例
 
+将相互之间成反向互补关系的 5-mers pairs 记做一种，则总共有512种 5-mers，对每一条contig计算其各自 5-mers 的组成频率从而构造出一个长度为v=512的向量 Z<sub>i</sub>：
+
+<p align="center">Z<sub>i</sub> = (Z<sub>i,1</sub>, ..., Z<sub>i,v</sub>)</p>
+
+为了保证每个 5-mers 频率的计数非零（为后面的对数转换做准备），进行伪计数处理，然后用该序列的 5-mers的总数进行标准化，得到新的向量 Z<sub>i</sub><sup>'</sup>：
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-bining-composition-formula.png height=80 /></p>
+
+- Contig coverage features
+
+用段序列比对软件，将各个样本（总共有M个样本）的reads比对到contigs上，计算每条contigs在每个样本中的 coverage (Mapped reads * read length / contig length)，得到表示 congtig i 的 coverage 的向量 Y<sub>i</sub>：
+
+<p align="center">Y<sub>i</sub> = (Y<sub>i,1</sub>, ..., Y<sub>i,M</sub>)</p>
+
+两轮标准化处理：
+
+> 伪计数处理：额外添加一条比对到该 contig 上的 read；再用该**样本内**所有 contigs（contigs总数为N）的 coverage 进行标准化，得到新的向量 Y<sub>i</sub><sup>'</sup>：
+> 
+> <p align="center"><img src=./picture/Algorithms-Bioinf-bining-coverage-formula-1.png height=80 /></p>
+> 
+> 然后再在**contig内部**进行标准化，得到新的向量 Y<sub>i</sub><sup>''</sup>：
+> 
+> <p align="center"><img src=./picture/Algorithms-Bioinf-bining-coverage-formula-2.png height=80 /></p>
+
+- Combine two features
+
+将表示某一个 contig i 的序列组成特征的向量 Z<sub>i</sub><sup>'</sup> 和 coverage 特征向量 Y<sub>i</sub><sup>''</sup>合并成组成一个新的特征向量 X<sub>i</sub>（向量长度为E=V+M），同时进行对数转换：
+
+<p align="center">X<sub>i</sub> = { log(Z<sub>i</sub><sup>'</sup>) , log(Y<sub>i</sub><sup>''</sup>) }
+
+- PCA，保留能解释至少90%的方差的主成分（共保留前D个主成分，D < E）
+
+矩阵维数变化：N x E => N x D
+
+- cluster contigs into bins
+
+使用高斯混合模型 (Gaussian mixture model)
 
 参考资料：
 
 (1) Benjamin Buchfink, Chao Xie & Daniel H. Huson, Fast and Sensitive Protein Alignment using DIAMOND, Nature Methods, 12, 59–60 (2015) doi:10.1038/nmeth.3176.
+
+(2) Alneberg, J. et al. Binning metagenomic contigs by coverage and composition. Nat. Methods 11, 1144–1146 (2014).
+
+(3) Beaulaurier J, Zhu S, Deikus G, et al. Metagenomic binning and association of plasmids with bacterial host genomes using DNA methylation.[J]. Nature Biotechnology, 2017, 36(1).
