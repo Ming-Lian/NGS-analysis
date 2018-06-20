@@ -61,11 +61,11 @@ DIAMOND is a new high-throughput program for aligning DNA reads or protein seque
 
 <a name="motif-em"><h3>MEME：EM算法 [<sup>目录</sup>](#content)</h3></a>
 
-<p align="center"><img src=./picture/MeRIP-seq-meme-principle-1.png width=600/></p>
+<p align="center"><img src=./picture/MeRIP-seq-meme-principle-1.png width=800/></p>
 
-<p align="center"><img src=./picture/MeRIP-seq-meme-principle-2.png width=600/></p>
+<p align="center"><img src=./picture/MeRIP-seq-meme-principle-2.png width=800/></p>
 
-<p align="center"><img src=./picture/MeRIP-seq-meme-principle-3.png width=600/></p>
+<p align="center"><img src=./picture/MeRIP-seq-meme-principle-3.png width=800/></p>
 
 <a name="bining"><h2>Bining for Metageonome [<sup>目录</sup>](#content)</h2></a>
 
