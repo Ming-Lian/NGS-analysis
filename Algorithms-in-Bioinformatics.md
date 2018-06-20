@@ -2,9 +2,11 @@
 
 [Algorithms in Bioinformatics](#title)
 - [Sequence Alignment](#alignment)
-	- [DIAMOND](#diamond)
+	- [DIAMOND](#alignment-diamond)
+- [Motif Finding](#motif)
+	- [MEME：EM算法](#motif-em)
 - [Bining for Metageonome](#bining)
-	- [CONCOCT](#concoct)
+	- [CONCOCT](#bining-concoct)
 
 
 
@@ -17,7 +19,7 @@
 
 <a name="alignment"><h2>Sequence Alignment [<sup>目录</sup>](#content)</h2></a>
 
-<a name="diamond"><h3>DIAMOND [<sup>目录</sup>](#content)</h3></a>
+<a name="alignment-diamond"><h3>DIAMOND [<sup>目录</sup>](#content)</h3></a>
 
 DIAMOND is a new high-throughput program for aligning DNA reads or protein sequences against a protein reference database such as NR, at up to 20,000 times the speed of BLAST, with high sensitivity. 
 
@@ -55,9 +57,19 @@ DIAMOND is a new high-throughput program for aligning DNA reads or protein seque
 > weight 12 by default. The most sensitive version of DIAMOND uses 16 shapes of weight 9.
 > ```
 
+<a name="motif"><h2>Motif Finding [<sup>目录</sup>](#content)</h2></a>
+
+<a name="motif-em"><h3>MEME：EM算法 [<sup>目录</sup>](#content)</h3></a>
+
+<p align="center"><img src=./picture/MeRIP-seq-meme-principle-1.png width=600/></p>
+
+<p align="center"><img src=./picture/MeRIP-seq-meme-principle-2.png width=600/></p>
+
+<p align="center"><img src=./picture/MeRIP-seq-meme-principle-3.png width=600/></p>
+
 <a name="bining"><h2>Bining for Metageonome [<sup>目录</sup>](#content)</h2></a>
 
-<a name="concoct"><h3>CONCOCT [<sup>目录</sup>](#content)</h3></a>
+<a name="bining-concoct"><h3>CONCOCT [<sup>目录</sup>](#content)</h3></a>
 
 结合序列组成特征 (sequence composition) 和跨样本覆盖度特征 (coverage across multiple samples) 进行bining
 
