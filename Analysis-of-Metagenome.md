@@ -285,6 +285,10 @@ a bin, and an algorithm to convert those similarities into assignments
 
 对于像质粒这样的可移动遗传单元 (mobile genetic elements (MGEs))，由于其复制独立于细菌染色体，则同一种细菌的不同个体，该质粒的拷贝数可能存在差异，使得无法用丰度信息进行有效地bining
 
+- **根据基因组甲基化模式**
+
+依据：不同的细菌，其基因组甲基化模式不同，平均一种细菌有3种特意的甲基化 motif。MGEs (mobile genetic elements) 中含有 MTase 基因，其基因水平转移是细菌甲基化组多样性的驱动因素。虽然 MGEs 在不同个体的拷贝数不同，但是都存在，因此具有相同 MGEs 的细菌个体，其总遗传物质（包括染色体和 MGEs ）都会受到相同的MTase的作用而得到相同的甲基化模式。
+
 - **同时依据核酸组成和丰度变化信息**
 
 将核酸组成信息和丰度差异信息创建一个综合的距离矩阵，既能保证binning效果，也能相对节约计算资源，现在比较主流的binning软件多是同时依据核酸组成和丰度变化信息
@@ -433,4 +437,5 @@ Taxonomic profiling: identifies which microbial species are present in a metagen
 
 (6) Abubucker, S. et al. Metabolic reconstruction for metagenomic data and its application to the human microbiome. PLoS Comput. Biol. 8, e1002358(2012).
 
+(7) Beaulaurier J, Zhu S, Deikus G, et al. Metagenomic binning and association of plasmids with bacterial host genomes using DNA methylation.[J]. Nature Biotechnology, 2017, 36(1).
 
