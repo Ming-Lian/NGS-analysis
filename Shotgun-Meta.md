@@ -116,7 +116,7 @@ python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m contigs/velvet_71.fa > 
 # index for contigs
 $ bowtie2-build contigs/velvet_71_c10K.fa contigs/velvet_71_c10K.fa
 ```
-用`map-bowtie2-markduplicates.sh`脚本完成 `mapping` -> `remove duplicate` -> `quantify coverage`
+用`map-bowtie2-markduplicates.sh`脚本完成 `mapping` -> `remove duplicate`
 
 ```
 for f in $CONCOCT_TEST/reads/*_R1.fa; do
