@@ -4,6 +4,9 @@
 - [测序原理](#principle-of-sequencing)
 	- [Helicos：tSMS](#tsms)
 	- [PacBio：SMRT](#smrt)
+	- [Nanopore sequencing](#nanopore)
+- [PacBio-SMRT数据分析](#analysis-for-pacbio)
+	- [QC](#pacbio-qc)
 
 <h1 name="title">三代测序入门</h1>
 
@@ -61,6 +64,90 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 > 
 > 	好在它的出错是随机的，并不会像第二代测序技术那样存在测序错误的偏向，因而可以通过多次测序来进行有效的纠错
 
+<a name="nanopore"><h3>Nanopore sequencing [<sup>目录</sup>](#content)</h3></a>
+
+该技术的关键之一是，它们设计了一种特殊的纳米孔，孔内共价结合有分子接头。当DNA 碱基通过纳米孔时，它们使电荷发生变化，从而短暂地影响流过纳米孔的电流强度（每种碱基所影响的电流变化幅度是不同的），灵敏的电子设备检测到这些变化从而鉴定所通过的碱基。
+
+<p align="center"><img src=./picture/3GS-principle-Nanopore.png width=900 /></p>
+
+<a name="analysis-for-pacbio"><h2>PacBio-SMRT数据分析 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="pacbio-qc"><h3>QC [<sup>目录</sup>](#content)</h3></a>
+
+1. 下机数据
+
+	<p align="center"><img src=./picture/3GS-PacBio-QC-rawdata.png width=900 /></p>
+
+	在analysis文件夹中，下机的数据被分割为三个文件进行存储
+
+	- 以bax.h5为后缀的是原始二进制文件；
+	- 以subreads.fasta / subreads.fastq为后缀的是经一级处理得到的标准格式的碱基文件；
+	- 以sts.csv / sts.xml为后缀的是记录测序过程中每个ZMW度量指标的统计文件
+
+	数据的命名:
+	
+	```
+	 m  140415_143853_42175_c100635972550000001823121909121417_s1_p0
+	
+	└1┘└─────2─────┘ └──3──┘└───────────────4───────────────┘└5┘└6┘
+	```
+	
+	> 1\. m是movie的缩写；
+	
+	> 2\. 测序时间，格式为yymmdd_hhmmss；
+	
+	> 3\. 仪器编号；
+	
+	> 4\. SMRT Cell Barcode；
+	
+	> 5和6无实际意义，一般是固定的
+
+2. 数据结构
+
+	Pacbio 数据的文库模型是两端加接头的哑铃型结构，测序时会环绕着文库进行持续的进行，由此得到的测序片段称为 **polymerase reads**，即一条含接头的测序序列，其长度由反应酶的活性和上机时间决定。目前，采用最新的 P6-C4 酶，最长的读长可达到 60kb 以上。
+	
+	<p align="center"><img src=./picture/3GS-PacBio-QC-library-sequence.png width=600 /></p>
+	
+	polymerase reads 是需要进行一定的处理才能获得用于后续分析的。这个过程首先是去除低质量序列和接头序列：
+	
+	<p align="center"><img src=./picture/3GS-PacBio-QC-subreads.png width=600 /></p>
+	
+	处理后得到的序列称为 **subreads**，根据不同文库的插入片段长度，subreads 的类型也有所不同。
+	
+	对长插入片段文库的测序基本是少于2 passes的(pass即环绕测序的次数)，得到的reads也称为**Continuous Long Reads (CLR)**，这样的reads测序错误率等同于原始的测序错误率。
+	
+	而对于全长转录组或全长16s测序，构建的文库插入片段较短，测序会产生多个passes，这时会对多个reads进行一致性校正，得到一个唯一的read，也称为**Circular Consensus Sequencing（CCS）Reads**，这样的reads测序准确率会有显著的提升。
+
+	```
+	polymerase reads 与 subreads 是相对应的两个概念
+	
+	Continuous Long Reads (CLR) 与 Circular Consensus Sequencing（CCS）Reads 是是相对应的两个概念
+	```
+
+3. 数据质量
+
+	不同于二代测序的碱基质量标准Q20/Q30，三代测序由于其随机分布的碱基错误率，其单碱基的准确性不能直接用于衡量数据质量。那么，怎么判断三代测序的数据好不好呢？
+
+	- 长度
+
+	长度短的测序数据不一定差（与文库大小有关），但差的数据长度一定短。在上游实验环节，最关键的影响因素是文库的构建。高质量的文库产出的数据长度长，质量好；而低质量的文库产出的数据长度短，质量差。
+
+	<p align="center"><img src=./picture/3GS-PacBio-QC-quality-length.png width=900 /></p>
+
+	- 比例
+
+	需要关注的是两个比例：
+
+	> 一个是subreads与polymerase reads数据量的比例，比例过低反映测序过程中的低质量的序列较多；
+
+	> 一个是zmw孔载入的比例，根据孔中载入的DNA片段数分为P0、P1和P2。P1合理比例在40%-60%之间。上样浓度异常会导致P0或P2比例过高，有效数据量减少。需要注意的是P2比例过低时，可能存在P2转P1的情况，测序结果包含较多的嵌合型reads。
+	> 
+	> <p align="center"><img src=./picture/3GS-PacBio-QC-quality-zmw-loading.png width=600 /></p>
+	> 
+	> ```
+	> 一张芯片上有15万个孔，其中只有大概三分之一有一个测序复合物（聚合酶＋测序引物＋测序模版），另外三分之一是空的，
+	> 剩下的三分之一是有>2个以上的测序复合物产生的数据再接下来的分析中是要去掉
+	> ```
 
 
 
@@ -69,5 +156,5 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 (1) 天津医科大学，伊现富《系统生物学-chapter2》
 
-
+(2) [三代测序--QC篇](https://www.cnblogs.com/walle2008/p/6897263.html)
 
