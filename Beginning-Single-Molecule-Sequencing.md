@@ -31,7 +31,7 @@
 
 其GC偏好性如何？
 
-<p align="center"><img src=./picture/3GS-principle-10xgenome-GCbias.png width=900 /></p>
+<p align="center"><img src=./picture/3GS-principle-10Xgenome-GCbias.png width=900 /></p>
 
 10X Genomics技术相对于Illumina来说，有改进，但依旧是个拱形，而PacBio则是无偏倚的均一分布。10X的技术，其Coverage一样是受GC含量影响较大的，那么如果真要应用10X技术，那么必须注意目标DNA的GC含量分布最好能控制在30～70%。
 
