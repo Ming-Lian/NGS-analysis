@@ -9,6 +9,7 @@
 - [PacBio-SMRT数据分析](#analysis-for-pacbio)
 	- [QC](#pacbio-qc)
 	- [组装](#pacbio-assembly)
+		- [de novo assembly 算法](#denovo-assembly-algorithm)
 		- [error correction](#error-correction)
 
 <h1 name="title">三代测序入门</h1>
@@ -198,6 +199,16 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 	- **pacBioToCA**：Celera<sup>®</sup> Assembler的一个error correction模块，最初是用来align short reads to PacBio reads 和 generate consensus sequences。随后，这些错误校正过的PacBio reads可以用Celera<sup>®</sup> Assembler进行组装
 	- 
+<a name="denovo-assembly-algorithm"><h3>de novo assembly 算法 [<sup>目录</sup>](#content)</h3></a>
+
+基因组的组装问题，实际上就是从序列得到的图中搜寻遍历路径的问题，有两种构建图的方法：
+
+- overlap-layout-consensus (OLC)
+- de Bruijn graph
+
+<img src=./picture/3GS-PacBio-assembly-compare-2-algorithms.png width=400 />
+
+可以看到，随着reads长度的增加，基于OLC算法的组装工具组装出的contigs的长度几乎在线性增长，而基于de Bruijn图算法的组装效果并没有随着reads长度的增加而提高
 
 <a name="error correction"><h3>error correction [<sup>目录</sup>](#content)</h3></a>
 
