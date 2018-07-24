@@ -2,11 +2,14 @@
 
 [三代测序入门](#title)
 - [测序原理](#principle-of-sequencing)
+	- [10X Genomics：Illumina二代测序的升级版](#10X-genomics)
 	- [Helicos：tSMS](#tsms)
 	- [PacBio：SMRT](#smrt)
 	- [Nanopore sequencing](#nanopore)
 - [PacBio-SMRT数据分析](#analysis-for-pacbio)
 	- [QC](#pacbio-qc)
+	- [组装](#pacbio-assembly)
+		- [error correction](#error-correction)
 
 <h1 name="title">三代测序入门</h1>
 
@@ -17,6 +20,20 @@
 > 优点：无需前期扩增，不引入偏向性；读长长
 > 
 > 缺点：错误率高；
+
+<a name="10X-genomics"><h3>10X Genomics：Illumina二代测序的升级版 [<sup>目录</sup>](#content)</h3></a>
+
+10X Genomics，是常规Illumina二代测序的升级版，由于开发出了一套巧妙的Barcoding建库方案，使得Illumina这种短读长二代测序能够得到跨度在30-100Kb的linked reads信息，与二代测序数据相结合，在Scaffold的组装上能够得到媲美三代测序的组装结果
+
+<p align="center"><img src=./picture/3GS-principle-10xgenome.png width=900 /></p>
+
+> 首先将每一条长片段的DNA分配至不同的油滴微粒中，通过专利的GEM建库技术，长片段DNA被切碎成适合测序的大小，并且来源于相同油滴(同一条长片段DNA)的DNA片段，会带上相同的一段DNA序列标记(Barcode)，之后在Illumina系统上测序完成后，可以理论上再将来源相同的DNA序列独立拼接，得到原先的长片段DNA序列。
+
+其GC偏好性如何？
+
+<p align="center"><img src=./picture/3GS-principle-10xgenome-GCbias.png width=900 /></p>
+
+10X Genomics技术相对于Illumina来说，有改进，但依旧是个拱形，而PacBio则是无偏倚的均一分布。10X的技术，其Coverage一样是受GC含量影响较大的，那么如果真要应用10X技术，那么必须注意目标DNA的GC含量分布最好能控制在30～70%。
 
 <a name="tsms"><h3>Helicos：tSMS [<sup>目录</sup>](#content)</h3></a>
 
@@ -61,7 +78,9 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 > - 缺点：
 > 
 > 	- 测序错误率比较高（这几乎是目前单分子测序技术的通病），达到15% 
-> 
+>
+> 	<img src=./picture/3GS-principle-SMRT-reads-error.png width=500 />
+>
 > 	好在它的出错是随机的，并不会像第二代测序技术那样存在测序错误的偏向，因而可以通过多次测序来进行有效的纠错
 
 <a name="nanopore"><h3>Nanopore sequencing [<sup>目录</sup>](#content)</h3></a>
@@ -149,12 +168,63 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 	> 剩下的三分之一是有>2个以上的测序复合物产生的数据再接下来的分析中是要去掉
 	> ```
 
+<a name="pacbio-assembly"><h3>组装 [<sup>目录</sup>](#content)</h3></a>
 
+目前采用的组装策略：
+
+- **PacBio-only de novo assembly** ：只使用 PacBio 产生的 long reads 进行拼接，在拼接之前要进行预处理，然后采用 Overlap-Layout-Consensus 算法进行拼接
+
+- **Hybrid de novo assembly** ：结合 PacBio 的长reads 和 二代的短 reads
+
+- **Gap filling** ：用二代的短reads（包括Pair-end和Mate-pair reads）拼接得到scaffod，然后用 PacBio 的长 reads 进行补洞
+
+- **Scaffolding** ：用二代的短reads（包括Pair-end和Mate-pair reads）拼接得到 contigs / scaffod，用 PacBio 的长 reads 确定 contigs / scaffod 之间的位置关系
+
+<p align="center"><img src=./picture/3GS-PacBio-assembly-approaches.png width=900 /></p>
+
+这四种组装策略并不是完全孤立的，在一个组装任务的不同阶段会用到不同的方法
+
+不同的组装策略可以选用的工具：
+
+1. **PacBio-only**
+
+	- **HGAP：**先进行reads的预组装(preassembly)，然后用Celera<sup>®</sup> Assembler进行进一步组装，最后用 Quiver 进行校正
+	- **Falcon**：一个试验性的二倍体组装工具，已经在Gb级别大小的基因组上做了试验
+	- **Canu**：以Celera Assembler为基础，为三代单分子测序而开发出的分支工具
+	- **Celera<sup>®</sup> Assembler**：现在，Celera<sup>®</sup> Assembler 8.1 已经可以直接用于subreads的组装
+
+
+2. **Hybrid**
+
+	- **pacBioToCA**：Celera<sup>®</sup> Assembler的一个error correction模块，最初是用来align short reads to PacBio reads 和 generate consensus sequences。随后，这些错误校正过的PacBio reads可以用Celera<sup>®</sup> Assembler进行组装
+	- 
+
+<a name="error correction"><h3>error correction [<sup>目录</sup>](#content)</h3></a>
+
+三代单分子测序会产生较高的随机错误，平均正确率在82.1%-84.6%。这么高的错误率显然不能直接用于后续的分析，需要进行错误校正：
+
+- **多测几个pass**：由于测序序列是发夹结构，可以进行多轮的滚环测序，靠覆盖度来自我纠错，如果通量不是限制因素，那么PacBio是目前最准确的测序方式：错误率可以无限接近罕见突变的发生率（即无法分辨是测序错误还是罕见突变），不过这会极大缩短有效测序的插入序列的长度
+
+- **用二代的短reads校正**：2012年冷泉港实验室的Michael Schatz开发了一种纠错算法，用二代测序的短读长高精确数据对三代长读长数据进行纠错，这种称为”混合纠错拼接”（PBcR (PacBio corrected Reads) algorithm）
+
+	> - Map short reads to long reads
+	> - Trim long reads at coverage gaps
+	> - Compute consensus for each long read
+
+	<p align="center"><img src=./picture/3GS-assembly-error-correction.jpg width=800 /></p>
+
+	> 粉色长方形：单个PacBio RS reads；黑色竖线：测序错误；(a)由于测序错误碱基的存在使得两条reads就难确定是否在末端重叠；(b)高质量的短reads比对到存在错误的长reads；短reads中的黑色竖线表示 ‘mapping errors’ ，是长reads和短reads中测序错误的组合，此外双拷贝的重复序列的存在（灰色轮廓）导致在每一个拷贝中出现短reads的堆挤，为避免reads map到错误的重复区，仅保留最高比对值的短reads；(c)剩余的比对形成一致性序列（紫色长方形），长reads和短reads中共有的部分错误未能得到纠正；(d)overlap纠正后的长reads；(e) 最后的组装能够跨越重复区域。
 
 
 参考资料：
 
-(1) 天津医科大学，伊现富《系统生物学-chapter2》
+(1) [生物技能树论坛：PacBio sequence error correction amd assemble via pacBioToCA](http://www.biotrainee.com/thread-173-1-1.html)
 
-(2) [三代测序--QC篇](https://www.cnblogs.com/walle2008/p/6897263.html)
+(2) 天津医科大学，伊现富《系统生物学-chapter2》
+
+(3) [三代测序--QC篇](https://www.cnblogs.com/walle2008/p/6897263.html)
+
+(4) [PacBio Training: Large Genome Assembly with PacBio Long Reads](https://github.com/PacificBiosciences/Bioinformatics-Training/wiki/Large-Genome-Assembly-with-PacBio-Long-Reads)
+
+(5) Koren S, Schatz M C, Walenz B P, et al. Hybrid error correction and de novo assembly of single-molecule sequencing reads[J]. Nature Biotechnology, 2012, 30(7):693-700.
 
