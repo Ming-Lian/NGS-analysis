@@ -192,7 +192,7 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 1. **PacBio-only**
 
-	- **HGAP：**先进行reads的预组装(preassembly)，然后用Celera<sup>®</sup> Assembler进行进一步组装，最后用 Quiver 进行校正
+	- **HGAP**：先进行reads的预组装(preassembly)，然后用Celera<sup>®</sup> Assembler进行进一步组装，最后用 Quiver 进行校正
 	- **Falcon**：一个试验性的二倍体组装工具，已经在Gb级别大小的基因组上做了试验
 	- **Canu**：以Celera Assembler为基础，为三代单分子测序而开发出的分支工具
 	- **Celera<sup>®</sup> Assembler**：现在，Celera<sup>®</sup> Assembler 8.1 已经可以直接用于subreads的组装
