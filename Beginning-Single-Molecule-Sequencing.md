@@ -225,6 +225,26 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 	<p align="center"><img src=./picture/3GS-assembly-error-correction.jpg width=800 /></p>
 
 	> 粉色长方形：单个PacBio RS reads；黑色竖线：测序错误；(a)由于测序错误碱基的存在使得两条reads就难确定是否在末端重叠；(b)高质量的短reads比对到存在错误的长reads；短reads中的黑色竖线表示 ‘mapping errors’ ，是长reads和短reads中测序错误的组合，此外双拷贝的重复序列的存在（灰色轮廓）导致在每一个拷贝中出现短reads的堆挤，为避免reads map到错误的重复区，仅保留最高比对值的短reads；(c)剩余的比对形成一致性序列（紫色长方形），长reads和短reads中共有的部分错误未能得到纠正；(d)overlap纠正后的长reads；(e) 最后的组装能够跨越重复区域。
+	
+	校正过程中会将short reads未覆盖到的Gap进行裁剪，short reads在PacBio long reads上的覆盖情况：
+	
+	<p align="center"><img src=./picture/3GS-assembly-error-correction-position-coverage-1.png width=800 /></p>
+
+	这样做的其中一个考虑是去除adapter
+	
+	那么是什么原因导致了低覆盖度区域的产生的呢？
+	
+	> 1. Simple Repeats – Kmer Frequency Too High to Seed Overlaps	
+	> 2. GC Rich Regions – Known Illumina Bias		
+	> 3. Error Dense Regions – Difficult to compute overlaps with many errors
+	> 
+	> <img src=./picture/3GS-assembly-error-correction-position-coverage-2.png width=800 />
+	> 
+	> <img src=./picture/3GS-assembly-error-correction-position-coverage-3.png width=800 />
+	> 
+	> 为了克服第三中情况导致的高测序错误率区域的低覆盖度，研究人员提出了用Unitigs进行校正的方法
+	> 
+	> <img src=./picture/3GS-assembly-error-correction-position-coverage-4.png width=800 />
 
 
 参考资料：
