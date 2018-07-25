@@ -210,7 +210,7 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 可以看到，随着reads长度的增加，基于OLC算法的组装工具组装出的contigs的长度几乎在线性增长，而基于de Bruijn图算法的组装效果并没有随着reads长度的增加而提高
 
-<a name="error correction"><h3>error correction [<sup>目录</sup>](#content)</h3></a>
+<a name="error-correction"><h3>error correction [<sup>目录</sup>](#content)</h3></a>
 
 三代单分子测序会产生较高的随机错误，平均正确率在82.1%-84.6%。这么高的错误率显然不能直接用于后续的分析，需要进行错误校正：
 
