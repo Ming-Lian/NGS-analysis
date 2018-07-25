@@ -209,24 +209,7 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 	PBJelly 2 ：对已经组装过的基因组，用PacBio的long reads进行补洞
 
-<table>
-<th>PBJelly</th><th>PacBioToCA & ECTools</th><th>HGAP & Quiver</th>
-<tr>
-	<td>
-		<img src=./picture/3GS-assembly-approachs-1.png width=300 />
-	</td>
-	<td>
-		<img src=./picture/3GS-assembly-approachs-2.png width=300 />
-	</td>
-	<td>
-		<img src=./picture/3GS-assembly-approachs-3.png width=300 />
-		<br>
-		<img src=./picture/3GS-assembly-approachs-4.png width=300 />
-	</td>
-</tr>
-</table>
-
-<img src=./picture/3GS-assembly-approachs-5.png width=900 />
+<p align="center"><img src=./picture/3GS-assembly-algorithms.png width=900 /></p>
 
 <a name="denovo-assembly-algorithm"><h3>de novo assembly 算法 [<sup>目录</sup>](#content)</h3></a>
 
