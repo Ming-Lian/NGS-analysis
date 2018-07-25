@@ -74,6 +74,9 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 > 	- 测序速度很快，每秒约10 个dNTP
 > 	- 读长长
 > 	- 无需PCR扩增，也避免了由此带来的bias
+>	
+>	<img src=./picture/3GS-principle-SMRT-features.png width=800/>
+>
 > 	- 需要的样品量很少，样品制备时间花费少
 > 
 > - 缺点：
@@ -198,7 +201,33 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 2. **Hybrid**
 
 	- **pacBioToCA**：Celera<sup>®</sup> Assembler的一个error correction模块，最初是用来align short reads to PacBio reads 和 generate consensus sequences。随后，这些错误校正过的PacBio reads可以用Celera<sup>®</sup> Assembler进行组装
-	- 
+	- **ECTools**：使用 unitigs (High quality contigs formed from    unambiguous, unique overlaps of reads) 而非short reads进行校正
+	- **SPAdes** ：SPAdes原本是进行短序列组装，在3.0版本后增加了对PacBio的混合组装的支持
+	- **Cerulean** ：用ABySS构建de Bruijn graph，在图的bubbles位置利用PacBio的long reads解决bubbles带来的分支选择问题，从而延伸contigs
+
+3. **Gap Filling**
+
+	PBJelly 2 ：对已经组装过的基因组，用PacBio的long reads进行补洞
+
+<table>
+<th>PBJelly</th><th>PacBioToCA & ECTools</th><th>HGAP & Quiver</th>
+<tr>
+	<td>
+		<img src=./picture/3GS-assembly-approachs-1.png width=300 />
+	</td>
+	<td>
+		<img src=./picture/3GS-assembly-approachs-2.png width=300 />
+	</td>
+	<td>
+		<img src=./picture/3GS-assembly-approachs-3.png width=300 />
+		<br>
+		<img src=./picture/3GS-assembly-approachs-4.png width=300 />
+	</td>
+</tr>
+</table>
+
+<img src=./picture/3GS-assembly-approachs-5.png width=900 />
+
 <a name="denovo-assembly-algorithm"><h3>de novo assembly 算法 [<sup>目录</sup>](#content)</h3></a>
 
 基因组的组装问题，实际上就是从序列得到的图中搜寻遍历路径的问题，有两种构建图的方法：
@@ -259,3 +288,4 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 (5) Koren S, Schatz M C, Walenz B P, et al. Hybrid error correction and de novo assembly of single-molecule sequencing reads[J]. Nature Biotechnology, 2012, 30(7):693-700.
 
+(6) [冷泉港ppt：Hybrid De Novo Assembly of Eukaryo6c Genomes](http://schatzlab.cshl.edu/presentations/2013-06-18.PBUserMeeting.pdf)
