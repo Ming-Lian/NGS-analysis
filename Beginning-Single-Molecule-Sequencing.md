@@ -93,6 +93,68 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 <p align="center"><img src=./picture/3GS-principle-Nanopore.png width=900 /></p>
 
+测序原理：
+
+> 1. 解螺旋，将双链DNA解开成单链。
+> 
+> 2. DNA单链分子通过一个孔道蛋白，孔道中有个充当转换器的蛋白分子。
+> 
+> 3. DNA单分子停留在孔道中，有一些离子通过带来电流变化，而不同的碱基带来的电流变化是不同的。
+> 
+> 4. 转化器蛋白分子感受5个碱基的电流变化。
+> 
+> 5. 根据电流变化的频谱，应用模式识别算法得到碱基序列。
+
+特点：
+
+> - 测序读长
+> 
+> 因为测序原理无需要DNA聚合酶的链式反应，所以不存在DNA聚合酶的失活问题，理论上只要DNA分子不断开，就一直可以通过纳米孔，目前在对于人和大肠杆菌的测序种观测到的read是1Mb。
+> 
+> 要问测多长，请问您提取的DNA是否够长？
+> 
+> <table>
+> <caption>三种不同建库方法Nanopore测序情况</caption>
+> <thead>
+> 	<th>DNA建库方法</th>
+> 	<th>序列数</th>
+> 	<th>平均读长</th>
+> 	<th>Read N50</th>
+> </thead>
+> <tbody>
+> <tr>
+> 	<td>Ligation Library</td>
+> 	<td>451，020</td>
+> 	<td>8,012</td>
+> 	<td>13,920</td>
+> </tr>
+> <tr>
+> 	<td>Rapid Kit Library</td>
+> 	<td>315，684</td>
+> 	<td>13,796</td>
+> 	<td>30,397</td>
+> </tr>
+> <tr>
+> 	<td>Ultralong reads Protocol</td>
+> 	<td>694，659</td>
+> 	<td>24,179</td>
+> 	<td>99,790</td>
+> </tr>
+> </tbody>
+> </table>
+> 
+> 数据说话，Ligation建库方法测序读长的read N50达到14k左右，超长建库方法read N50达到 100k。
+> 
+> - 测序准确率
+> 
+> Nanopore测序准确率和Pacbio持平，为86%左右。而且起始位置正确率偏低，在大约100nt位置达到稳定，且错误为随机测序错误。
+> 
+> <p align="center"><img src=./picture/3GS-principle-Nanopore-feature-correaction-rate-1.png width=600/></p>
+> 
+> 如果选择 1D<sup>2</sup测序方式，即对于DNA的正负链都进行测序，可以达到96%的准确率
+> 
+> <p align="center"><img src=./picture/3GS-principle-Nanopore-feature-correaction-rate-2.png width=600/></p>
+
 <a name="analysis-for-pacbio"><h2>PacBio-SMRT数据分析 [<sup>目录</sup>](#content)</h2></a>
 
 <a name="pacbio-qc"><h3>QC [<sup>目录</sup>](#content)</h3></a>
