@@ -151,7 +151,7 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 > 
 > <p align="center"><img src=./picture/3GS-principle-Nanopore-feature-correaction-rate-1.png width=600/></p>
 > 
-> 如果选择 1D<sup>2</sup测序方式，即对于DNA的正负链都进行测序，可以达到96%的准确率
+> 如果选择 1D<sup>2</sup>测序方式，即对于DNA的正负链都进行测序，可以达到96%的准确率
 > 
 > <p align="center"><img src=./picture/3GS-principle-Nanopore-feature-correaction-rate-2.png width=600/></p>
 
