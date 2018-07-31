@@ -321,16 +321,21 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 	> <img src=./picture/3GS-assembly-error-correction-position-coverage-4.png width=800 />
 
 
+
 参考资料：
 
 (1) [生物技能树论坛：PacBio sequence error correction amd assemble via pacBioToCA](http://www.biotrainee.com/thread-173-1-1.html)
 
 (2) 天津医科大学，伊现富《系统生物学-chapter2》
 
-(3) [三代测序--QC篇](https://www.cnblogs.com/walle2008/p/6897263.html)
+(3) [Nanopore 第四代测序技术简介](http://blog.sciencenet.cn/blog-717048-1082367.html)
 
-(4) [PacBio Training: Large Genome Assembly with PacBio Long Reads](https://github.com/PacificBiosciences/Bioinformatics-Training/wiki/Large-Genome-Assembly-with-PacBio-Long-Reads)
+(4) Magi A, Semeraro R, Mingrino A, et al. Nanopore sequencing data analysis: state of the art, applications and challenges.[J]. Briefings in Bioinformatics, 2017.
 
-(5) Koren S, Schatz M C, Walenz B P, et al. Hybrid error correction and de novo assembly of single-molecule sequencing reads[J]. Nature Biotechnology, 2012, 30(7):693-700.
+(5) [三代测序--QC篇](https://www.cnblogs.com/walle2008/p/6897263.html)
 
-(6) [冷泉港ppt：Hybrid De Novo Assembly of Eukaryo6c Genomes](http://schatzlab.cshl.edu/presentations/2013-06-18.PBUserMeeting.pdf)
+(6) [PacBio Training: Large Genome Assembly with PacBio Long Reads](https://github.com/PacificBiosciences/Bioinformatics-Training/wiki/Large-Genome-Assembly-with-PacBio-Long-Reads)
+
+(7) Koren S, Schatz M C, Walenz B P, et al. Hybrid error correction and de novo assembly of single-molecule sequencing reads[J]. Nature Biotechnology, 2012, 30(7):693-700.
+
+(8) [冷泉港ppt：Hybrid De Novo Assembly of Eukaryo6c Genomes](http://schatzlab.cshl.edu/presentations/2013-06-18.PBUserMeeting.pdf)
