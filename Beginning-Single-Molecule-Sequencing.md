@@ -13,7 +13,7 @@
 		- [error correction](#error-correction)
 - [Nanopore数据分析](#analysis-for-nanopore)
 	- [Base-calling](#nanopore-base-calling)
-	- [QC](#nanopore-qc)
+	- [Data formats and handling](#nanopore-data-format-handling)
 
 
 
@@ -362,6 +362,50 @@ ONT公司目前推出的几款测序仪：
 	> 
 	> <img src=./picture/3GS-assembly-error-correction-position-coverage-4.png width=800 />
 
+<a name="analysis-for-nanopore"><h2>Nanopore数据分析 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="nanopore-base-calling"><h3>Base-calling [<sup>目录</sup>](#content)</h3></a>
+
+Base-calling做的就是从测序仪输出的电流信号波形图中将碱基解码 (decoding) 出来
+
+第一步就是就是对波形图进行分段 (segmentation)，即检测每个current shift的边界，这一步由ONT公司提供的 MinKNOW 完成，但是分段基于的假设是ssDNA分子匀速穿过nanopores，但是由于ssDNA穿过nanopore的速度很快，很容易产生一两个碱基的速度差异，这样就容易在decoding时造成insert和delete
+
+<p align="center"><img src=./picture/3GS-Nanopore-base-calling.png width=600 />
+
+接着就基于current shift进行base calling，ONT公司提供的base caller为Metrichor，其底层算法基于HMM，将可能的k-tuple（由k个碱基组成的序列）作为隐藏状态，将current signals作为观测状态。ONT公司最新开发出的Metrichor用RNN取代了HMM，并将其整合到其开发出的新的生物信息数据分析平台EPI2ME中
+
+随后，科研圈又开发出了开源的base calling工具，Nanocall 和 DeepNano。
+
+- Nanocall类似于Metrichor，也是基于HMM。
+- DeepNano 采用的是RNN（循环神经网络），又称为RNN base-caller，其输入为：mean, SD and duration of each segmented event ，其输出为各种碱基的概率分布。DeepNano在base calling准确率和计算速度上，都比ONT官方提供的Metrichor表现更好
+
+```
+DeepNano outperforms the Metrichor basecaller in terms of both accuracy (from 70 to 75% sequence identity
+for 1D read and from 85 to 87% for 2D reads) and computational speed (190 s for a 2D read with Metrichor
+ and 11 s with DeepNano)
+```
+
+ONT后来又在github上开源了一个RNN base-caller —— Nanonet
+
+<a name="nanopore-data-format-handling"><h3>Data formats and handling [<sup>目录</sup>](#content)</h3></a>
+
+测序时，测序仪 MinION 连接上主机，安装在主机上的软件 MinKNOW 控制测序仪，对于每条reads，其 signal segmentation 结果（包括segment mean, variance and duration）以及测序过程中的 metadata 会被保存成FAST5格式的二进制文件（基于 [HDF5标准](http://www.
+hdfgroup.org/HDF5/) 的变种）。
+
+保存在FAST5文件中的原始数据会经过云端的Metrichor的处理，产生的解码的序列会被保存在另外的以`.FAST5`为后缀的HDF5文件中，包含一条template read和一条complement read或只有一条 2D read 。
+
+<p align="center"><img src=./picture/3GS-Nanopore-data-formate-handling.png width=600 />
+
+MAP (MinION Access Programme) community 开发出的用于处理FAST5文件的工具，它们均能从FAST5文件中解析出FASTA/FASTQ文件，除此之外还有各种特色的质量统计功能：
+
+- Poretools： 输出quality plot，包括read-length histograms，yield-over-time
+plots，和 squiggle plot (sequence of the segmented signals)
+
+- NanoOK：评估三种类型的测序错误（substitutions, insertions and deletions），并绘制errors， coverage 和 k-mer 分布图
+
+- npReader：能够在测序进行过程中，进行实时评估，以GUI形式展示质量统计结果
+
+<p align="center"><img src=./picture/3GS-Nanopore-data-formate-handling-tools.jpg width=800 />
 
 
 参考资料：
