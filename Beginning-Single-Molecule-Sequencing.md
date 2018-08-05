@@ -11,6 +11,12 @@
 	- [组装](#pacbio-assembly)
 		- [de novo assembly 算法](#denovo-assembly-algorithm)
 		- [error correction](#error-correction)
+- [Nanopore数据分析](#analysis-for-nanopore)
+	- [Base-calling](#nanopore-base-calling)
+	- [QC](#nanopore-qc)
+
+
+
 
 <h1 name="title">三代测序入门</h1>
 
@@ -154,6 +160,42 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 > 如果选择 1D<sup>2</sup>测序方式，即对于DNA的正负链都进行测序，可以达到96%的准确率
 > 
 > <p align="center"><img src=./picture/3GS-principle-Nanopore-feature-correaction-rate-2.png width=600/></p>
+
+Nanopore 测序仪 MinION 的一些特征：
+
+> 1、早期使用基因工程改造过的a-hemolysin蛋白，称为作为biosensor，最新的nanopore使用CsgG 蛋白，它允许ssDNA通过
+> 
+> 2、MinION的flow cells中有512 channels，每个channel含有4个pores和sensors，每个channel作为一个独立的测序单元，对一条DNA分子进行测序，DNA分子从四个纳米孔中的一个穿过，产生电流信号。因此一个flow cell可以同时对512条DNA进行测序
+> 
+> 3、为了进行dsDNA的测序，需要在dsDNA的两端加上两个接头：leader-adapter 和 hairpin-adapters，且都被预先固定在马达蛋白 (motor proteins) 上
+> 
+> <p align="center"><img src=./picture/3GS-principle-Nanopore-MinION-feature-1.png width=600/></p>
+> 
+> leader-adapter带着dsDNA到邻近的纳米孔，然后原先固定在leader-adapter的马达蛋白开始将dsDNA打开，使得第一条链，即模板链(template)，能够穿过纳米孔，测序过程随即开始
+> 
+> <p align="center"><img src=./picture/3GS-principle-Nanopore-MinION-feature-2.png width=400/></p>
+> 
+> 3、MinION的flow cell有多个升级版本(R6.0, R7.0, R7.3, R9 and R9.4)，在通量，读长和准确率方面都有很大的提高
+>
+> <p align="center"><img src=./picture/3GS-principle-Nanopore-MinION-feature-3.png width=600/></p>
+> 
+> 4、纳米孔中的电流传感器的采样频率为5000 Hz，测序速度为250 bases/s（早期为75 bases/s）
+> 
+> 5、目前唯一的便携式DNA和RNA测序仪，注意这里有两个概念，一是**便携式**，MinION只有100g重，相当于1个大一点的U盘或者小一点的移动电源；二是**DNA和RNA测序**，和所有NGS测序仪、甚至三代Pacbio不同的是，MinION和其他的ONT仪器们，可以直接对RNA进行测序，无需预先转化为cDNA。此外，一旦启动测序，实时的数据会不断产生，而不用像传统的NGS测序中一个run结束后才能收获数据，一旦数据量足够可随时终止测序进程，简直不要太爽！
+
+ONT公司目前推出的几款测序仪：
+
+- MinION —— flow cell最新版本是R9，内含2048 wells。48h即可产出10~20 Gb数据
+
+<p align="center"><img src=./picture/3GS-principle-Nanopore-device-MinION.jpeg width=600/></p>
+
+- GridION X5 —— 一款桌面式测序仪，通量介于大家熟悉的MinIon和高通量的PromethIon之间。GridIon X5系统一次最多可运行五个MinIon flow cells，可以根据实际数据量的需求一次运行1~5个flow cells。目前的最大通量是，每运行48小时可产出高达100 GB的测序数据。
+
+<p align="center"><img src=./picture/3GS-principle-Nanopore-device-GridION.jpeg width=600/></p>
+
+- PromethION —— 一个具有模块化设计的更大的台式测序仪，其在全功率时的运行能力约为MinION的300倍，通量在Tb级。包括48个flow cells，这些flow cells可以单独运行，也可以一起运行
+
+<p align="center"><img src=./picture/3GS-principle-Nanopore-device-PromethION.jpeg width=600/></p>
 
 <a name="analysis-for-pacbio"><h2>PacBio-SMRT数据分析 [<sup>目录</sup>](#content)</h2></a>
 
@@ -332,10 +374,14 @@ PacBio SMRT 技术的一个关键是怎样**将反应信号与周围游离碱基
 
 (4) Magi A, Semeraro R, Mingrino A, et al. Nanopore sequencing data analysis: state of the art, applications and challenges.[J]. Briefings in Bioinformatics, 2017.
 
-(5) [三代测序--QC篇](https://www.cnblogs.com/walle2008/p/6897263.html)
+(5) [细节曝光！Oxford Nanopore真机还原，听听圈内人怎么说](http://baijiahao.baidu.com/s?id=1578927576255577196&wfr=spider&for=pc)
 
-(6) [PacBio Training: Large Genome Assembly with PacBio Long Reads](https://github.com/PacificBiosciences/Bioinformatics-Training/wiki/Large-Genome-Assembly-with-PacBio-Long-Reads)
+(6) [三代测序--QC篇](https://www.cnblogs.com/walle2008/p/6897263.html)
 
-(7) Koren S, Schatz M C, Walenz B P, et al. Hybrid error correction and de novo assembly of single-molecule sequencing reads[J]. Nature Biotechnology, 2012, 30(7):693-700.
+(7) [PacBio Training: Large Genome Assembly with PacBio Long Reads](https://github.com/PacificBiosciences/Bioinformatics-Training/wiki/Large-Genome-Assembly-with-PacBio-Long-Reads)
 
-(8) [冷泉港ppt：Hybrid De Novo Assembly of Eukaryo6c Genomes](http://schatzlab.cshl.edu/presentations/2013-06-18.PBUserMeeting.pdf)
+(8) Koren S, Schatz M C, Walenz B P, et al. Hybrid error correction and de novo assembly of single-molecule sequencing reads[J]. Nature Biotechnology, 2012, 30(7):693-700.
+
+(9) [冷泉港ppt：Hybrid De Novo Assembly of Eukaryo6c Genomes](http://schatzlab.cshl.edu/presentations/2013-06-18.PBUserMeeting.pdf)
+
+(10) Leggett R M, Darren H, Mario C, et al. NanoOK: multi-reference alignment analysis of nanopore sequencing data, quality and error profiles[J]. Bioinformatics, 2016, 32(1):142-144.
