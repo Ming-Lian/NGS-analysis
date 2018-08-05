@@ -389,14 +389,13 @@ ONT后来又在github上开源了一个RNN base-caller —— Nanonet
 
 <a name="nanopore-data-format-handling"><h3>Data formats and handling [<sup>目录</sup>](#content)</h3></a>
 
-测序时，测序仪 MinION 连接上主机，安装在主机上的软件 MinKNOW 控制测序仪，对于每条reads，其 signal segmentation 结果（包括segment mean, variance and duration）以及测序过程中的 metadata 会被保存成FAST5格式的二进制文件（基于 [HDF5标准](http://www.
-hdfgroup.org/HDF5/) 的变种）。
+测序时，测序仪 MinION 连接上主机，安装在主机上的软件 MinKNOW 控制测序仪，对于每条reads，其 signal segmentation 结果（包括segment mean, variance and duration）以及测序过程中的 metadata 会被保存成FAST5格式的二进制文件（基于 [HDF5标准](http://www.hdfgroup.org/HDF5/) 的变种）。
 
 保存在FAST5文件中的原始数据会经过云端的Metrichor的处理，产生的解码的序列会被保存在另外的以`.FAST5`为后缀的HDF5文件中，包含一条template read和一条complement read或只有一条 2D read 。
 
 <p align="center"><img src=./picture/3GS-Nanopore-data-formate-handling.png width=600 />
 
-MAP (MinION Access Programme) community 开发出的用于处理FAST5文件的工具，它们均能从FAST5文件中解析出FASTA/FASTQ文件，除此之外还有各种特色的质量统计功能：
+MAP (MinION Access Programme) community 开发出的用于处理FAST5文件的工具，它们均能从FAST5文件中解析出FASTA/FASTQ文件，除此之外还有各自特色的质量统计功能：
 
 - Poretools： 输出quality plot，包括read-length histograms，yield-over-time
 plots，和 squiggle plot (sequence of the segmented signals)
