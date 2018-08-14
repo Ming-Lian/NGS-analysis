@@ -7,7 +7,9 @@
 	- [MEME：EM算法](#motif-em)
 - [Bining for Metageonome](#bining)
 	- [CONCOCT](#bining-concoct)
-
+- [Genome Assembly](#genome-assembly)
+	- [构建de Bruijn graph](#assembly-construct-dbg)
+	- [简化DBG得到assembly graph：filigree edges](#assembly-simplify-graph)
 
 
 
@@ -117,6 +119,29 @@ DIAMOND is a new high-throughput program for aligning DNA reads or protein seque
 
 使用高斯混合模型 (Gaussian mixture model)
 
+<a name="genome-assembly"><h2>Genome Assembly [<sup>目录</sup>](#content)</h2></a>
+
+<a name="assembly-construct-dbg"><h3>构建de Bruijn graph [<sup>目录</sup>](#content)</h3></a>
+
+
+<a name="assembly-simplify-graph"><h3>简化DBG得到assembly graph：filigree edges [<sup>目录</sup>](#content)</h3></a>
+
+由原始reads推断出的de Bruijn graph 不能就直接用于拼接，需要进行剪枝
+
+传统的拼接工具通过设定一个全局的reads覆盖度阈值来将那些只有较少reads支持的分支当做是测序错误，将这些分支剪去。这种图简化方法在一般的单一物种基因组拼接任务中是行得通的，但是应用在metagenome的拼接中则明显不合适：
+
+metagenome中一种菌往往以strain mixtures形式出现，且不同菌株之间丰度差异很大，当我们想忽视strain mixtures中的菌株间的差异，构造出一个代表该菌的consensus genome时，则我们将图中代表稀有菌株的edge剪去，而保留菌种共有的edge
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-assembly-simplify-graph-1.png height=600 /></p>
+
+采用相邻edge的coverage ratio来剪枝
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-assembly-simplify-graph-2.png ></p>
+
+if ratio * cov (e<sub>i</sub>) < cov (v)，去除该edge
+
+
+
 参考资料：
 
 (1) Benjamin Buchfink, Chao Xie & Daniel H. Huson, Fast and Sensitive Protein Alignment using DIAMOND, Nature Methods, 12, 59–60 (2015) doi:10.1038/nmeth.3176.
@@ -124,3 +149,5 @@ DIAMOND is a new high-throughput program for aligning DNA reads or protein seque
 (2) Alneberg, J. et al. Binning metagenomic contigs by coverage and composition. Nat. Methods 11, 1144–1146 (2014).
 
 (3) Beaulaurier J, Zhu S, Deikus G, et al. Metagenomic binning and association of plasmids with bacterial host genomes using DNA methylation.[J]. Nature Biotechnology, 2017, 36(1).
+
+(4)  Nurk S., Meleshko D., Korobeynikov A., Pevzner P. A. metaSPAdes: a new versatile de novo metagenomics assembler.	Genome Research, 2017 
