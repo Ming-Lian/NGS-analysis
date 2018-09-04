@@ -11,7 +11,7 @@
 
 <p align="center"><img src=./picture/Ref-based-genomeAssem-annotation-transfer-strategy-1-workflow.png width=600/></p>
 
-<a name="based-on-genome-comparsion"><h2>方法二：基于genome comparison [<sup>目录</sup>](#content)</h2></a>
+<a name="based-on-genome-comparison"><h2>方法二：基于genome comparison [<sup>目录</sup>](#content)</h2></a>
 
 该方法需要先进行基因组拼接，然后将拼接完的基因组与标准的参考基因组进行比较，得到相对于参考基因组的SNP/Indel，从而得到对于参考基因组的坐标转换文件（genome coordinate conversion file）：
 
