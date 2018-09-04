@@ -3,6 +3,7 @@
 [Algorithms in Bioinformatics](#title)
 - [Sequence Alignment](#alignment)
 	- [DIAMOND](#alignment-diamond)
+	- [BLAT](#blat)
 - [Motif Finding](#motif)
 	- [MEME：EM算法](#motif-em)
 - [Bining for Metageonome](#bining)
@@ -58,6 +59,12 @@ DIAMOND is a new high-throughput program for aligning DNA reads or protein seque
 > To achieve high sensitivity, DIAMOND uses a set of four carefully chosen shapes11 of length 15–24 and 
 > weight 12 by default. The most sensitive version of DIAMOND uses 16 shapes of weight 9.
 > ```
+
+<a name="blat"><h3>BLAT [<sup>目录</sup>](#content)</h3></a>
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-BLAT.png width=600/></p>
+
+> Example showing the creation of non-overlapping k-mers from the target database and overlapping k-mers from the query sequence, for k=3. Coordinates of the database sequences are used to clump the matches into larger alignments (full process not shown).
 
 <a name="motif"><h2>Motif Finding [<sup>目录</sup>](#content)</h2></a>
 
