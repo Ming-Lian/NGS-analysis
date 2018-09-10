@@ -8,6 +8,8 @@
 - [5. 排序及标记重复](#sort-and-mark-duplicate)
 - [6. 质量值校正](#recallbrate-base-quality-scores)
 - [7. SNP、 INDEL位点识别](#snp-indel-identify)
+	- [7.1. VCF格式](#vcf-format)
+- [8. 变异位点过滤](#select-filt-variants)
 
 
 <h1 name="title">跑GATK4流程</h1>
@@ -211,6 +213,101 @@ $ gatk GenotypeGVCFs -R Ref/chr17.fa --dbsnp ../Ref/VCF/dbsnp_138.hg19.vcf \
 
 ```
 --variant,-V:String           A VCF file containing variants  Required.
+```
 
+<a name="vcf-format"><h3>7.1. VCF格式 [<sup>目录</sup>](#content)</h3></p>
+
+<p align="center"><img src=./picture/RunGATK4-VCF-format-1.png width=900 /></p>
+
+<p align="center"><img src=./picture/RunGATK4-VCF-format-2.png width=900 /></p>
+
+<p align="center"><img src=./picture/RunGATK4-VCF-format-3.png width=900 /></p>
+
+> - **QUAL**： Phred格式(Phred_scaled)的质量值，表示在该位点存在variant的可能性；该值越高，则variant的可能性越大；
+> 
+> ```
+> 计算方法： Phred值 = -10 * log (1-p) p为variant存在的概率; 通过计算公式可以看出值为10的表示错误概率为0.1，该位点为variant的概率为90%
+> ```
+> 
+> - FILTER：过滤信息； GATK能使用其它的方法来进行过滤，过滤结果中通过则该值为” PASS”;若variant不可靠，则该项不为” PASS”或” .”
+> - INFO ： variant的详细信息
+> - FORMAT 和 T： sample的基因型的信息。代表这该名称的样品，是由BAM文件中的@RG下的 SM 标签决定的
+
+<p align="center"><strong>FORMAT 和 T 部分</strong></p>
+
+<p align="center"><img src=./picture/RunGATK4-VCF-format-4.png width=600 /></p>
+
+<p align="center"><img src=./picture/RunGATK4-VCF-format-4-Genotype.png width=600 /></p>
+
+- **GT** ：基因型（Genotype）
+	- 两个数字中间用’ /'分 开，这两个数字表示双倍体的sample的基因型。
+	- 0 表示样品中有ref的allele；
+	- 1 表示样品中variant的allele；
+	- 2表示有第二个variant的allele。
+	- 0/0 表示sample中该位点为纯合的，和ref一致；
+	- 0/1 表示sample中该位点为杂合的，有ref和variant两个基因型；
+	- 1/1 表示sample中该位点为纯合的，和variant一致。
+
+- **AD** ： （Allele Depth）每一种allele的reads覆盖度
+	- 在diploid中则是用逗号分割的两个值，前者对应ref基因型，后者对应variant基因型；
+- **DP** ： （Depth）该位点的覆盖度
+- **GQ** ： 基因型的质量值（Genotype Quality）
+	- Phred格式(Phred_scaled)的质量值，表示在该位点该基因型存在的可能性；该值越高，则Genotype的可能性越 大；
+	- 计算方法： Phred值 = -10 * log (1-p) p为基因型存在的概率。
+- **PL** ： 三种基因型的质量值（provieds the likelihoods of the given genotypes）
+	- 这三种指定的基因型为(0/0,0/1,1/1)，这三种基因型的概率总和为1。
+	- 该值越大，表明为该种基因型的可能性越小。 Phred值 = -10 * log (p) p为基因型存在的概率。
+
+<p align="center"><strong>INFO部分</strong></p>
+
+<p align="center"><img src=./picture/RunGATK4-VCF-format-5.png width=600 /></p>
+
+<p align="center"><img src=./picture/RunGATK4-VCF-format-5-INFO.png width=600 /></p>
+
+> **AC(Allele Count) **表示该Allele的数目；
+> 
+> **AF(Allele Frequency)** 表示Allele的频率；
+> 
+> **AN(Allele Number)** 表示Allele的总数目；
+> 
+> **DP**： reads覆盖度。是一些reads被过滤掉后的覆盖度；
+> 
+> **FS**：使用Fisher’s精确检验来检测strand bias而得到的phred格式的p值。该值越小越好；
+> 
+> **HaplotypeScore**： Consistency of the site with at most two segregating haplotypes 单倍体得分，值越小越好；
+> 
+> **MQ**： RMS Mapping Quality 所有样本中比对质量的均方根。值越大越好；
+> 
+> **MQRankSum**： Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities，对突变位点和参考序列位点比对质量值进行秩和检验的Z值，该值越大越好；
+> 
+> **QD**： Variant Confidence/Quality by Depth 位点覆盖深度的可信度，值越大越好；
+> 
+> **ReadPosRankSum**： Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias 突变位点与序列末端的距离，距离末端越近，则越可能为假阳性位点，值越大越好；
+
+<a name="select-filt-variants"><h2>8. 变异位点过滤 [<sup>目录</sup>](#content)</h2></p>
 
 ```
+假阳性
+	|--- 测序错误
+	|--- 比对错误
+假阴性
+	|--- 覆盖度不足
+	|--- 捕获不到
+```
+
+**Steps**
+
+> - Extract the SNPs from the call set
+> - Apply the filter to the SNP call set
+> - Extract the Indels from the call set
+> - Apply the filter to the Indel call set
+> - Combine SNP and indel call set
+> - Get passed call set
+
+提取SNP位点
+
+```
+$ gatk SelectVariants -R Ref/chr17.fa -V calling/T.chr17.raw.snps.indels.genotype.vcf \
+--select-type-to-include SNP -O filter/T.chr17.raw.snps.genotype.vcf
+```
+
