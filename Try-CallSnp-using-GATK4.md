@@ -189,15 +189,15 @@ sam/T.chr17.recal.table -O sam/T.chr17.recal.bam
 	参数说明：
 	
 	```
-	--dbsnp,-D:FeatureInput       dbSNP file  Default value: null.
+	--dbsnp,-D:FeatureInput		dbSNP file  Default value: null.
 	
 	--emit-ref-confidence,-ERC:ReferenceConfidenceMode
-								Mode for emitting reference confidence scores  Default value: NONE.
-								Possible values:
-								{NONE, BP_RESOLUTION, GVCF}
+					Mode for emitting reference confidence scores  Default value: NONE.
+					Possible values:
+					{NONE, BP_RESOLUTION, GVCF}
 	
-	--intervals,-L:String         One or more genomic intervals over which to operate  This argument may be specified 0 or
-	                              more times. Default value: null.
+	--intervals,-L:String		One or more genomic intervals over which to operate  This argument may be specified 0 or
+					more times. Default value: null.
 	```
 	
 	-L 规定识别突变位点的区域，如-L chr17:7400000-7800000 只识别17号染色体7400000-7800000 区域的突变位点。 全外显子组分析请用捕获区域bed文件。
@@ -264,7 +264,7 @@ $ gatk GenotypeGVCFs -R Ref/chr17.fa --dbsnp ../Ref/VCF/dbsnp_138.hg19.vcf \
 
 <p align="center"><img src=./picture/RunGATK4-VCF-format-5-INFO.png width=600 /></p>
 
-> **AC(Allele Count) **表示该Allele的数目；
+> **AC(Allele Count)** 表示该Allele的数目；
 > 
 > **AF(Allele Frequency)** 表示Allele的频率；
 > 
