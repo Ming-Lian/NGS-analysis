@@ -14,6 +14,7 @@
 	- [9.1. Annovar](#variants-annotation-annovar)
 		- [9.1.1. 简介](#variants-annotation-annovar-introduction)
 		- [9.1.2. 使用](#variants-annotation-annovar-usage)
+	- [9.2. Oncotator](#variants-annotation-oncotator)
 
 <h1 name="title">跑GATK4流程</h1>
 
@@ -412,38 +413,76 @@ Annovar的四大功能：
 
 <a name="variants-annotation-annovar-usage"><h4>9.1.2. 使用 [<sup>目录</sup>](#content)</h4></p>
 
-数据库下载
+- **数据库下载**
 
-```
-$ perl annotate_variation.pl --buildver hg19 --downdb gwasCatalog humandb/
-```
+	```
+	$ perl annotate_variation.pl --buildver hg19 --downdb gwasCatalog humandb/
+	```
+	
+	参数说明：
+	
+	```
+	--buildver <string>         specify genome build version (default: hg18 for human)
+	--downdb                    download annotation database
+	```
+	
+	可以执行`perl annotate_variation.pl -h`参考命令的使用示例：
+	
+	```
+	Example: #download annotation databases from ANNOVAR or UCSC and save to humandb/ directory
+		annotate_variation.pl -downdb -webfrom annovar refGene humandb/
+		annotate_variation.pl -buildver mm9 -downdb refGene mousedb/
+		annotate_variation.pl -downdb -webfrom annovar esp6500siv2_all humandb/
+	
+		#gene-based annotation of variants in the varlist file (by default --geneanno is ON)
+		annotate_variation.pl -buildver hg19 ex1.avinput humandb/
+	
+		#region-based annotate variants
+		annotate_variation.pl -regionanno -buildver hg19 -dbtype cytoBand ex1.avinput humandb/
+		annotate_variation.pl -regionanno -buildver hg19 -dbtype gff3 -gff3dbfile tfbs.gff3 ex1.avinput humandb/
+	
+		#filter rare or unreported variants (in 1000G/dbSNP) or predicted deleterious variants
+		annotate_variation.pl -filter -dbtype 1000g2015aug_all -maf 0.01 ex1.avinput humandb/
+		annotate_variation.pl -filter -buildver hg19 -dbtype snp138 ex1.avinput humandb/
+		annotate_variation.pl -filter -dbtype dbnsfp30a -otherinfo ex1.avinput humandb/
+	```
 
-参数说明：
+- **将vcf文件转换为annovar输入格式**
 
-```
---buildver <string>         specify genome build version (default: hg18 for human)
---downdb                    download annotation database
-```
+	```
+	$ perl convert2annovar.pl -format vcf4 T.chr17.pass.snps.indels.genotype.vcf > annotation/T.chr17.pass.snps.indels.genotype.avinput
+	```
 
-可以执行`perl annotate_variation.pl -h`参考命令的使用示例：
+- **注释**
 
-```
-Example: #download annotation databases from ANNOVAR or UCSC and save to humandb/ directory
-	annotate_variation.pl -downdb -webfrom annovar refGene humandb/
-	annotate_variation.pl -buildver mm9 -downdb refGene mousedb/
-	annotate_variation.pl -downdb -webfrom annovar esp6500siv2_all humandb/
+	```
+	$ perl table_annovar.pl annotation/T.chr17.pass.snps.indels.genotype.avinput humandb/ -buildver hg19 -outfile annotation/T -remove -protocol refGene,gwasCatalog -operation g,r -nastring .
+	```
+	
+	`table_annovar.pl [arguments] <query-file> <database-location>`
+	
+	参数说明：
+	
+	```
+	--outfile <string>	output file name prefix
+	--remove	remove all temporary files. By default, all temporary files will
+	            be kept for user inspection, but this will easily clutter the
+	            directory.
+	--protocol	comma-delimited string specifying annotation protocol. These
+	            strings typically represent database names in ANNOVAR.
+	--operation	comma-delimited string specifying type of operation. These
+	            strings can be g (gene), r (region) or f (filter).
+	--nastring	string to display when a score is not available. By default,
+	            empty string is printed in the output file.
+	```
 
-	#gene-based annotation of variants in the varlist file (by default --geneanno is ON)
-	annotate_variation.pl -buildver hg19 ex1.avinput humandb/
+	<p align="center"><img src=./picture/RunGATK4-variants-annotation-Annovar.png width=800 /></p>
 
-	#region-based annotate variants
-	annotate_variation.pl -regionanno -buildver hg19 -dbtype cytoBand ex1.avinput humandb/
-	annotate_variation.pl -regionanno -buildver hg19 -dbtype gff3 -gff3dbfile tfbs.gff3 ex1.avinput humandb/
+<a name="variants-annotation-oncotator"><h3>9.2. Oncotator [<sup>目录</sup>](#content)</h3></p>
 
-	#filter rare or unreported variants (in 1000G/dbSNP) or predicted deleterious variants
-	annotate_variation.pl -filter -dbtype 1000g2015aug_all -maf 0.01 ex1.avinput humandb/
-	annotate_variation.pl -filter -buildver hg19 -dbtype snp138 ex1.avinput humandb/
-	annotate_variation.pl -filter -dbtype dbnsfp30a -otherinfo ex1.avinput humandb/
-```
+<p align="center"><img src=./picture/RunGATK4-variants-annotation-Oncotator-1.png width=800 /></p>
+
+<p align="center"><img src=./picture/RunGATK4-variants-annotation-Oncotator-2.png width=800 /></p>
+
 
 
