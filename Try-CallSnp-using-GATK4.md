@@ -10,7 +10,7 @@
 - [7. SNP、 INDEL位点识别](#snp-indel-identify)
 	- [7.1. VCF格式](#vcf-format)
 - [8. 变异位点过滤](#select-filt-variants)
-
+- [9. 变异位点注释](#variants-annotation)
 
 <h1 name="title">跑GATK4流程</h1>
 
@@ -304,10 +304,76 @@ $ gatk GenotypeGVCFs -R Ref/chr17.fa --dbsnp ../Ref/VCF/dbsnp_138.hg19.vcf \
 > - Combine SNP and indel call set
 > - Get passed call set
 
-提取SNP位点
+- **提取SNP位点**
+	
+	```
+	$ gatk SelectVariants -R Ref/chr17.fa -V calling/T.chr17.raw.snps.indels.genotype.vcf \
+	--select-type-to-include SNP -O filter/T.chr17.raw.snps.genotype.vcf
+	```
+	
+	参数说明：
+	
+	```
+	--select-type-to-include,-select-type:Type
+	                              Select only a certain type of variants from the input file  This argument may be specified
+	                              0 or more times. Default value: null. Possible values: {NO_VARIATION, SNP, MNP, INDEL,
+	                              SYMBOLIC, MIXED}
+	```
 
-```
-$ gatk SelectVariants -R Ref/chr17.fa -V calling/T.chr17.raw.snps.indels.genotype.vcf \
---select-type-to-include SNP -O filter/T.chr17.raw.snps.genotype.vcf
-```
+- **提取INDEL位点**
+
+	```
+	$ gatk SelectVariants -R Ref/chr17.fa -V calling/T.chr17.raw.snps.indels.genotype.vcf \
+	--select-type-to-include INDEL -O filter/T.chr17.raw.indels.genotype.vcf
+	```
+
+- **SNP位点过滤**
+
+	```
+	$ gatk VariantFiltration -R Ref/chr17.fa -V filter/T.chr17.raw.snps.genotype.vcf --filter-expression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || SOR > 3.0 || MQRankSum < -12.5 || \
+	ReadPosRankSum < -8.0" --filter-name "SNP_FILTER" -O filter/T.chr17.filter.snps.genotype.vcf
+	```
+	
+	参数说明：
+	
+	```
+	--filter-expression,-filter:String
+	                              One or more expression used with INFO fields to filter  This argument may be specified 0
+	                              or more times. Default value: null.
+	
+	--filter-name:String          Names to use for the list of filters  This argument may be specified 0 or more times.
+	                              Default value: null.
+	```
+
+- **INDEL位点过滤**
+
+	```
+	$ gatk VariantFiltration -R Ref/chr17.fa -V filter/T.chr17.raw.indels.genotype.vcf --filter-expression "QD < 2.0 || FS > 200.0 || SOR > 10.0 || MQRankSum < -12.5 || ReadPosRankSum < \
+	-20.0" --filter-name "INDEL_FILTER" -O filter/T.chr17.filter.indels.genotype.vcf
+	```
+
+- **合并过滤后SNP、 INDEL文件**
+
+	```
+	$ gatk MergeVcfs -I filter/T.chr17.filter.snps.genotype.vcf -I \
+	filter/T.chr17.filter.indels.genotype.vcf -O filter/T.chr17.filter.snps.indels.genotype.vcf
+	```
+
+- **提取PASS突变位点**
+
+	```
+	$ gatk SelectVariants -R Ref/chr17.fa -V filter/T.chr17.filter.snps.indels.genotype.vcf -O
+	T.chr17.pass.snps.indels.genotype.vcf -select "vc.isNotFiltered()"
+	```
+	
+	参数说明：
+	
+	```
+	--selectExpressions,-select:String
+	                              One or more criteria to use when selecting the data  This argument may be specified 0 or
+	                              more times. Default value: null.
+	```
+
+<a name="variants-annotation"><h2>9. 变异位点注释 [<sup>目录</sup>](#content)</h2></p>
+
 
