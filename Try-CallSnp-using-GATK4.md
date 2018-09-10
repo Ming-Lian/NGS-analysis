@@ -11,6 +11,9 @@
 	- [7.1. VCF格式](#vcf-format)
 - [8. 变异位点过滤](#select-filt-variants)
 - [9. 变异位点注释](#variants-annotation)
+	- [9.1. Annovar](#variants-annotation-annovar)
+		- [9.1.1. 简介](#variants-annotation-annovar-introduction)
+		- [9.1.2. 使用](#variants-annotation-annovar-usage)
 
 <h1 name="title">跑GATK4流程</h1>
 
@@ -375,5 +378,72 @@ $ gatk GenotypeGVCFs -R Ref/chr17.fa --dbsnp ../Ref/VCF/dbsnp_138.hg19.vcf \
 	```
 
 <a name="variants-annotation"><h2>9. 变异位点注释 [<sup>目录</sup>](#content)</h2></p>
+
+<p align="center"><img src=./picture/RunGATK4-variants-annotation.jpg width=800 /></p>
+
+<a name="variants-annotation-annovar"><h3>9.1. Annovar [<sup>目录</sup>](#content)</h3></p>
+
+<a name="variants-annotation-annovar-introduction"><h4>9.1.1. 简介 [<sup>目录</sup>](#content)</h4></p>
+
+Annovar: `http://annovar.openbioinformatics.org/en/latest/`
+
+> - It can annotate single nucleotide variants (SNVs) and insertions/deletions.
+> - Gene-based, region-based and filter-based annotation of genetic variants.
+> - Versatile annotator: custom annotations.
+> - Only print the worst consequence.
+> 
+> annotate_variation.pl
+> - -downdb 数据库下载
+> - -geneanno 基因注释
+> - -regionanno 区域注释
+> - -filter 过滤
+> 
+> table_annovar.pl 综合注释
+
+Annovar的四大功能：
+
+> - **Gene-based annotation**: identify whether SNPs or CNVs cause **protein coding changes** and the **amino acids** that are affected. Users can flexibly use RefSeq genes, UCSC genes, ENSEMBL genes, GENCODE genes, AceView genes, or many other gene definition systems.
+> 
+> - **Region-based annotation**: identify variants in **specific genomic regions**, for example, conserved regions among 44 species, predicted transcription factor binding sites, segmental duplication regions, GWAS hits, database of genomic variants, DNAse I hypersensitivity sites, ENCODE H3K4Me1/H3K4Me3/H3K27Ac/CTCF sites, ChIP-Seq peaks, RNA-Seq peaks, or many other annotations on genomic intervals.
+> 
+> - **Filter-based annotation**: identify variants that are **documented in specific databases**, for example, whether a variant is reported in dbSNP, what is the allele frequency in the 1000 Genome Project, NHLBI-ESP 6500 exomes or Exome Aggregation Consortium, calculate the SIFT/PolyPhen/LRT/MutationTaster/MutationAssessor/FATHMM/MetaSVM/MetaLR scores, find intergenic variants with GERP++ score < 2, or many other annotations on specific mutations.
+> 
+> - **Other functionalities**: Retrieve the nucleotide sequence in any user-specific genomic positions in batch, identify a candidate gene list for Mendelian diseases from exome data, and other utilities.
+
+<a name="variants-annotation-annovar-usage"><h4>9.1.2. 使用 [<sup>目录</sup>](#content)</h4></p>
+
+数据库下载
+
+```
+$ perl annotate_variation.pl --buildver hg19 --downdb gwasCatalog humandb/
+```
+
+参数说明：
+
+```
+--buildver <string>         specify genome build version (default: hg18 for human)
+--downdb                    download annotation database
+```
+
+可以执行`perl annotate_variation.pl -h`参考命令的使用示例：
+
+```
+Example: #download annotation databases from ANNOVAR or UCSC and save to humandb/ directory
+	annotate_variation.pl -downdb -webfrom annovar refGene humandb/
+	annotate_variation.pl -buildver mm9 -downdb refGene mousedb/
+	annotate_variation.pl -downdb -webfrom annovar esp6500siv2_all humandb/
+
+	#gene-based annotation of variants in the varlist file (by default --geneanno is ON)
+	annotate_variation.pl -buildver hg19 ex1.avinput humandb/
+
+	#region-based annotate variants
+	annotate_variation.pl -regionanno -buildver hg19 -dbtype cytoBand ex1.avinput humandb/
+	annotate_variation.pl -regionanno -buildver hg19 -dbtype gff3 -gff3dbfile tfbs.gff3 ex1.avinput humandb/
+
+	#filter rare or unreported variants (in 1000G/dbSNP) or predicted deleterious variants
+	annotate_variation.pl -filter -dbtype 1000g2015aug_all -maf 0.01 ex1.avinput humandb/
+	annotate_variation.pl -filter -buildver hg19 -dbtype snp138 ex1.avinput humandb/
+	annotate_variation.pl -filter -dbtype dbnsfp30a -otherinfo ex1.avinput humandb/
+```
 
 
