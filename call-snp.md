@@ -183,7 +183,7 @@ picard对于单端或者双端测序数据并没有区分参数，可以用同�
 - GATK4的排序功能是通过`picard SortSam`工具实现的。虽然`samtools sort`工具也可以实现该功能，但是在GATK流程中还是推荐用picard实现，因为SortSam会在输出文件的头信息部分添加一个SO标签用于说明文件已经被成功排序，且**这个标签是必须的**，GATK需要检查这个标签以保证后续分析可以正常进行
 - `https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_sam_SortSam.php`
 
-````
+```
 # 使用GATK命令
 $ gatk SortSam -I mapping/T.chr17.sam -O preprocess/T.chr17.sort.bam -R database/chr17.fa -SO coordinate --CREATE_INDEX
 # 使用picard命令
