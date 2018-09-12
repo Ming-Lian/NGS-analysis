@@ -363,4 +363,4 @@ $ gatk HaplotypeCaller -R Ref/chr17.fa -I sam/T.chr17.recal.bam -ERC GVCF --dbsn
 
 (7) [GATK Forum: What input files does the GATK accept / require?](https://software.broadinstitute.org/gatk/documentation/article.php?id=1204)
 
-(8) [GATK Forum: Collected FAQs about interval lists](#https://software.broadinstitute.org/gatk/documentation/article.php?id=1319)
+(8) [GATK Forum: Collected FAQs about interval lists](https://software.broadinstitute.org/gatk/documentation/article.php?id=1319)
