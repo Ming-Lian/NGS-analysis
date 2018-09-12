@@ -11,7 +11,7 @@
 			- [3.1.3. 探究samtools和picard去除read duplicates的方法](#principle-of-remove-duplicates)
 			- [3.1.4. 操作：排序及标记重复](#operate-remove-read-duplicates)
 		- [3.2. 质量值校正](#gatk4-recallbrate-base-quality-scores)
-
+	- [4. SNP、 INDEL位点识别](#gatk4-snp-indel-identify)
 
 
 
@@ -300,7 +300,48 @@ $ gatk ApplyBQSR -R Ref/mouse/mm10/bwa/mm10.fa -I PharmacogenomicsDB/mouse/SAM/E
 PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/SAM/ERR118300.recal.bam
 ```
 
+<a name="gatk4-snp-indel-identify"><h2>4. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h2></p>
 
+生成gvcf文件
+
+```
+$ gatk HaplotypeCaller -R Ref/chr17.fa -I sam/T.chr17.recal.bam -ERC GVCF --dbsnp ../Ref/VCF/dbsnp_138.hg19.vcf \
+	-O calling/T.chr17.raw.snps.indels.vcf -L chr17:7400000-7800000
+```
+
+如何对指定的区域call snp？
+
+> 使用 `-L` 参数指定识别突变位点的区域
+> 
+> 1. 提供字符串指定单个interval，如`-L chr17:7400000-7800000` 只识别17号染色体7400000-7800000 区域的突变位点。或者使用 `-XL` 参数排除某个区域
+> 
+> 2. 提供一个保存interval lists的文件。GATK支持多种格式的interval lists文件
+> 
+> 	- Picard-style `.interval_list`
+> 
+> 		由 SAM-like header 和 intervals 信息组成，坐标系统为 1-based
+> 
+> 		```
+> 		@HD     VN:1.0  SO:coordinate
+> 		@SQ     SN:1    LN:249250621    AS:GRCh37       UR:http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta   M5:1b22b98cdeb4a9304cb5d48026a85128     SP:Homo Sapiens
+> 		@SQ     SN:2    LN:243199373    AS:GRCh37       UR:http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta   M5:a0d9851da00400dec1098a9255ac712e     SP:Homo Sapiens
+> 		1       30366   30503   +       target_1
+> 		1       69089   70010   +       target_2
+> 		1       367657  368599  +       target_3
+> 		1       621094  622036  +       target_4
+> 		1       861320  861395  +       target_5
+> 		1       865533  865718  +       target_6
+> 		```
+> 
+> 	- GATK-style `.list` or `.intervals`
+> 
+> 		这种格式很简单，intervals需要写成这种格式：`<chr>:<start>-<stop>`，坐标系统为 1-based
+> 
+> 	- BED files `.bed`
+> 
+> 		BED3格式：`<chr> <start> <stop>`，坐标系统为 0-based，GATK只接受 1-based 坐标系统，因此GATK会根据文件后缀 `.bed` 识别bed文件格式，然后会将 0-based 转换为 1-based
+> 
+> 	**注意：intervals必须按照reference的坐标进行排序**
 
 ---
 
@@ -315,3 +356,9 @@ PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/S
 (4) [生信菜鸟团：仔细探究samtools的rmdup是如何行使去除PCR重复reads功能的](http://www.bio-info-trainee.com/2003.html)
 
 (5) [生信技能树论坛：GATK之BaseRecalibrator](http://www.biotrainee.com/thread-1402-1-1.html)
+
+(6) [GATK Forum: Collected FAQs about input files for sequence read data (BAM/CRAM)](https://gatkforums.broadinstitute.org/gatk/discussion/1317/collected-faqs-about-bam-files)
+
+(7) [GATK Forum: What input files does the GATK accept / require?](https://software.broadinstitute.org/gatk/documentation/article.php?id=1204)
+
+(8) [GATK Forum: Collected FAQs about interval lists](#https://software.broadinstitute.org/gatk/documentation/article.php?id=1319)
