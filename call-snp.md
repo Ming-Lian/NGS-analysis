@@ -20,11 +20,11 @@
 
 <h1 name="title">snp-calling</h1>
 
-<a name="prepare-necessary-datasets"><h1 align="center">GATK4流程</h1></p>
+<a name="gatk4"><h1 align="center">GATK4流程</h1></p>
 
 <p align="center"><img src=./picture/GATK4-pipeline.png width=800 /></p>
 
-<a name="prepare-necessary-datasets"><h2>1. 准备配套数据 [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-prepare-necessary-datasets"><h2>1. 准备配套数据 [<sup>目录</sup>](#content)</h2></p>
 
 要明确你的参考基因组版本了！！！ b36/b37/hg18/hg19/hg38，记住**b37和hg19并不是完全一样**的，有些微区别哦！！！
 
@@ -49,12 +49,7 @@ done
 rm -fr chr*.fasta
 ```
 
-
-
-
-
-
-<a name="map-ref"><h2>2. BWA: Map to Reference [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-map-ref"><h2>2. BWA: Map to Reference [<sup>目录</sup>](#content)</h2></p>
 
 1. 建立参考序列索引
 
@@ -88,7 +83,7 @@ rm -fr chr*.fasta
 	> ```
 
 
-<a name="post-alignment-processing"><h2>3. 前期处理 [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-post-alignment-processing"><h2>3. 前期处理 [<sup>目录</sup>](#content)</h2></p>
 
 在进行本部分的操作之前先要做好以下两部的准备工作
 
@@ -109,7 +104,7 @@ GATK4的调用语法：
 ```
 gatk [--java-options "-Xmx4G"] ToolName [GATK args]
 ```
-<a name="remove-read-duplicates"><h3>3.1. 去除PCR重复 [<sup>目录</sup>](#content)</h3></p>
+<a name="gatk4-remove-read-duplicates"><h3>3.1. 去除PCR重复 [<sup>目录</sup>](#content)</h3></p>
 
 <a name="reason-of-duplicates"><h4>3.1.1. duplicates的产生原因 [<sup>目录</sup>](#content)</h4></p>
 
@@ -185,7 +180,7 @@ picard对于单端或者双端测序数据并没有区分参数，可以用同�
 1、排序（SortSam）
 
 - 对sam文件进行排序并生成bam文件，将sam文件中同一染色体对应的条目按照坐标顺序从小到大进行排序
-- GATK4的排序功能是通过picard工具实现的
+- GATK4的排序功能是通过`picard SortSam`工具实现的。虽然`samtools sort`工具也可以实现该功能，但是在GATK流程中还是推荐用picard实现，因为SortSam会在输出文件的头信息部分添加一个SO标签用于说明文件已经被成功排序，且**这个标签是必须的**，GATK需要检查这个标签以保证后续分析可以正常进行
 - `https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_sam_SortSam.php`
 
 ````
@@ -200,6 +195,42 @@ $ java -jar picard.jar SortSam \
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-4.png width=900/></p>
 
+如何检查是否成功排序？
+
+```
+$ samtools view -H /path/to/my.bam
+@HD     VN:1.0  GO:none SO:coordinate
+@SQ     SN:1    LN:247249719
+@SQ     SN:2    LN:242951149
+@SQ     SN:3    LN:199501827
+@SQ     SN:4    LN:191273063
+@SQ     SN:5    LN:180857866
+@SQ     SN:6    LN:170899992
+@SQ     SN:7    LN:158821424
+@SQ     SN:8    LN:146274826
+@SQ     SN:9    LN:140273252
+@SQ     SN:10   LN:135374737
+@SQ     SN:11   LN:134452384
+@SQ     SN:12   LN:132349534
+@SQ     SN:13   LN:114142980
+@SQ     SN:14   LN:106368585
+@SQ     SN:15   LN:100338915
+@SQ     SN:16   LN:88827254
+@SQ     SN:17   LN:78774742
+@SQ     SN:18   LN:76117153
+@SQ     SN:19   LN:63811651
+@SQ     SN:20   LN:62435964
+@SQ     SN:21   LN:46944323
+@SQ     SN:22   LN:49691432
+@SQ     SN:X    LN:154913754
+@SQ     SN:Y    LN:57772954
+@SQ     SN:MT   LN:16571
+@SQ     SN:NT_113887    LN:3994
+...
+```
+
+若随后的比对记录中的contig那一列的顺序与头文件的顺序一致，且在头信息中包含`SO:coordinate`这个标签，则说明，该文件是排序过的
+
 2、标记重复（Markduplicates）
 
 - 标记文库中的重复
@@ -212,7 +243,7 @@ gatk MarkDuplicates -I preprocess/T.chr17.sort.bam -O preprocess/T.chr17.markdup
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-5.png width=900/></p>
 
-<a name="recallbrate-base-quality-scores"><h3>3.2. 质量值校正 [<sup>目录</sup>](#content)</h3></p>
+<a name="gatk4-recallbrate-base-quality-scores"><h3>3.2. 质量值校正 [<sup>目录</sup>](#content)</h3></p>
 
 检测碱基质量分数中的系统错误，需要用到 GATK4 中的 BaseRecalibrator 工具
 
