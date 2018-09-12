@@ -341,7 +341,9 @@ $ gatk HaplotypeCaller -R Ref/chr17.fa -I sam/T.chr17.recal.bam -ERC GVCF --dbsn
 > 
 > 		BED3格式：`<chr> <start> <stop>`，坐标系统为 0-based，GATK只接受 1-based 坐标系统，因此GATK会根据文件后缀 `.bed` 识别bed文件格式，然后会将 0-based 转换为 1-based
 > 
-> 	**注意：intervals必须按照reference的坐标进行排序**
+> 	**注意：**
+> 	> - intervals 必须按照 reference 的坐标进行排序
+> 	> - 可以提供多个intervals集合，文件格式不必一致：`-L intervals1.interval_list -L intervals2.list -L intervals3.bed ...`
 
 ---
 
