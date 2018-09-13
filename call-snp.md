@@ -318,7 +318,7 @@ $ gatk ApplyBQSR -R Ref/mouse/mm10/bwa/mm10.fa -I PharmacogenomicsDB/mouse/SAM/E
 PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/SAM/ERR118300.recal.bam
 ```
 
-<a name="gatk4-snp-indel-identify"><h2>4. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-snp-indel-identify-and-filter"><h2>4. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h2></p>
 
 <a name="gatk4-choice-for-snp-calling-strategies"><h3>4.1. SNP calling 策略的选择 [<sup>目录</sup>](#content)</h3></p>
 
@@ -351,7 +351,7 @@ PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/S
 现在使用过滤变异的方法例如VQSR等利用的统计模型，都基于一个比较大的samples size。joint calling 这种方法可以提供足够的数据，确保过滤这一步是统一应用于所有samples的。
 
 
-<a name="gatk4-germline-snps-indels-and-filter"><h3>4.2. Germline SNPs + Indels [<sup>目录</sup>](#content)</h3></p>
+<a name="gatk4-germline-snps-indels"><h3>4.2. Germline SNPs + Indels [<sup>目录</sup>](#content)</h3></p>
 
 将一个或多个个体放在一起call snp，得到一个 joint callset，该snp calling的策略称为**joint calling**
 
