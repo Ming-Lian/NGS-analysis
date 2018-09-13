@@ -11,7 +11,11 @@
 			- [3.1.3. 探究samtools和picard去除read duplicates的方法](#principle-of-remove-duplicates)
 			- [3.1.4. 操作：排序及标记重复](#operate-remove-read-duplicates)
 		- [3.2. 质量值校正](#gatk4-recallbrate-base-quality-scores)
-	- [4. SNP、 INDEL位点识别](#gatk4-snp-indel-identify)
+	- [4. SNP、 INDEL位点识别与过滤](#gatk4-snp-indel-identify-and-filter)
+		- [4.1. SNP calling 策略的选择](#gatk4-choice-for-snp-calling-strategies)
+		- [4.2. Germline SNPs + Indels](#gatk4-germline-snps-indels)
+			- [4.2.1. SNP、 INDEL位点识别](#gatk4-germline-snps-indels-identify)
+			- [4.2.2. SNP、 INDEL位点过滤](#gatk4-germline-snps-indels-filter)
 
 
 
@@ -105,6 +109,18 @@ rm -fr chr*.fasta
 	...
 	```
 
+	若原始SAM/BAM文件没有read group和sample信息，可以通过AddOrReplaceReadGroups添加这部分信息
+
+	```
+	$ java -jar picard.jar AddOrReplaceReadGroups \
+	      I=input.bam \
+	      O=output.bam \
+	      RGID=4 \
+	      RGLB=lib1 \
+	      RGPL=illumina \
+	      RGPU=unit1 \
+	      RGSM=20
+	```
 
 <a name="gatk4-post-alignment-processing"><h2>3. 前期处理 [<sup>目录</sup>](#content)</h2></p>
 
@@ -285,6 +301,8 @@ gatk MarkDuplicates -I preprocess/T.chr17.sort.bam -O preprocess/T.chr17.markdup
 # 下载known-site的VCF文件，到Ensembl上下载
 $ wget -c -P Ref/mouse/mm10/vcf ftp://ftp.ensembl.org/pub/release-93/variation/vcf/mus_musculus/mus_musculus.vcf.gz >download.log &
 $ cd Ref/mouse/mm10/vcf && gunzip mus_musculus.vcf.gz && mv mus_musculus.vcf dbsnp_150.mm10.vcf
+# 建好vcf文件的索引，需要用到GATK工具集中的IndexFeatureFile，该命令会在指定的vcf文件的相同路径下生成一个以".idx"为后缀的文件
+$ gatk IndexFeatureFile -F dbsnp_150.mm10.vcf
 
 # 建立较正模型
 $ gatk BaseRecalibrator -R Ref/mouse/mm10/bwa/mm10.fa -I PharmacogenomicsDB/mouse/SAM/ERR118300.enriched.markdup.bam -O \
@@ -302,12 +320,53 @@ PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/S
 
 <a name="gatk4-snp-indel-identify"><h2>4. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h2></p>
 
-生成gvcf文件
+<a name="gatk4-choice-for-snp-calling-strategies"><h3>4.1. SNP calling 策略的选择 [<sup>目录</sup>](#content)</h3></p>
+
+当你有多个samples，然后你call snp时候，你是应该将所有sample分开call完之后，再merge在一起。还是直接将所有samples，同时用作input然后call snp呢？
+
+这里需要知道有哪些snp calling的策略：
+
+- **single sample calling**：每一个sample的bam file都进行单独的snp calling，然后每个sample单独snp calling结果再合成一个总的snp calling的结果。
+
+- **batch calling**： 一定数目群集的bamfiles 一起calling snps，然后再merge在一起
+
+- **joint calling**： 所有samples的BAM files一起call 出一个包含所有samples 变异信息的output
+
+一般来说，如果条件允许（computational power等），使用joint calling ，即将所有samples同时call是比较优的选择
+
+原因：
+
+**1、对于低频率的变异具有更高更好的检测sensitivity**
+
+在joint calling中，由于所有samples中所有的位点都是同时call的，换句话说就是，所有位点的信息都是share的，因此可以如果某些samples中个别位点是低频率的，但是可能在其他samples中，该位点的频率比较高，因此可以准确的对低频位点有更加好的calling 效果。
+
+<p align="center"><img src=./picture/GATK4-pipeline-snp-calling-strategies.jpg width=800 /></p>
+
+如左图，在1到n的samples中，碱基G只出现在其中两个samples中。如果我们将这些samples单独的call snps，这个低频率G的位点将会被忽略。但是joint calling 却可以允许将这些碱基G出现的频率进行累加，将该低频率的突变也call出来。
+
+在右图中，上面的sample是一个跟ref一样具有纯合位点，下面的sample在一些位点中有部分数据缺少的情况，例如rs429358.如果将这两个samples分开call snp，然后merge一起，这样会错误地将这两个samples，在这个位点上看作具有类似的变异频率，但是其实由于下面的samples在改位点的区域存在数据缺少，只能看作non-informative。
+
+**2、更好的过滤掉假阳性的变异callling的结果**
+
+现在使用过滤变异的方法例如VQSR等利用的统计模型，都基于一个比较大的samples size。joint calling 这种方法可以提供足够的数据，确保过滤这一步是统一应用于所有samples的。
+
+
+<a name="gatk4-germline-snps-indels"><h3>4.2. Germline SNPs + Indels [<sup>目录</sup>](#content)</h3></p>
+
+将一个或多个个体放在一起call snp，得到一个 joint callset，该snp calling的策略称为**joint calling**
+
+<p align="center"><img src=./picture/GATK4-pipeline-Germline-SNPs-Indels.png width=800 /></p>
+
+<a name="gatk4-germline-snps-indels-identify"><h4>4.2.1. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h4></p>
+
+1、生成GVCF文件
 
 ```
 $ gatk HaplotypeCaller -R Ref/chr17.fa -I sam/T.chr17.recal.bam -ERC GVCF --dbsnp ../Ref/VCF/dbsnp_138.hg19.vcf \
 	-O calling/T.chr17.raw.snps.indels.vcf -L chr17:7400000-7800000
 ```
+
+HaplotypeCaller可以同时call snp 和indel，通过局部 de-novo 组装而非基于mapping的结果。一旦程序在某个区域发现了变异信号，它会忽略已有的mapping信息，在该区域执行reads重组装
 
 如何对指定的区域call snp？
 
@@ -345,6 +404,70 @@ $ gatk HaplotypeCaller -R Ref/chr17.fa -I sam/T.chr17.recal.bam -ERC GVCF --dbsn
 > 	> - intervals 必须按照 reference 的坐标进行排序
 > 	> - 可以提供多个intervals集合，文件格式不必一致：`-L intervals1.interval_list -L intervals2.list -L intervals3.bed ...`
 
+2、合并多个GVCF文件得到GenomicsDB，为joint genotyping做准备。若是单样本跳过该步骤
+
+```
+$ gatk --java-options "-Xmx4g -Xms4g" GenomicsDBImport \
+      -V data/gvcfs/mother.g.vcf.gz \
+      -V data/gvcfs/father.g.vcf.gz \
+      -V data/gvcfs/son.g.vcf.gz \
+      --genomicsdb-workspace-path my_database \
+      -L 20
+```
+
+3、联合call snp，得到 joint-called SNP&indel
+
+```
+# 单样本
+$ gatk --java-options "-Xmx4g" GenotypeGVCFs \
+   -R Homo_sapiens_assembly38.fasta \
+   -V input.g.vcf.gz \
+   -O output.vcf.gz
+
+# 多样本
+$ gatk --java-options "-Xmx4g" GenotypeGVCFs \
+   -R Homo_sapiens_assembly38.fasta \
+   -V gendb://my_database \
+   -O output.vcf.gz
+```
+
+<a name="gatk4-germline-snps-indels-filter"><h4>4.2.2. SNP、 INDEL位点过滤[<sup>目录</sup>](#content)</h4></p>
+
+- 方法一：先校正后过滤（Filter Variants by Variant (Quality Score) Recalibration）
+
+	1、用机器学习的方法基于已知的变异位点对caller给出的原始 variant quality score 进行校正  (VQSR)，包含两步：
+	
+	```
+	# 构建校正模型
+	$ gatk VariantRecalibrator \
+	   -R Homo_sapiens_assembly38.fasta \
+	   -V input.vcf.gz \
+	   --resource hapmap,known=false,training=true,truth=true,prior=15.0:hapmap_3.3.hg38.sites.vcf.gz \
+	   --resource omni,known=false,training=true,truth=false,prior=12.0:1000G_omni2.5.hg38.sites.vcf.gz \
+	   --resource 1000G,known=false,training=true,truth=false,prior=10.0:1000G_phase1.snps.high_confidence.hg38.vcf.gz \
+	   --resource dbsnp,known=true,training=false,truth=false,prior=2.0:Homo_sapiens_assembly38.dbsnp138.vcf.gz \
+	   -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR \
+	   -mode SNP \
+	   -O output.recal \
+	   --tranches-file output.tranches \
+	   --rscript-file output.plots.R
+	
+	# 应用模型进行质量值校正
+	$ gatk ApplyVQSR \
+	   -R Homo_sapiens_assembly38.fasta \
+	   -V input.vcf.gz \
+	   -O output.vcf.gz \
+	   --truth-sensitivity-filter-level 99.0 \
+	   --tranches-file output.tranches \
+	   --recal-file output.recal \
+	   -mode SNP
+	```
+
+- 方法二：直接过滤 (hard-filtering)
+
+
+
+
 ---
 
 参考资料：
@@ -364,3 +487,9 @@ $ gatk HaplotypeCaller -R Ref/chr17.fa -I sam/T.chr17.recal.bam -ERC GVCF --dbsn
 (7) [GATK Forum: What input files does the GATK accept / require?](https://software.broadinstitute.org/gatk/documentation/article.php?id=1204)
 
 (8) [GATK Forum: Collected FAQs about interval lists](https://software.broadinstitute.org/gatk/documentation/article.php?id=1319)
+
+(9) [GATK Forum：GATK Best Practices](https://software.broadinstitute.org/gatk/best-practices/)
+
+(10) [公众号碱基矿工：GATK4全基因组数据分析最佳实践 ，我以这篇文章为标志，终结当前WGS系列数据分析的流程主体问题 | 完全代码](https://mp.weixin.qq.com/s/Sa019WuSg8fRQgkWAIG4pQ)
+
+(11) [生信菜鸟团：生信笔记：call snp是应该一起call还是分开call？](https://mp.weixin.qq.com/s/XVkFuU2zWLY5r6grDwzkcA)
