@@ -26,7 +26,7 @@
 
 <a name="gatk4"><h1 align="center">GATK4流程</h1></p>
 
-<p align="center"><img src=./picture/GATK4-pipeline.png width=800 /></p>
+<p align="center"><img src=./picture/GATK4-logo.png width=800 /></p>
 
 <a name="gatk4-prepare-necessary-datasets"><h2>1. 准备配套数据 [<sup>目录</sup>](#content)</h2></p>
 
