@@ -357,9 +357,13 @@ PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/S
 
 <p align="center"><img src=./picture/GATK4-pipeline-Germline-SNPs-Indels.png width=800 /></p>
 
+- 第一步，单独为每个样本生成后续分析所需的中间文件——gVCF文件。这一步中包含了对原始fastq数据的质控、比对、排序、标记重复序列、BQSR和HaplotypeCaller gVCF等过程。这些过程全部都适合在单样本维度下独立完成。值得注意的是，与单样本模式不同，该模式中每个样本的gVCF应该成为这类流程的标配，在后续的步骤中我们可以通过gVCF很方便地完成群体的Joint Calling；
+
+- 第二步，依据第一步完成的gVCF对这个群体进行Joint Calling，从而得到这个群体的变异结果和每个人准确的基因型（Genotype），最后使用VQSR完成变异的质控。
+
 <a name="gatk4-germline-snps-indels-identify"><h4>4.2.1. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h4></p>
 
-1、生成GVCF文件
+1、单独为每个样本生成后续分析所需的中间文件——gVCF文件
 
 ```
 $ gatk HaplotypeCaller -R Ref/chr17.fa -I sam/T.chr17.recal.bam -ERC GVCF --dbsnp ../Ref/VCF/dbsnp_138.hg19.vcf \
@@ -415,6 +419,16 @@ $ gatk --java-options "-Xmx4g -Xms4g" GenomicsDBImport \
       -L 20
 ```
 
+也可以使用CombineGVCFs实现该功能。CombineGVCFs继承自GATK4之前的版本，但是它的运行速度不如GenomicsDB
+
+```
+$ gatk CombineGVCFs \
+   -R reference.fasta \
+   --variant sample1.g.vcf.gz \
+   --variant sample2.g.vcf.gz \
+   -O cohort.g.vcf.gz
+```
+
 3、联合call snp，得到 joint-called SNP&indel
 
 ```
@@ -433,12 +447,15 @@ $ gatk --java-options "-Xmx4g" GenotypeGVCFs \
 
 <a name="gatk4-germline-snps-indels-filter"><h4>4.2.2. SNP、 INDEL位点过滤[<sup>目录</sup>](#content)</h4></p>
 
-- 方法一：先校正后过滤（Filter Variants by Variant (Quality Score) Recalibration）
+- 方法一：通过质量校正来过滤（Filter Variants by Variant (Quality Score) Recalibration）
 
-	1、用机器学习的方法基于已知的变异位点对caller给出的原始 variant quality score 进行校正  (VQSR)，包含两步：
+	1、用机器学习的方法基于已知的变异位点对caller给出的原始 variant quality score 进行校正  (VQSR)，包含两步：（1）构建校正模型；（2）应用模型进行质量值校正
+
+	由于评价SNP和Indel质量高低的标准不同，因此需要分SNP和Indel两种不同的模式，分别进行校正
 	
 	```
-	# 构建校正模型
+	# SNP mode
+	## 构建校正模型
 	$ gatk VariantRecalibrator \
 	   -R Homo_sapiens_assembly38.fasta \
 	   -V input.vcf.gz \
@@ -448,25 +465,132 @@ $ gatk --java-options "-Xmx4g" GenotypeGVCFs \
 	   --resource dbsnp,known=true,training=false,truth=false,prior=2.0:Homo_sapiens_assembly38.dbsnp138.vcf.gz \
 	   -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR \
 	   -mode SNP \
-	   -O output.recal \
-	   --tranches-file output.tranches \
-	   --rscript-file output.plots.R
-	
-	# 应用模型进行质量值校正
+	   -O output.snps.recal \
+	   --tranches-file output.snps.tranches \
+	   --rscript-file output.snps.plots.R
+	## 应用模型进行质量值校正
 	$ gatk ApplyVQSR \
 	   -R Homo_sapiens_assembly38.fasta \
 	   -V input.vcf.gz \
-	   -O output.vcf.gz \
+	   -O output.snps.VQSR.vcf.gz \
 	   --truth-sensitivity-filter-level 99.0 \
-	   --tranches-file output.tranches \
-	   --recal-file output.recal \
+	   --tranches-file output.snps.tranches \
+	   --recal-file output.snps.recal \
 	   -mode SNP
+
+	# Indel mode
+	## 上一步SNP mode产生的输出作为这一步的输入
+	## 构建校正模型
+	$ gatk VariantRecalibrator \
+	   -R Homo_sapiens_assembly38.fasta \
+	   -V input.snps.VQSR.vcf.gz \
+	   --resource hapmap,known=false,training=true,truth=true,prior=15.0:hapmap_3.3.hg38.sites.vcf.gz \
+	   --resource omni,known=false,training=true,truth=false,prior=12.0:1000G_omni2.5.hg38.sites.vcf.gz \
+	   --resource 1000G,known=false,training=true,truth=false,prior=10.0:1000G_phase1.snps.high_confidence.hg38.vcf.gz \
+	   --resource dbsnp,known=true,training=false,truth=false,prior=2.0:Homo_sapiens_assembly38.dbsnp138.vcf.gz \
+	   -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR \
+	   -mode INDEL \
+	   -O output.indels.recal \
+	   --tranches-file output.indels.tranches \
+	   --rscript-file output.indels.plots.R
+	## 应用模型进行质量值校正
+	$ gatk ApplyVQSR \
+	   -R Homo_sapiens_assembly38.fasta \
+	   -V input.snps.VQSR.vcf.gz \
+	   -O output.snps.indels.VQSR.vcf.gz \
+	   --truth-sensitivity-filter-level 99.0 \
+	   --tranches-file output.indels.tranches \
+	   --recal-file output.indels.recal \
+	   -mode INDEL
 	```
+
+	执行变异校正需要满足两个条件：
+
+	> - 大量高质量的已知variants作为训练集，而这对于许多的物种是不满足的
+	> - 数据集不能太小，因为它需要足够的数据集来识别 good vs. bad variants
+	
+	因此对于只有一两个样本、靶向测序、RNA-seq、非模式动物的数据，都不推荐进行变异质量值校正。若以上两个条件都不满足，则需要采取直接过滤 (hard-filtering) 的策略
 
 - 方法二：直接过滤 (hard-filtering)
 
-
-
+	**Steps**
+	
+	> - Extract the SNPs from the call set
+	> - Apply the filter to the SNP call set
+	> - Extract the Indels from the call set
+	> - Apply the filter to the Indel call set
+	> - Combine SNP and indel call set
+	> - Get passed call set
+	
+	- **提取SNP位点**
+		
+		```
+		$ gatk SelectVariants -R Ref/chr17.fa -V calling/T.chr17.raw.snps.indels.genotype.vcf \
+		--select-type-to-include SNP -O filter/T.chr17.raw.snps.genotype.vcf
+		```
+		
+		参数说明：
+		
+		```
+		--select-type-to-include,-select-type:Type
+		                              Select only a certain type of variants from the input file  This argument may be specified
+		                              0 or more times. Default value: null. Possible values: {NO_VARIATION, SNP, MNP, INDEL,
+		                              SYMBOLIC, MIXED}
+		```
+	
+	- **提取INDEL位点**
+	
+		```
+		$ gatk SelectVariants -R Ref/chr17.fa -V calling/T.chr17.raw.snps.indels.genotype.vcf \
+		--select-type-to-include INDEL -O filter/T.chr17.raw.indels.genotype.vcf
+		```
+	
+	- **SNP位点过滤**
+	
+		```
+		$ gatk VariantFiltration -R Ref/chr17.fa -V filter/T.chr17.raw.snps.genotype.vcf --filter-expression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || SOR > 3.0 || MQRankSum < -12.5 || \
+		ReadPosRankSum < -8.0" --filter-name "SNP_FILTER" -O filter/T.chr17.filter.snps.genotype.vcf
+		```
+		
+		参数说明：
+		
+		```
+		--filter-expression,-filter:String
+		                              One or more expression used with INFO fields to filter  This argument may be specified 0
+		                              or more times. Default value: null.
+		
+		--filter-name:String          Names to use for the list of filters  This argument may be specified 0 or more times.
+		                              Default value: null.
+		```
+	
+	- **INDEL位点过滤**
+	
+		```
+		$ gatk VariantFiltration -R Ref/chr17.fa -V filter/T.chr17.raw.indels.genotype.vcf --filter-expression "QD < 2.0 || FS > 200.0 || SOR > 10.0 || MQRankSum < -12.5 || ReadPosRankSum < \
+		-20.0" --filter-name "INDEL_FILTER" -O filter/T.chr17.filter.indels.genotype.vcf
+		```
+	
+	- **合并过滤后SNP、 INDEL文件**
+	
+		```
+		$ gatk MergeVcfs -I filter/T.chr17.filter.snps.genotype.vcf -I \
+		filter/T.chr17.filter.indels.genotype.vcf -O filter/T.chr17.filter.snps.indels.genotype.vcf
+		```
+	
+	- **提取PASS突变位点**
+	
+		```
+		$ gatk SelectVariants -R Ref/chr17.fa -V filter/T.chr17.filter.snps.indels.genotype.vcf -O
+		T.chr17.pass.snps.indels.genotype.vcf -select "vc.isNotFiltered()"
+		```
+		
+		参数说明：
+		
+		```
+		--selectExpressions,-select:String
+		                              One or more criteria to use when selecting the data  This argument may be specified 0 or
+		                              more times. Default value: null.
+		```
 
 ---
 
