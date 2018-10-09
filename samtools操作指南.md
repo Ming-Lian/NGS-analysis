@@ -176,7 +176,31 @@ chr19   61431566        1082557 2808
 chr1    195471971       3459553 8376
 ```
 
+- `samtools flagstat`
 
+```
+samtools flagstat <in.bam> |<in.sam> | <in.cram>
+```
+
+统计输入文件的相关数据并将这些数据输出至屏幕显示。每一项统计数据都由两部分组成，分别是QC pass和QC failed，表示通过QC的reads数据量和未通过QC的reads数量。以“PASS + FAILED”格式显示
+
+输出形式如下：
+
+```
+85207970 + 0 in total (QC-passed reads + QC-failed reads)
+5350668 + 0 secondary
+0 + 0 supplementary
+0 + 0 duplicates
+73549948 + 0 mapped (86.32% : N/A)
+79857302 + 0 paired in sequencing
+39928651 + 0 read1
+39928651 + 0 read2
+62977510 + 0 properly paired (78.86% : N/A)
+63902424 + 0 with itself and mate mapped
+4296856 + 0 singletons (5.38% : N/A)
+173078 + 0 with mate mapped to a different chr
+127302 + 0 with mate mapped to a different chr (mapQ>=5)
+```
 
 
 ---
