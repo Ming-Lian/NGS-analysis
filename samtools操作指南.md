@@ -2,18 +2,21 @@
 
 [samtools 操作指南](#title)
 
-- [提取比对质量高的reads](#high-quality)
-- [按染色体分割bam/sam文件](#split-chrom)
-- [提取未比对的reads](#get-unmap)
-- [滤除未比对的reads](#filt-unmap)
-- [过滤PCR重复](#filt-pcr)
-- [提取左右端测序数据比对到不同染色体的PE reads](#diff-map)
-- [根据比对结果来统计测序深度和覆盖度](#depth-coverage)
-	- [计算每条染色体平均的测序深度和覆盖度](#chrom-depth-coverage)
-	- [以WIG文件输出测序深度](#output-wig)
-
+- [1. 提取比对质量高的reads](#high-quality)
+- [2. 按染色体分割bam/sam文件](#split-chrom)
+- [3. 提取未比对的reads](#get-unmap)
+- [4. 滤除未比对的reads](#filt-unmap)
+- [5. 过滤PCR重复](#filt-pcr)
+- [6. 提取左右端测序数据比对到不同染色体的PE reads](#diff-map)
+- [7. 根据比对结果来统计测序深度和覆盖度](#depth-coverage)
+	- [7.1. 计算每条染色体平均的测序深度和覆盖度](#chrom-depth-coverage)
+	- [7.2. 以WIG文件输出测序深度](#ouput-wig)
+- [8. 提取multiple mapping的reads](#multiple-mapping)
+- [9. samtools自带统计命令](#statistic-command)
 
 <a name="title"><h1>samtools 操作指南</h1></a>
+
+---
 
 <p align="right">以下内容整理自【直播我的基因组】系列文章</p>
 
@@ -22,7 +25,7 @@
 ![](/picture/sam-format.PNG "SAM-format")
 
 
-<a name="high-quality"><h3>提取比对质量高的reads</h3></a>
+<a name="high-quality"><h3>1. 提取比对质量高的reads [<sup>目录</sup>](#content)</h3></a>
 
 ```
 $ samtools view -q <int> -O bam -o sample1.highQual.bam [sample1.sam|sample1.bam]
@@ -33,7 +36,7 @@ $ samtools view -q <int> -O bam -o sample1.highQual.bam [sample1.sam|sample1.bam
 > 通过 **BWA** 比对得到的sam文件的第五列MAPQ值，直接通过它可以区分unique mapping和mutiple mapping的情况。在使用bwa这个软件来把测序数据比对到参考基因组的时候如果没有加上-a这个参数，那么输出的sam文件里面，bwa会对每一个有multiple mapping情况的reads的MAPQ值设置为0，所以提取unique mapping的reads是非常容易的：
 > `samtools view -q 1 -O bam -o sample1.highQual.bam [sample1.sam|sample1.bam]`
 
-<a name="split-chrom"><h3>按染色体分割bam/sam文件 [<sup>2</sup>](#2)</h3></a> 
+<a name="split-chrom"><h3>2. 按染色体分割bam/sam文件  [<sup>目录</sup>](#content)</h3></a> 
 
 ```
 for chrom in `seq 1 22` X Y MT;
@@ -49,7 +52,7 @@ done
 ```
 $ bamtools split -in file.bam -reference 
 ```
-<a name="get-unmap"><h3>提取未比对的reads [<sup>3</sup>](#3)</h3></a>
+<a name="get-unmap"><h3>3. 提取未比对的reads  [<sup>目录</sup>](#content)</h3></a>
 
 ```
 $ samtools view -f4 sample.bam > sample.unmapped.sam
@@ -88,26 +91,26 @@ $ bamtools -split -in my.bam -mapped
 ```
 > 注意：它只考虑了PE reads**均未比对成功**的情况。
 
-<a name="filt-unmap"><h3>滤除未比对的reads</h3></a>
+<a name="filt-unmap"><h3>4. 滤除未比对的reads [<sup>目录</sup>](#content)</h3></a>
 
 ```
 $ samtools view -h -F4 input.bam
 ```
 
-<a name="filt-pcr"><h3>过滤PCR重复</h3></a>
+<a name="filt-pcr"><h3>5. 过滤PCR重复 [<sup>目录</sup>](#content)</h3></a>
 
 ```
 $ samtools rmdup input.sorted.bam output.rmdup.bam
 ```
 
-<a name="diff-map"><h3>提取左右端测序数据比对到不同染色体的PE reads [<sup>4</sup>](#4)</h3></a>
+<a name="diff-map"><h3>6. 提取左右端测序数据比对到不同染色体的PE reads  [<sup>目录</sup>](#content)</h3></a>
 
 sam文件的第3，7列指明了该reads比对到哪条染色体，以及该reads的配对reads比对到了哪条染色体(如果比对到同一条染色体，那么第7列是=符号)。所以我们只需要写脚本来提取即可
 ```
 $ samtools view input.bam|perl -alne '{print if $F[6] ne "="}' 
 ```
 
-<a name="depth-coverage"><h3>根据比对结果来统计测序深度和覆盖度 [<sup>5</sup>](#5)</h3></a>
+<a name="depth-coverage"><h3>7. 根据比对结果来统计测序深度和覆盖度  [<sup>目录</sup>](#content)</h3></a>
 
 这个统计主要依赖于samtools的depth功能，或者说mpileup功能，输入文件都是sort好bam格式的比对文件。<font color="red">事实上，其实depth功能调用的就是mpileup的函数。但是mpileup可以设置一系列的过滤参数。而depth命令是纯天然的，所以mpileup的结果一定会小于depth的测序深度。</font>
 
@@ -117,24 +120,66 @@ $ samtools view input.bam|perl -alne '{print if $F[6] ne "="}'
 $ samtools mpileup -A input.bam | head
 ```
 
-<a name="chrom-depth-coverage"><h4>计算每条染色体平均的测序深度和覆盖度</h4></a>
+<a name="chrom-depth-coverage"><h4>7.1. 计算每条染色体平均的测序深度和覆盖度</h4></a>
 
 可以写脚本来计算每条染色体平均的测序深度和各个染色体的覆盖度：
 
 ```
 nohup time samtools mpileup input.bam | perl -alne '{$pos{$F[0]}++;$depth{$F[0]}+=$F[3]} END{foreach sort keys %pos {print "$_\t$pos{$_}\t$depth{$_}"}}' 1>coverage_depth.txt 2>coverage_depth.log &
 ```
+
 以上可以得到每条染色体所有位点覆盖度和测序深度的总和，将它们处于染色体的长度就得到了每条染色体平均的测序深度和各个染色体的覆盖度，其中**chromosome的长度**在bam文件里面可以看到，用`samtools view -H input.bam` 即可。
 
-<a name="output-wig"><h4>以WIG文件输出测序深度 [<sup>6</sup>](#6)</h4></a>
+<a name="output-wig"><h4>7.2. 以WIG文件输出测序深度  [<sup>目录</sup>](#content)</h4></a>
 
 ```
 samtools depth SRR1042593.sorted.bam | perl -ne 'BEGIN{ print "track type=print wiggle_0 name=SRR1042593 description=SRR1042593\n"}; ($c, $start, $depth) = split; if ($c ne $lastC) { print "variableStep chrom=$c span=10\n"; };$lastC=$c; next unless $. % 10 ==0;print "$start\t$depth\n" unless $depth<3' > SRR1042593.wig
 
 samtools depth SRR1042594.sorted.bam | perl -ne 'BEGIN{ print "track type=print wiggle_0 name=SRR1042594 description=SRR1042594\n"}; ($c, $start, $depth) = split; if ($c ne $lastC) { print "variableStep chrom=$c span=10\n"; };$lastC=$c; next unless $. % 10 ==0;print "$start\t$depth\n" unless $depth<3' > SRR1042594.wig
 ```
+
 > `$.` 上次阅读的文件的当前输入行号
 
+<a name="multiple-mapping"><h3>8. 提取multiple mapping的reads  [<sup>目录</sup>](#content)</h3></a>
+
+BWA对multiple mapping的处理策略：
+
+> 从中选择一个最好的，如果有两个或以上最好的比对位置，则从中随机选择一个
+
+在sam文件的第五列是MAPQ值，对某些软件，比如BWA，直接通过它就可以区分unique mapping和mutiple mapping的情况，就是判断这条reads是否只比对到参考基因组的唯一的位点。所以对于这种情况下的sam文件，提取unique mapping非常简单，用samtools view -q 1 （过滤掉MAPQ值低于1的情况）
+
+<p align="center"><img src=./picture/samtools-note-multiple-mapping.jpg width=500 /></p>
+
+<a name="statistic-command"><h3>9. samtools自带统计命令  [<sup>目录</sup>](#content)</h3></a>
+
+- `samtool idxstats`
+
+```
+samtools idxstats in.sam|in.bam|in.cram
+```
+检索和打印与输入文件相对应的index file里的统计信息，在使用idxstats之前需要用`samtools index`对输入的bam文件建索引
+
+输出形式如下：
+
+```
+#reference sequence name	sequence length	mapped reads	unmapped reads
+chr10   130694993       2371861 5312
+chr11   122082543       2270187 6192
+chr12   120129022       2264479 5378
+chr13   120421639       2217186 5182
+chr14   124902244       2247612 5225
+chr15   104043685       1839099 4404
+chr16   98207768        1701380 4694
+chr17   94987271        1723899 5425
+chr18   90702639        1606990 3973
+chr19   61431566        1082557 2808
+chr1    195471971       3459553 8376
+```
+
+
+
+
+---
 
 参考资料：
 
