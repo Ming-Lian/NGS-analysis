@@ -293,6 +293,8 @@ gatk MarkDuplicates -I preprocess/T.chr17.sort.bam -O preprocess/T.chr17.markdup
 
 注：如果不是人类基因组，并且也缺少相应的已知SNP数据库，可以通过严格SNP筛选过程（例如结合GATK和samtools）建立一个snp数据库。
 
+**注意：Base Recalibration是以read group为单位进行的，因此当一个BAM文件中包含了多个read group时，BaseRecalibrator会对每个read group分别建立校正模型**
+
 1、建立较正模型
 
 质量值校正，这一步需要用到variants的known-sites，所以需要先准备好已知的snp，indel的VCF文件：
