@@ -606,8 +606,8 @@ GATK4官网给出的推荐阈值：
 > MQ < 40.0
 > FS 60.0
 > SOR 3.0
->     MQRankSum < -12.5
->     ReadPosRankSum < -8.0
+> MQRankSum < -12.5
+> ReadPosRankSum < -8.0
 > ```
 > 
 > For indels:
