@@ -16,6 +16,7 @@
 		- [4.2. Germline SNPs + Indels](#gatk4-germline-snps-indels)
 			- [4.2.1. SNP、 INDEL位点识别](#gatk4-germline-snps-indels-identify)
 			- [4.2.2. SNP、 INDEL位点过滤](#gatk4-germline-snps-indels-filter)
+			- [4.3.3. Hard-filter阈值探究](#gatk4-germline-snps-indels-hard-filter-shreshold)
 
 
 
@@ -594,6 +595,71 @@ $ gatk --java-options "-Xmx4g" GenotypeGVCFs \
 		                              more times. Default value: null.
 		```
 
+<a name="gatk4-germline-snps-indels-hard-filter-shreshold"><h4>4.3.3. Hard-filter阈值探究[<sup>目录</sup>](#content)</h4></p>
+
+该阈值选择来自于GATK4官网的推荐，阈值依据于比较真 vs. 假 snp的特征值（annotation values）统计分布
+
+> One of the most helpful ways to approach hard-filtering is to visualize the distribution of annotation values for a truth set called using a particular pipeline. These distributions are sharped by both the pipeline methodology and the underlying physical properties of the sequence data; so for a given pairing of data generation technology + analysis pipeline, you can derive filtering thresholds based on what the distributions look like for the truth set
+
+评估数据来源：1000Genomes 中的 whole genome trio
+
+获得真/假变异的方法：
+
+> 将whole genome trio用HaplotypeCaller的GVCF mode得到各样本单独的GVCF文件，然后再用GenotypeGVCFs进行joint-calling得到未过滤的VCF文件，最后用VQSR（基于统计机器学习方法）得到过滤的变异集合
+> 
+> 将PASS的变异认为是真的，将被过滤的变异当作是假的
+
+比较真变异与假变异的特征值（annotation values）的分布，进行评估的特征值有：QD, FS, SOR, MQ, MQRankSum 和 ReadPosRankSum
+
+- **QualByDepth (QD)**
+
+变异质量值（variant confidence (from the QUAL field)）除以该位点覆盖的非同源的depth（与参考基因组不同的），即对质量值按照depth进行了标准化
+
+<p align="center"><img src=./picture/GATK4-pipeline-hard-filter-QD.png width=600 /></p>
+
+大多数被过滤掉的变异的落在低QD区域
+
+推荐：QD≥2
+
+- **FisherStrand (FS)**
+
+一个衡量strand bias的量
+
+```
+Phred-scaled probability that there is strand bias at the site
+```
+
+当某一个位点的strand bias的程度很小或没有，那么 FS 值会接近于0
+
+<p align="center"><img src=./picture/GATK4-pipeline-hard-filter-FS.png width=600 /></p>
+
+大多数过滤掉的变异的落在FS大于55的区域
+
+推荐：FS≤60
+
+- **StrandOddsRatio (SOR)**
+
+另一种评估strand bias的量
+
+<p align="center"><img src=./picture/GATK4-pipeline-hard-filter-SOR.png width=600 /></p>
+
+Notice most of the variants that have an SOR value greater than 3 fail the VQSR filter
+
+推荐：SOR≥3
+
+- **RMSMappingQuality (MQ)**
+
+<table>
+<tbody>
+<th>原图</th><th>局部放大</th>
+<tr>
+	<td><img src=./picture/GATK4-pipeline-hard-filter-MQ-1.png width=400 /></td>
+	<td><img src=./picture/GATK4-pipeline-hard-filter-MQ-2.png width=400 /></td>
+</tr>
+</tbody>
+</table>
+
+
 ---
 
 参考资料：
@@ -619,3 +685,5 @@ $ gatk --java-options "-Xmx4g" GenotypeGVCFs \
 (10) [公众号碱基矿工：GATK4全基因组数据分析最佳实践 ，我以这篇文章为标志，终结当前WGS系列数据分析的流程主体问题 | 完全代码](https://mp.weixin.qq.com/s/Sa019WuSg8fRQgkWAIG4pQ)
 
 (11) [生信菜鸟团：生信笔记：call snp是应该一起call还是分开call？](https://mp.weixin.qq.com/s/XVkFuU2zWLY5r6grDwzkcA)
+
+(12) [GATK Forum：Hard-filtering germline short variants](https://software.broadinstitute.org/gatk/documentation/article?id=11069)
