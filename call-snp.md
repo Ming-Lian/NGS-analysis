@@ -597,6 +597,31 @@ $ gatk --java-options "-Xmx4g" GenotypeGVCFs \
 
 <a name="gatk4-germline-snps-indels-hard-filter-shreshold"><h4>4.3.3. Hard-filter阈值探究[<sup>目录</sup>](#content)</h4></p>
 
+GATK4官网给出的推荐阈值：
+
+> For SNPs:
+> 
+> ```
+> QD < 2.0
+> MQ < 40.0
+> FS 60.0
+> SOR 3.0
+>     MQRankSum < -12.5
+>     ReadPosRankSum < -8.0
+> ```
+> 
+> For indels:
+> 
+> ```
+> QD < 2.0
+> ReadPosRankSum < -20.0
+> InbreedingCoeff < -0.8
+> FS 200.0
+> SOR > 10.0
+> ```
+
+[点此](https://software.broadinstitute.org/gatk/documentation/article?id=11097) 查看GATK4原始网页
+
 该阈值选择来自于GATK4官网的推荐，阈值依据于比较真 vs. 假 snp的特征值（annotation values）统计分布
 
 > One of the most helpful ways to approach hard-filtering is to visualize the distribution of annotation values for a truth set called using a particular pipeline. These distributions are sharped by both the pipeline methodology and the underlying physical properties of the sequence data; so for a given pairing of data generation technology + analysis pipeline, you can derive filtering thresholds based on what the distributions look like for the truth set
