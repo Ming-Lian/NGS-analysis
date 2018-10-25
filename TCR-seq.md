@@ -3,7 +3,7 @@
 [TCR-seq文献调研](#title)
 - [背景介绍](#introduction)
 - [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
-- [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-lones)
+- [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-clones)
 
 
 
