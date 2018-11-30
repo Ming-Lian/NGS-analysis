@@ -138,13 +138,13 @@ normalization_factor_sampleB <- median(c(0.78, 0.77, 0.72, 0.74, 1.35))
 
 由参考代表基因集计算样本的标准化因子：
 
-对这些代表基因集计算加权平均数：
-
-<p align="center"><img src=./picture/DiffExpAna-normalization-TMM-4.png height=100 /></p>
-
-该加权平均数就能代表该样本的标准化因子，只是经过了log变换，所以需要恢复为它的正值：
-
-<p align="center">Scaling-Factor = 2 <sup>weight-average</sup></p>
+> 对这些代表基因集计算加权平均数：
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-TMM-4.png height=100 /></p>
+> 
+> 该加权平均数就能代表该样本的标准化因子，只是经过了log变换，所以需要恢复为它的正值：
+> 
+> <p align="center">Scaling-Factor = 2 <sup>weight-average</sup></p>
 
 
 ---
