@@ -2,7 +2,9 @@
 
 [差异表达分析](#title)
 - [统计学原理](#statistic-principle)
+	- [转录组数据统计推断的难题](#statistic-difficulty-in-transcriptome)
 	- [泊松分布 or 负二项分布？](#poisson-or-negative-binomial-distribution)
+	- [方差估计](#estimate-standard-deviation)
 - [数据预处理](#data-preprocess)
 	- [1. 过滤低表达的基因](#filt-low-exp-genes)
 	- [2. 标准化](#normalization)
@@ -19,6 +21,19 @@
 <h1 name="title">差异表达分析</h1>
 
 <a name="statistic-principle"><h2>统计学原理 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="statistic-difficulty-in-transcriptome"><h3>转录组数据统计推断的难题 [<sup>目录</sup>](#content)</h3></a>
+
+我们在其它实验中同样会遇到类似的分析，通常，我们可以用方差分析判定两组“分布”数据间是否存在显著差异。原理是：当组间方差大于组内方差（误差效应），并且统计学显著时，则认为组间处理是可以引起差异的。
+
+有伙伴肯定要问，转录组数据到底有什么了不起的？它们为什么不能用我们熟悉的算法简单地进行计算？
+
+其实统计学家也很无奈啊，看看我们转录组实验得到的这些数据吧：我们的实验只进行少得可怜的生物学重复（n<10），而且，任何基因的表达量都不能是负数，这些数据并不符合正态分布，用于表征表达量的counts是非连续的（芯片信号是连续的），RNA-seq数据的离散通常是高度扭曲的，方差往往会大于均值……，就这些奇怪的特征，使得准确估计方差并没有想象的那么容易。
+
+我们面临两个核心问题：
+
+- 基因表达数据适合用什么统计学分布进行差异显著性检验？
+- 如何利用少量生物学重复数据估算基因表达的标准差？
 
 <a name="poisson-or-negative-binomial-distribution"><h3>泊松分布 or 负二项分布？ [<sup>目录</sup>](#content)</h3></a>
 
@@ -37,6 +52,18 @@ dispersion指的是离散程度，研究一个数据分布的离散程度，我�
 如果假定总体分布为泊松分布， 根据我们的定量数据是无法估计出一个合理的参数，能够符合上图中所示分布的，这样的现象就称之为overdispersion。
 
 正是由于真实数据与泊松分布之间的overdispersion， 才会选择负二项分布作为总体的分布。
+
+<a name="estimate-standard-deviation"><h3>方差估计 [<sup>目录</sup>](#content)</h3></a>
+
+在生物学重复很少时，我们是很难准确计算每个基因表达的标准差的（相当于这个数据集的离散程度）。我们**很可能会低估数据的离散程度**。
+
+被逼无奈的科学家提出了一个假设：表达丰度相似的基因，在总体上标准差应该也是相似的。我们把不同生物学重复中表达丰度相同的基因的总标准差取个平均值，低于这个值的都用这个值，高于这个值的就用算出来的值。
+
+<p align="center"><img src=./picture/DiffExpAna-statistic-principle-2.png width=800 /></p>
+
+<p align="center"><img src=./picture/DiffExpAna-statistic-principle-3.png width=800 /></p>
+
+<p align="center">（以上图来自 H. J. Pimentel, et al. Differential analysis of RNA-Seq incorporatingquantification uncertainty. bioRxiv, 2016）</p>
 
 <a name="data-preprocess"><h2>数据预处理 [<sup>目录</sup>](#content)</h2></a>
 
