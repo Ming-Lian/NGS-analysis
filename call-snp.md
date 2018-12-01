@@ -7,17 +7,18 @@
 	- [3. 前期处理](#gatk4-post-alignment-processing)
 		- [3.1. 去除PCR重复](#gatk4-remove-read-duplicates)
 			- [3.1.1. duplicates的产生原因](#reason-of-duplicates)
-			- [3.1.2. PCR bias的影响](#influence-of-pcr-bias)
-			- [3.1.3. 探究samtools和picard去除read duplicates的方法](#principle-of-remove-duplicates)
-			- [3.1.4. 操作：排序及标记重复](#operate-remove-read-duplicates)
+			- [3.1.2. 用泊松分布解释 NGS 测序数据的 duplication 问题](#poisson-distribution-to-duplication)
+			- [3.1.3. PCR bias的影响](#influence-of-pcr-bias)
+			- [3.1.4. 探究samtools和picard去除read duplicates的方法](#principle-of-remove-duplicates)
+			- [3.1.5. 操作：排序及标记重复](#operate-remove-read-duplicates)
 		- [3.2. 质量值校正](#gatk4-recallbrate-base-quality-scores)
 	- [4. SNP、 INDEL位点识别与过滤](#gatk4-snp-indel-identify-and-filter)
 		- [4.1. SNP calling 策略的选择](#gatk4-choice-for-snp-calling-strategies)
-		- [4.2. Germline SNPs + Indels](#gatk4-germline-snps-indels)
-			- [4.2.1. SNP、 INDEL位点识别](#gatk4-germline-snps-indels-identify)
-			- [4.2.2. SNP、 INDEL位点过滤](#gatk4-germline-snps-indels-filter)
+		- [4.2. call snp 原理：HaplotypeCaller](#gatk4-principle-of-call-snp)
+		- [4.3. Germline SNPs + Indels](#gatk4-germline-snps-indels)
+			- [4.3.1. SNP、 INDEL位点识别](#gatk4-germline-snps-indels-identify)
+			- [4.3.2. SNP、 INDEL位点过滤](#gatk4-germline-snps-indels-filter)
 			- [4.3.3. Hard-filter阈值探究](#gatk4-germline-snps-indels-hard-filter-shreshold)
-
 
 
 
@@ -166,7 +167,46 @@ PCR扩增时，同一个DNA片段会产生多个相同的拷贝，第4步测序�
 
 它是文库分子的两条互补链同时都与Flowcell上的引物结合分别形成了各自的cluster被测序，最后产生的这对reads是完全反向互补的。比对到参考基因组时，也分别在正负链的相同位置上，在有些分析中也会被认为是一种duplicates。
 
-<a name="influence-of-pcr-bias"><h4>3.1.2. PCR bias的影响 [<sup>目录</sup>](#content)</h4></p>
+<a name="poisson-distribution-to-duplication"><h4>3.1.2. 用泊松分布解释 NGS 测序数据的 duplication 问题 [<sup>目录</sup>](#content)</h4></p>
+
+我曾经有这样的疑惑，为什么文库构建过程中的 PCR 将每个文库分子都扩增了上千倍，以 PCR 10个循环为例 2<sup>10</sup>= 1024 ，但是实际测序数据中 duplication 率并不高（低于20%）
+
+有一篇文章从统计概率的角度详细探讨了一下 duplication 率的影响因素
+
+PCR 的过程中不同长度的文库分子被扩增的效率不同（GC 太高或 AT 含量太高都会影响扩增效率），PCR 更倾向于扩增短片段的文库分子，这里先不考虑文库片段扩增效率的差异，把问题简化一下，**假设所有文库分子扩增效率都相同**。PCR duplicate 的主要来源是**同一个文库分子的不同拷贝都在 flowcell 上生成了可以被测序的 cluster** ，导致同一个分子的序列被测序仪读取多次。那么为何在每个分子都有上千个拷贝的情况下，实际却很少出现同一分子的多个拷贝被测序的情况呢？主要原因就是文库中 unique 分子的数量比被 flowcell 上引物捕获的分子数量多很多，直白点说就是 **flowcell 上用于捕获文库分子的引物数量太少了，两者不在同一个数量级**，导致很少出现同一个文库分子的多个拷贝被 flowcell 上引物捕获生成 cluster。
+
+假设文库中所有分子与引物的结合都是随机的，简化一下就相当于，一个箱子中有 n 种颜色的球（文库中的 n 种 unique 分子），每种颜色有 1000 个（PCR 扩增的，随 cycle 数变化），从这个箱子中随机拿出来 k 个球（最终测序得到 k 条 reads），其中出现相同颜色的球就是 duplicate，那么 duplication 率就可以根据有多少种颜色的球被取出 0,1,2,3…… 次的概率计算，可以近似用泊松分布模型来描述。
+
+以人全基因组重测序 30X 为例，PE150 需要约 3x10<sup>8</sup>条 reads ，文库中 unique 分子数其实可以通过上机文库的浓度和体积（外加 PCR 循环数）计算出来，这里用近似值 3.5x10<sup>10</sup> 个 unique 分子。每个 unique 分子期望被测序的次数是 3x10<sup>8</sup>/3.5x10<sup>10</sup> = 0.0085 ，每个 unique 分子被测 0,1,2,3… 次的概率如下图：
+
+```
+> x <- seq(0,10,1)
+> xnames <- as.character(x)
+> xlab <- "一个文库分子的所有拷贝被测序的次数"
+> ylab <- "概率"
+> barplot(dpois(x,lambda = 0.0085),
++ names.arg = xnames,
++ xlab = xlab,
++ ylab = ylab)
+```
+
+<p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-poisson-1.png width=500/></p>
+
+由于 unique 分子数量太多，被测 0 次的概率远高于 1 和 2 次，我们去除 0 次的看一下：
+
+<p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-poisson-2.png width=500/></p>
+
+unique 分子被测序 1 次的概率远大于 2次及以上，即便一个 unique 分子被测序 2 次，我们去除 duplicate 时候还会保留其中一条 reads。
+
+如果降低文库中 unique 分子数量到 4.5x10<sup>9</sup>个，PCR 循环数增加以便浓度达到跟上面模拟的情况相同，测序 reads 数还是 3x10<sup>8</sup> 条，每个 unique 分子预期被测序的次数是 3x10<sup>8</sup>/4.5x10<sup>9</sup> = 0.067 。
+
+<p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-poisson-3.png width=500/></p>
+
+unique 分子数量减少，被测序 2次的概率增大，duplication 率显然也会增高。
+
+到这里已经可以很明白的看出 **duplication 率主要与文库中 unique 分子数量有关**，所以建库过程中最大化 unique 分子数是降低 duplication 率的关键。文库中 unique 分子数越多，说明建库起始量越高，需要 PCR 的循环数越少，而文库中 unique 分子数越少，说明建库起始量越低，需要 PCR 的循环数越多，因此提高建库起始量是关键。
+
+<a name="influence-of-pcr-bias"><h4>3.1.3. PCR bias的影响 [<sup>目录</sup>](#content)</h4></p>
 
 1. DNA在打断的那一步会发生一些损失， 主要表现是会引发一些碱基发生颠换变换（嘌呤-变嘧啶或者嘧啶变嘌呤） ， 带来假的变异。 PCR过程会扩大这个信号， 导致最后的检测结果中混入了假的结果；
 
@@ -176,7 +216,7 @@ PCR扩增时，同一个DNA片段会产生多个相同的拷贝，第4步测序�
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-1.png width=900/></p>
 
-<a name="principle-of-remove-duplicates"><h4>3.1.3. 探究samtools和picard去除read duplicates的方法 [<sup>目录</sup>](#content)</h4></p>
+<a name="principle-of-remove-duplicates"><h4>3.1.4. 探究samtools和picard去除read duplicates的方法 [<sup>目录</sup>](#content)</h4></p>
 
 **1、samtools**
 
@@ -209,9 +249,7 @@ picard对于单端或者双端测序数据并没有区分参数，可以用同�
 对应单端测序，picard的处理结果与samtools rmdup没有差别，不过这个java软件的缺点就是**奇慢无比**
 
 
-
-
-<a name="operate-remove-read-duplicates"><h4>3.1.4. 操作：排序及标记重复 [<sup>目录</sup>](#content)</h4></p>
+<a name="operate-remove-read-duplicates"><h4>3.1.5. 操作：排序及标记重复 [<sup>目录</sup>](#content)</h4></p>
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-2.png width=800/></p>
 
@@ -604,8 +642,8 @@ GATK4官网给出的推荐阈值：
 > ```
 > QD < 2.0
 > MQ < 40.0
-> FS 60.0
-> SOR 3.0
+> FS > 60.0
+> SOR > 3.0
 > MQRankSum < -12.5
 > ReadPosRankSum < -8.0
 > ```
@@ -616,7 +654,7 @@ GATK4官网给出的推荐阈值：
 > QD < 2.0
 > ReadPosRankSum < -20.0
 > InbreedingCoeff < -0.8
-> FS 200.0
+> FS > 200.0
 > SOR > 10.0
 > ```
 
@@ -674,6 +712,8 @@ Notice most of the variants that have an SOR value greater than 3 fail the VQSR 
 
 - **RMSMappingQuality (MQ)**
 
+覆盖改位点的reads的mapping quality的均方根
+
 <table>
 <tbody>
 <th>原图</th><th>局部放大</th>
@@ -684,6 +724,14 @@ Notice most of the variants that have an SOR value greater than 3 fail the VQSR 
 </tbody>
 </table>
 
+推荐：MQ≥40
+
+- **MappingQualityRankSumTest (MQRankSum)**
+
+<p align="center"><img src=./picture/GATK4-pipeline-hard-filter-MQRankSum.png width=600 /></p>
+
+推荐：MQRankSum≥-2.5
+
 
 ---
 
@@ -691,7 +739,7 @@ Notice most of the variants that have an SOR value greater than 3 fail the VQSR 
 
 (1) [生信菜鸟团：GATK使用注意事项](http://www.bio-info-trainee.com/838.html)
 
-(2) 小天师兄《全外显子组测序分析》
+(2) [小天师兄《全外显子组测序分析》](./supplement/%E5%85%A8%E5%A4%96%E6%98%BE%E5%AD%90%E7%BB%84%E6%B5%8B%E5%BA%8F%E5%88%86%E6%9E%90-GATK4.pdf)
 
 (3) [RNA-Seq是否可以替代WES完成外显子的变异检测?二代测序的四种Read重复是如何产生的?](https://mp.weixin.qq.com/s/RfEt-O-R2njje5Asu3WpwQ)
 
@@ -712,3 +760,5 @@ Notice most of the variants that have an SOR value greater than 3 fail the VQSR 
 (11) [生信菜鸟团：生信笔记：call snp是应该一起call还是分开call？](https://mp.weixin.qq.com/s/XVkFuU2zWLY5r6grDwzkcA)
 
 (12) [GATK Forum：Hard-filtering germline short variants](https://software.broadinstitute.org/gatk/documentation/article?id=11069)
+
+(13) [生信杂谈：用泊松分布解释 NGS 测序数据的 duplication 问题](https://mp.weixin.qq.com/s/Juf7LklWkaCmUT_pusOuCA)
