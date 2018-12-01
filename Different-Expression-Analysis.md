@@ -2,6 +2,7 @@
 
 [差异表达分析](#title)
 - [统计学原理](#statistic-principle)
+	- [泊松分布 or 负二项分布？](#poisson-or-negative-binomial-distribution)
 - [数据预处理](#data-preprocess)
 	- [1. 过滤低表达的基因](#filt-low-exp-genes)
 	- [2. 标准化](#normalization)
@@ -17,9 +18,27 @@
 
 <h1 name="title">差异表达分析</h1>
 
-<a name="statistic-principle"><h2>统计学原理</h2></a>
+<a name="statistic-principle"><h2>统计学原理 [<sup>目录</sup>](#content)</h2></a>
 
-<a name="data-preprocess"><h2>数据预处理</h2></a>
+<a name="poisson-or-negative-binomial-distribution"><h3>泊松分布 or 负二项分布？ [<sup>目录</sup>](#content)</h3></a>
+
+从统计学的角度出发，进行差异分析肯定会需要假设检验，通常对于分布已知的数据，运用参数检验结果的假阳性率会更低。转录组数据中，raw count值符合什么样的分布呢？
+
+count值本质是reads的数目，是一个非零整数，而且是离散的，其分布肯定也是离散型分布。对于转录组数据，学术界常用的分布包括**泊松分布 (poisson)**和**负二项分布 (negative binomial)**两种。
+
+在数据分析的早期，确实有学者采用泊松分布进行差异分析，但是发展到现在，几乎全部都是基于负二项分布了，究竟是什么因素导致了这种现象呢？为了解释这个问题，我们必须提到一个概念 **overdispersion**。
+
+dispersion指的是离散程度，研究一个数据分布的离散程度，我们常用方差这个指标。**对于泊松分布而言，其均值和方差是相等的，但是我们的数据确不符合这样的规律**。通过计算所有基因的均值和方差，可以绘制如下的图片：
+
+<p align="center"><img src=./picture/DiffExpAna-statistic-principle-1.png width=500 /></p>
+
+横坐标为基因在所有样本中的均值，纵坐标为基因在所有样本中的方差，直线的斜率为1，代表泊松分布的均值和方差的分布。可以看到，真实数据的分布是偏离了泊松分布的，方差明显比均值要大。
+
+如果假定总体分布为泊松分布， 根据我们的定量数据是无法估计出一个合理的参数，能够符合上图中所示分布的，这样的现象就称之为overdispersion。
+
+正是由于真实数据与泊松分布之间的overdispersion， 才会选择负二项分布作为总体的分布。
+
+<a name="data-preprocess"><h2>数据预处理 [<sup>目录</sup>](#content)</h2></a>
 
 <a name="filt-low-exp-genes"><h3>1. 过滤低表达的基因 [<sup>目录</sup>](#content)</h3></a>
 
@@ -151,10 +170,12 @@ normalization_factor_sampleB <- median(c(0.78, 0.77, 0.72, 0.74, 1.35))
 
 参考资料：
 
-(1) [【生信菜鸟团】quantile normalization到底对数据做了什么？](http://www.bio-info-trainee.com/2043.html)
+(1) [【生信修炼手册】负二项分布在差异分析中的应用](https://mp.weixin.qq.com/s/m2ydqpKofYo2bK61A9hZWw)
 
-(2) [Introduction to DGE](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html)
+(2) [【生信菜鸟团】quantile normalization到底对数据做了什么？](http://www.bio-info-trainee.com/2043.html)
 
-(3) [生信菜鸟团：StatQuest生物统计学专题 - library normalization进阶之edgeR的标准化方法 ](https://mp.weixin.qq.com/s?__biz=MzUzMTEwODk0Ng==&mid=2247485369&idx=1&sn=791cb8c26b19a1181ceccf586787f078&scene=21#wechat_redirect)
+(3) [Introduction to DGE](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html)
+
+(4) [生信菜鸟团：StatQuest生物统计学专题 - library normalization进阶之edgeR的标准化方法 ](https://mp.weixin.qq.com/s?__biz=MzUzMTEwODk0Ng==&mid=2247485369&idx=1&sn=791cb8c26b19a1181ceccf586787f078&scene=21#wechat_redirect)
 
 
