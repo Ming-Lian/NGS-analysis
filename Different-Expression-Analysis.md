@@ -50,6 +50,8 @@ dispersion指的是离散程度，研究一个数据分布的离散程度，我�
 
 <p align="center"><img src=./picture/DiffExpAna-normalization.png width=800 /></p>
 
+由于不同文库测序深度不同，比较前当然要进行均一化！用总reads进行均一化可能最简单，但在转录组中，通常一小部分极高丰度基因往往会贡献很多reads，如果这些“位高权重”的基因还是差异表达的，则会影响所有其它基因分配到的reads数，而且，两个样本总mRNA量完全相同的前提假设也过于理想了。那如何比较呢，各个方家使出浑身解数，有用中位数的，有用75分位数的，有用几何平均数的，有用TMM(trimmed mean of Mvalues)的等等，总之要**找一个更稳定的参考**值。
+
 <a name="normalization-cpm"><h4>2.1. CPM [<sup>目录</sup>](#content)</h4></a>
 
 CPM(count-per-million)
@@ -172,10 +174,11 @@ normalization_factor_sampleB <- median(c(0.78, 0.77, 0.72, 0.74, 1.35))
 
 (1) [【生信修炼手册】负二项分布在差异分析中的应用](https://mp.weixin.qq.com/s/m2ydqpKofYo2bK61A9hZWw)
 
-(2) [【生信菜鸟团】quantile normalization到底对数据做了什么？](http://www.bio-info-trainee.com/2043.html)
+(2) [【 生信百科】转录组差异表达筛选的真相](https://mp.weixin.qq.com/s/VcjnvI5FqwOFEC9wSUfdSw)
 
-(3) [Introduction to DGE](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html)
+(3) [【生信菜鸟团】quantile normalization到底对数据做了什么？](http://www.bio-info-trainee.com/2043.html)
 
-(4) [生信菜鸟团：StatQuest生物统计学专题 - library normalization进阶之edgeR的标准化方法 ](https://mp.weixin.qq.com/s?__biz=MzUzMTEwODk0Ng==&mid=2247485369&idx=1&sn=791cb8c26b19a1181ceccf586787f078&scene=21#wechat_redirect)
+(4) [Introduction to DGE](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html)
 
+(5) [生信菜鸟团：StatQuest生物统计学专题 - library normalization进阶之edgeR的标准化方法 ](https://mp.weixin.qq.com/s?__biz=MzUzMTEwODk0Ng==&mid=2247485369&idx=1&sn=791cb8c26b19a1181ceccf586787f078&scene=21#wechat_redirect)
 
