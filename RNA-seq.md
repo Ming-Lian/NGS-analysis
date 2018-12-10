@@ -18,6 +18,7 @@
 - [差异表达分析](#diff-exp)
 	- [DESeq2](#deseq2)
 	- [Ballgown](#ballgown)
+- [几点思考](#think-issues)
 
 <h1 name="title">Analysis pipeline for RNA-seq</h1>
 
@@ -334,6 +335,13 @@ result_trans_sort<-arrange(result_transs,pval)
 write.csv(result_trans_sort,file=paste("SingleCell_process/Cleandata/Expression/",name_group1,"_VS_",name_group2,"_transDiff_results.csv",sep=""),row.names=F)
 ```
 
+<a name="think-issues"><h3>几点思考 [<sup>目录</sup>](#content)</h3></a>
+
+1. 为什么要进行转录本拼接？不是都有参考转录组了吗？
+
+- **无参考基因组**：对于无参考转录组的物种来说，往往需要通过RNA-Seq的数据自己拼出参考转录组，然后再进行下游的数据分析。所以，对于无参分析来说，往往需要自己拼装转录本，生成自己的参考转录组信息
+- **注释完备的基因组**：例如human，不同的细胞条件可能不同，一些永生化的细胞系往往都具有“癌症”的特征，这些细胞的转录组，基因组或多或少都有结构的变异，以及转录本的差异。
+
 ---
 
 参考资料：
@@ -343,3 +351,5 @@ write.csv(result_trans_sort,file=paste("SingleCell_process/Cleandata/Expression/
 (2) [一步法差异分析](https://github.com/jmzeng1314/my-R/tree/master/DEG_scripts)
 
 (3) Pertea M, Kim D, Pertea G M, et al. Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie and Ballgown.[J]. Nature Protocols, 2016, 11(9):1650.
+
+(4) [知乎《高通量测序技术》专栏：生物信息学100个基础问题 —— 第25题 GTF/GFF的注释是怎么来的，应该从哪里下载？](https://zhuanlan.zhihu.com/p/36065699)
