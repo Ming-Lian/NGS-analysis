@@ -7,6 +7,7 @@
 - [基因型缺失的影响](#effect)
 - [基因型填充的原理](#principle-of-imputation)
 - [实现工具](#tools)
+	- [IMPUTE2](#tools-impute2)
 
 
 
@@ -98,6 +99,101 @@
 
 此种算法**仅仅关注与特定位点相邻的一小部分标记**的基因型，因此在计算上更加快捷
 
+<a name="tools-impute2"><h3>IMPUTE2 [<sup>目录</sup>](#content)</h3></a>
+
+<p align="center"><img src=./picture/Genotype-Imputation-tools-IMPUTE2-1.jpg width=800 /></p>
+
+Impute2的基因填充 (genotype imputation) 分为两种应用情景：
+
+1. ONE REFERENCE PANEL
+
+	<p align="center"><img src=./picture/Genotype-Imputation-tools-IMPUTE2-2.jpg width=800 /></p>
+
+	```
+	./impute2 \
+	 -m ./Example/example.chr22.map \
+	 -h ./Example/example.chr22.1kG.haps \
+	 -l ./Example/example.chr22.1kG.legend \
+	 -g ./Example/example.chr22.study.gens \
+	 -strand_g ./Example/example.chr22.study.strand \
+	 -int 20.4e6 20.5e6 \
+	 -Ne 20000 \
+	 -o ./Example/example.chr22.one.phased.impute2
+	```
+
+	参数说明：
+
+	> - `-m <file>`: 目标区域重组率图谱文件(Fine-scale recombination map for the region to be analyzed)，记录的是基因组中各个位点的重组率和彼此间物理距离的关系
+	> 
+	> 这个文件应该包含三列：
+	> 
+	> ```
+	> (1) physical position: in base pairs
+	> (2) recombination rate: between current position and next position in map (in cM/Mb)
+	> (3) genetic map position: in cM
+	> 
+	> 例如：
+	> position COMBINED_rate(cM/Mb) Genetic_Map(cM)
+	> 35326 0.251801 0.000000
+	> 35411 0.482009 0.000021
+	> 40483 0.598191 0.002466
+	> ```
+	> 
+	> ---
+	> 
+	> - `-h <file 1> <file 2>`: 已知的单体型信息文件，每行表示一个SNP位点，每列表示一个单体型 (one row per SNP and one column per haplotype)
+	> 
+	> 所有的allele必须表示成0或1的形式
+	> 
+	> 一旦用`-h`参数指定一个单体型文件，就需要用`-l`参数指定一个对应的Legend文件
+	> 
+	> Impute2允许同时指定两个单体型文件： `-h <file 1> <file 2>`
+	> 
+	> ---
+	> 
+	> - `-l <file 1> <file 2>`：与单体型文件对应的Legend文件，保存的是对每个SNP位点的描述信息
+	> 
+	> 这个文件包含四列：
+	> ```
+	> rsID, physical position (in base pairs), allele 0, and allele 1
+	> 
+	> 最后两列的 allele 0 和 allele 1 是对碱基组成的说明
+	> ```
+	> 
+	> ---
+	> 
+	> - `-g <file>`: 包含目标研究群体的genotypes的文件，即[Genotype File Format](http://www.stats.ox.ac.uk/%7Emarchini/software/gwas/file_format.html#Genotype_File_Format)，对它进行后续的基因型填充 (impute) 和分型 (phase)
+	> 
+	> 该文件每行表示一个SNP，前五列分别为：
+	> 
+	> ```
+	> (1) SNP ID：这一列一般表示为染色体号
+	> (2) RS ID of the SNP
+	> (3) base-pair position of the SNP
+	> (4) the allele coded A
+	> (5) the allele coded B
+	> ```
+	> 紧接着的3列是群体中的一个个体的三种可能的基因型：AA，AB或BB
+	> 
+	> 再接着3列是第二个个体的，以此类推，示例文件如下：
+	> 
+	> ```
+	> SNP1 rs1 1000 A C 1 0 0 1 0 0
+	> SNP2 rs2 2000 G T 1 0 0 0 1 0
+	> SNP3 rs3 3000 C T 1 0 0 0 1 0
+	> SNP4 rs4 4000 C T 0 1 0 0 1 0
+	> SNP5 rs5 5000 A G 0 1 0 0 0 1
+	> ```
+	> 
+	> ---
+
+2. TWO REFERENCE PANELS
+
+	<p align="center"><img src=./picture/Genotype-Imputation-tools-IMPUTE2-3.jpg width=800 /></p>
+
+	在这种应用情景中，用到了两个refrence panel，分别记作 panel 0 和 panel 1
+
+	例如，panel 0 可以是1000 Genomes Project的haplotype，包含了基因组中几乎全部的常见SNPs；panel 1 可以是HapMap Phase 3的haplotype，仅包含了基因组中的部分的常见SNPs；panel 3 是用商用SNPs芯片得到的一系列的case和control的样本的genotype
 
 
 
@@ -107,3 +203,5 @@
 参考资料：
 
 (1) [【简书】群体遗传学习笔记-基因型缺失数据的填充](https://www.jianshu.com/p/dafd1e6e4a98)
+
+(2) [Impute2官方文档](http://mathgen.stats.ox.ac.uk/impute/impute2_overview.html)
