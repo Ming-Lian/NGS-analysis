@@ -1,4 +1,4 @@
-<a name="contet">目录</a>
+<a name="content">目录</a>
 
 [基因型填充](#title)
 - [问题描述](#description)
