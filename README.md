@@ -26,3 +26,7 @@
 
 1. [三代测序入门](./Beginning-Single-Molecule-Sequencing.md)
 2. [三代测序分析工具（未完结）](./%E4%B8%89%E4%BB%A3%E6%B5%8B%E5%BA%8F%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90.md)
+
+## 泛基因组
+
+1. [泛基因组入门](./Begining-Pangenome.md)
