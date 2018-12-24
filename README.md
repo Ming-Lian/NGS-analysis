@@ -31,3 +31,8 @@
 ## 泛基因组
 
 1. [泛基因组入门](./Begining-Pangenome.md)
+
+## 群体遗传学
+
+1. [连锁不平衡](./Linkage-Disequilibrium.md
+)
