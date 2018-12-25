@@ -8,6 +8,9 @@
 - [基因型填充的原理](#principle-of-imputation)
 - [实现工具](#tools)
 	- [IMPUTE2](#tools-impute2)
+		- [6.1.1. 两种应用场景](#tools-impute2-2-scenario)
+		- [6.1.2. Best Practices](#tools-impute2-best-practices)
+		- [6.1.3. 1000 Genomes Imputation Cookbook](#tools-impute2-1kgp-cookbook)
 
 
 
@@ -103,6 +106,8 @@
 
 <p align="center"><img src=./picture/Genotype-Imputation-tools-IMPUTE2-1.jpg width=800 /></p>
 
+<a name="tools-impute2-2-scenario"><h3>两种应用场景 [<sup>目录</sup>](#content)</h3></a>
+
 Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 
 1. ONE REFERENCE PANEL
@@ -125,6 +130,7 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 
 	> - `-m <file>`: 目标区域重组率图谱文件(Fine-scale recombination map for the region to be analyzed)，记录的是基因组中各个位点的重组率和彼此间物理距离的关系
 	> 
+	> 
 	> 这个文件应该包含三列：
 	> 
 	> ```
@@ -143,6 +149,7 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 	> 
 	> - `-h <file 1> <file 2>`: 已知的单体型信息文件，每行表示一个SNP位点，每列表示一个单体型 (one row per SNP and one column per haplotype)
 	> 
+	> 
 	> 所有的allele必须表示成0或1的形式
 	> 
 	> 一旦用`-h`参数指定一个单体型文件，就需要用`-l`参数指定一个对应的Legend文件
@@ -153,7 +160,9 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 	> 
 	> - `-l <file 1> <file 2>`：与单体型文件对应的Legend文件，保存的是对每个SNP位点的描述信息
 	> 
+	> 
 	> 这个文件包含四列：
+	> 
 	> ```
 	> rsID, physical position (in base pairs), allele 0, and allele 1
 	> 
@@ -164,6 +173,7 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 	> 
 	> - `-g <file>`: 包含目标研究群体的genotypes的文件，即[Genotype File Format](http://www.stats.ox.ac.uk/%7Emarchini/software/gwas/file_format.html#Genotype_File_Format)，对它进行后续的基因型填充 (impute) 和分型 (phase)
 	> 
+	> 
 	> 该文件每行表示一个SNP，前五列分别为：
 	> 
 	> ```
@@ -173,6 +183,7 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 	> (4) the allele coded A
 	> (5) the allele coded B
 	> ```
+	> 
 	> 紧接着的3列是群体中的一个个体的三种可能的基因型：AA，AB或BB
 	> 
 	> 再接着3列是第二个个体的，以此类推，示例文件如下：
@@ -186,6 +197,22 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 	> ```
 	> 
 	> ---
+	> 
+	> - `-strand_g <file>`: 指定SNP所在的链的方向
+	> 
+	> 该文件每行表示一个SNP，包含两列（列之间用单个空格隔开）：（1）SNP所在的碱基位置；（2）链的方向，`+`或`-`；
+	> 
+	> - `-int <lower> <upper>`: 用于基因型推断的基因组间隔的长度，可以以长格式表示，如 ` -int 5420000 10420000`，也可以以指数形式表示，如 `-int 5.42e6 10.42e6`
+	> 
+	> - `-Ne <int>`: 这个参数的说明看不懂，把原文贴在下面：
+	> 
+	> ```
+	> "Effective size" of the population (commonly denoted as Ne in the population genetics literature) from which your dataset was
+	>  sampled. This parameter scales the recombination rates that IMPUTE2 uses to guide its model of linkage disequilibrium patterns.
+	> When most imputation runs were conducted with reference panels from HapMap Phase 2, we suggested values of 11418 for imputation 
+	> from HapMap CEU, 17469 for YRI, and 14269 for CHB+JPT. 
+	> ```
+	> - `-o <file>`: 输出文件名，文件格式与`-g`参数指定的文件相同，即都是Genotype File Format
 
 2. TWO REFERENCE PANELS
 
@@ -194,6 +221,47 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 	在这种应用情景中，用到了两个refrence panel，分别记作 panel 0 和 panel 1
 
 	例如，panel 0 可以是1000 Genomes Project的haplotype，包含了基因组中几乎全部的常见SNPs；panel 1 可以是HapMap Phase 3的haplotype，仅包含了基因组中的部分的常见SNPs；panel 3 是用商用SNPs芯片得到的一系列的case和control的样本的genotype
+
+<a name="tools-impute2-best-practices"><h3>6.1.2. Best Practices [<sup>目录</sup>](#content)</h3></a>
+
+1. **基因型填充前 (pre-imputation) 进行genotypes质控**
+
+	过滤低质量的变异位点和样本
+
+2. **保证分析中使用的基因组坐标系统一致**
+
+	NCBI build number (e.g., "b36" or "b37") 对应于 UCSC version (e.g., "hg18" or "hg19")
+
+3. **选择reference panel**
+
+	之前的GWAS研究中，研究人员一般都是选择与对应人群遗传距离最相近的reference panel，而Impute2推荐**使用worldwide reference panel**，程序能够从中选出最合适的haplotype用于基因型填充
+
+	这样做的好处是：
+
+	> - 不需要费时费力去挑选haplotypes来构造reference panel；
+	> 
+	
+	> ```
+	 Good results can be obtained in any study population by tuning a single software parameter (-k_hap) with a simple rule of thumb
+	>```
+	>
+	> - 该策略适用于各种人群的研究；
+	>
+	> ```
+	> Our group and others have used this approach to successfully impute populations ranging from homogeneous isolates to recent and
+	> complex admixtures
+	> ```
+	> 
+	> - 填充效果往往优于研究人员自己挑选构造的小reference panel
+	> 
+	> ```
+	> This is because individuals from "diverged" populations may still share genomic segments of recent common ancestry, and IMPUTE2
+	>  can use this haplotype sharing to improve accuracy. At the same time, the software can ignore haplotypes that are not helpful.
+	> ```
+	> 
+	> - 对于大的reference panel，Impute2也能进行高效地处理，不需要担心会带来的计算负担
+
+<a name="tools-impute2-1kgp-cookbook"><h3>6.1.3. 1000 Genomes Imputation Cookbook [<sup>目录</sup>](#content)</h3></a>
 
 
 
@@ -205,3 +273,7 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 (1) [【简书】群体遗传学习笔记-基因型缺失数据的填充](https://www.jianshu.com/p/dafd1e6e4a98)
 
 (2) [Impute2官方文档](http://mathgen.stats.ox.ac.uk/impute/impute2_overview.html)
+
+(3) [Genotype File Format](http://www.stats.ox.ac.uk/%7Emarchini/software/gwas/file_format.html#Genotype_File_Format)
+
+(4) [IMPUTE2: 1000 Genomes Imputation Cookbook](https://genome.sph.umich.edu/wiki/IMPUTE2:_1000_Genomes_Imputation_Cookbook)
