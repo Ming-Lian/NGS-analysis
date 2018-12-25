@@ -240,9 +240,9 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 
 	> - 不需要费时费力去挑选haplotypes来构造reference panel；
 	> 
-	
+	>
 	> ```
-	 Good results can be obtained in any study population by tuning a single software parameter (-k_hap) with a simple rule of thumb
+	> Good results can be obtained in any study population by tuning a single software parameter (-k_hap) with a simple rule of thumb
 	>```
 	>
 	> - 该策略适用于各种人群的研究；
