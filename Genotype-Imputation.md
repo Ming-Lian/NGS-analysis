@@ -11,7 +11,11 @@
 		- [6.1.1. 两种应用场景](#tools-impute2-2-scenario)
 		- [6.1.2. Best Practices](#tools-impute2-best-practices)
 		- [6.1.3. 1000 Genomes Imputation Cookbook](#tools-impute2-1kgp-cookbook)
-
+			- [6.1.3.1. Before Imputation](#tools-impute2-1kgp-cookbook-before-imputation)
+			- [6.1.3.2. Pre-Phasing](#tools-impute2-1kgp-cookbook-pre-phasing)
+				- [6.1.3.2.1. using IMPUTE2](#tools-impute2-1kgp-cookbook-pre-phasing-using-impute2)
+				- [6.1.3.2.2. using SHAPEIT (recommended)](#tools-impute2-1kgp-cookbook-pre-phasing-using-shapeit)
+			- [6.1.3.3. Imputation](#tools-impute2-1kgp-cookbook-imputation)
 
 
 
@@ -263,6 +267,65 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 
 <a name="tools-impute2-1kgp-cookbook"><h3>6.1.3. 1000 Genomes Imputation Cookbook [<sup>目录</sup>](#content)</h3></a>
 
+<a name="tools-impute2-1kgp-cookbook-before-imputation"><h4>6.1.3.1. Before Imputation [<sup>目录</sup>](#content)</h4></a>
+
+1. **对Genotype数据进行质控**
+
+	包括样本水平的质控和marker水平的质控
+	
+	> - 样本水平：
+	> 	- call rate
+	> 	- heterozygosity
+	> 	- relatedness between genotyped individuals
+	> 	- correspondence between sex chromosome genotypes and reported gender
+	> - marker水平：
+	> 	- call rates
+	> 	- deviations from Hardy-Weinberg Equilibrium
+	> 	- excluding low frequency SNPs，for older genotyping platforms,
+	
+	质控代码参考自：`http://sites.google.com/site/mikeweale/software/gwascode`
+
+2. **将Genotype数据转换为Build 37**
+
+	目前的1000 Genome Project的数据使用的是NCBI genome build 37 (hg19)的坐标系统，因此在基因型填充之前需要保证你的Genotype文件也是hg19的坐标系统，且位点是落在正链上
+
+	若坐标系统不一致，可以使用LiftOver进行坐标转换，但是转换过程中可能有少量的SNP转换失败
+
+3. **将Genotype文件转换为IMPUTE格式**
+
+	在格式转换之前，需要先按照坐标进行排序
+
+	`GTOOL`可以将`PLINK PED`转换为`IMPUTE`格式
+
+
+
+<a name="tools-impute2-1kgp-cookbook-pre-phasing"><h4>6.1.3.2. Pre-Phasing [<sup>目录</sup>](#content)</h4></a>
+
+对于大规模的reference panels，基因型填充建议分两步进行：
+
+> - pre-phasing：推断每个样本的单体型
+> - imputation：对分型得到的单体型 (phased haplotypes) 中缺失的allele进行基因型填充
+
+`IMPUTE2` 或 `SHAPEIT` 都可以执行pre-phasing操作，Drs. Bryan Howie 和 Jonathan Marchini推荐使用`SHAPEIT`进行pre-phasing，因为该工具采用的phasing方法更准确
+
+pre-phasing采用**滑动窗口法** (Sliding Window Analyses) 进行：
+
+> 将一个染色体分割成若干Mb的块 (blocks)，对这个块中的genotypes进行phasing
+> 
+> 用这种phasing方法可能遇到的**两种棘手的情况**：
+> 
+> - 若每个块的大小一致，可能不同的块之间SNP的分布密度存在很大差异；
+> - 若某个块正好跨过着丝点 （centromere）,而着丝点附近区域的SNP密度极低，往往意味着是 large gap in 1000 Genome SNPs；
+> 
+> 若SNP密度太低是很难进行phasing的，此时可以采取的**解决策略**是：
+> 
+> - 若某一个块的SNP密度太低（例如少于200个），可以将它与邻居的块合并成一个更大的块一起phasing；
+> - 避免构造跨着丝点的块；
+
+<a name="tools-impute2-1kgp-cookbook-pre-phasing-using-impute2"><h4>6.1.3.2.1. using IMPUTE2 [<sup>目录</sup>](#content)</h4></a>
+
+
+<a name="tools-impute2-1kgp-cookbook-pre-phasing-using-shapeit"><h4>6.1.3.2.2. using SHAPEIT (recommended) [<sup>目录</sup>](#content)</h4></a>
 
 
 
@@ -277,3 +340,5 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 (3) [Genotype File Format](http://www.stats.ox.ac.uk/%7Emarchini/software/gwas/file_format.html#Genotype_File_Format)
 
 (4) [IMPUTE2: 1000 Genomes Imputation Cookbook](https://genome.sph.umich.edu/wiki/IMPUTE2:_1000_Genomes_Imputation_Cookbook)
+
+(5) Weale M (2010) Quality Control for Genome-Wide Association Studies. Methods Mol. Biol. 628:341–372
