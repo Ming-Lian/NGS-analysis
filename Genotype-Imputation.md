@@ -331,7 +331,7 @@ $ impute2 \
  -g ./Example/example.chr22.study.gens \
  -int 20.4e6 20.5e6 \
  -Ne 20000 \
- -o ./Example/example.chr22.prephasing.impute2
+ -o ./Example/example.chr22.prephasing.impute2 \
  -allow_large_regions
 ```
 
@@ -363,7 +363,7 @@ $ impute2 \
  -strand_g ./Example/example.chr22.study.strand \
  -int 20.4e6 20.5e6 \
  -Ne 20000 \
- -o ./Example/example.chr22.one.phased.impute2
+ -o ./Example/example.chr22.one.phased.impute2 \
  -phase
 ```
 
