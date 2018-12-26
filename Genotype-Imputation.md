@@ -226,6 +226,10 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 
 	例如，panel 0 可以是1000 Genomes Project的haplotype，包含了基因组中几乎全部的常见SNPs；panel 1 可以是HapMap Phase 3的haplotype，仅包含了基因组中的部分的常见SNPs；panel 3 是用商用SNPs芯片得到的一系列的case和control的样本的genotype
 
+	之所以使用两套reference panels，是想通过两个reference panels互相填充对方中缺失的部分来得到SNP密度更高的一套merged reference panel
+
+	<p align="center"><img src=./picture/Genotype-Imputation-merging-reference-panels.png width=800 />
+	
 <a name="tools-impute2-best-practices"><h3>6.1.2. Best Practices [<sup>目录</sup>](#content)</h3></a>
 
 1. **基因型填充前 (pre-imputation) 进行genotypes质控**
