@@ -308,9 +308,11 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 
 `IMPUTE2` 或 `SHAPEIT` 都可以执行pre-phasing操作，Drs. Bryan Howie 和 Jonathan Marchini推荐使用`SHAPEIT`进行pre-phasing，因为该工具采用的phasing方法更准确
 
-pre-phasing采用**滑动窗口法** (Sliding Window Analyses) 进行：
+<a name="tools-impute2-1kgp-cookbook-pre-phasing-using-impute2"><h4>6.1.3.2.1. using IMPUTE2 [<sup>目录</sup>](#content)</h4></a>
 
-> 将一个染色体分割成若干Mb的块 (blocks)，对这个块中的genotypes进行phasing
+IMPUTE2的pre-phasing推荐采用**滑动窗口法** (Sliding Window Analyses) 进行：
+
+> 将一个染色体分割成若干Mb的块 (blocks)，对这个块中的genotypes进行phasing。分块需要通过设置`-int <start> <end>`参数实现
 > 
 > 用这种phasing方法可能遇到的**两种棘手的情况**：
 > 
@@ -322,10 +324,50 @@ pre-phasing采用**滑动窗口法** (Sliding Window Analyses) 进行：
 > - 若某一个块的SNP密度太低（例如少于200个），可以将它与邻居的块合并成一个更大的块一起phasing；
 > - 避免构造跨着丝点的块；
 
-<a name="tools-impute2-1kgp-cookbook-pre-phasing-using-impute2"><h4>6.1.3.2.1. using IMPUTE2 [<sup>目录</sup>](#content)</h4></a>
-
+```
+$ impute2 \
+ -prephase_g \
+ -m ./Example/example.chr22.map \
+ -g ./Example/example.chr22.study.gens \
+ -int 20.4e6 20.5e6 \
+ -Ne 20000 \
+ -o ./Example/example.chr22.prephasing.impute2
+ -allow_large_regions
+```
 
 <a name="tools-impute2-1kgp-cookbook-pre-phasing-using-shapeit"><h4>6.1.3.2.2. using SHAPEIT (recommended) [<sup>目录</sup>](#content)</h4></a>
+
+对整条染色体进行pre-phasing建议使用SHAPEIT
+
+SHAPEIT接受PLINK PED和IMPUTE的格式输入
+
+```
+$ shapeit \
+ --input-bed gwas.bed gwas.bim gwas.fam \
+ --input-map genetic_map.txt \
+ --thread 8 \
+ --effective-size 11418 \
+ --output-max gwas.phased.haps gwas.phased.sample \
+ --output-log gwas.phasing.log
+```
+
+<a name="tools-impute2-1kgp-cookbook-imputation"><h3>6.1.3.3. Imputation [<sup>目录</sup>](#content)</h3></a>
+
+```
+$ impute2 \
+ -use_prephased_g \
+ -m ./Example/example.chr22.map \
+ -h ./Example/example.chr22.1kG.haps \
+ -l ./Example/example.chr22.1kG.legend \
+ -known_haps_g ./Example/example.chr22.prephasing.impute2_haps \
+ -strand_g ./Example/example.chr22.study.strand \
+ -int 20.4e6 20.5e6 \
+ -Ne 20000 \
+ -o ./Example/example.chr22.one.phased.impute2
+ -phase
+```
+
+
 
 
 
