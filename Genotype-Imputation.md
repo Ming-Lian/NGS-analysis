@@ -232,6 +232,10 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 
 	过滤低质量的变异位点和样本
 
+	质控方法可以参照：
+
+	> Anderson, C.A. et al. Data quality control in genetic case-controlassociation studies. Nat. Protoc. 5, 1564–1573 (2010)
+	
 2. **保证分析中使用的基因组坐标系统一致**
 
 	NCBI build number (e.g., "b36" or "b37") 对应于 UCSC version (e.g., "hg18" or "hg19")
@@ -265,6 +269,12 @@ Impute2的基因填充 (genotype imputation) 分为两种应用情景：
 	> 
 	> - 对于大的reference panel，Impute2也能进行高效地处理，不需要担心会带来的计算负担
 
+4. 填充后 (post-imputation) 质控
+
+	质控方法可以参照：
+
+	> Verma, S.S. et al. Imputation and quality control steps for combining multiple genome-wide datasets. Front. Genet. 5, 370 (2014).
+	
 <a name="tools-impute2-1kgp-cookbook"><h3>6.1.3. 1000 Genomes Imputation Cookbook [<sup>目录</sup>](#content)</h3></a>
 
 <a name="tools-impute2-1kgp-cookbook-before-imputation"><h4>6.1.3.1. Before Imputation [<sup>目录</sup>](#content)</h4></a>
@@ -384,3 +394,5 @@ $ impute2 \
 (4) [IMPUTE2: 1000 Genomes Imputation Cookbook](https://genome.sph.umich.edu/wiki/IMPUTE2:_1000_Genomes_Imputation_Cookbook)
 
 (5) Weale M (2010) Quality Control for Genome-Wide Association Studies. Methods Mol. Biol. 628:341–372
+
+(6) van Leeuwen EM, et al. Population-specific genotype imputations using minimac or IMPUTE2[J]. Nature Protocols, 2015, 10(9):1285-1296.
