@@ -19,18 +19,19 @@
 			- [4.3.1. SNP、 INDEL位点识别](#gatk4-germline-snps-indels-identify)
 			- [4.3.2. SNP、 INDEL位点过滤](#gatk4-germline-snps-indels-filter)
 			- [4.3.3. Hard-filter阈值探究](#gatk4-germline-snps-indels-hard-filter-shreshold)
-
-
+- [SAMtools-BCFtools流程](#samtools-bcftools)
+- [关于SNP的过滤](#snp-filtering)
+	- [使用vcftools进行SNP过滤](#snp-filtering-using-vcftools)
 
 
 
 <h1 name="title">snp-calling</h1>
 
-<a name="gatk4"><h1 align="center">GATK4流程</h1></p>
+<a name="gatk4"><h1 align="center">GATK4流程 </h1></a>
 
 <p align="center"><img src=./picture/GATK4-logo.png width=800 /></p>
 
-<a name="gatk4-prepare-necessary-datasets"><h2>1. 准备配套数据 [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-prepare-necessary-datasets"><h2>1. 准备配套数据 [<sup>目录</sup>](#content)</h2></a>
 
 要明确你的参考基因组版本了！！！ b36/b37/hg18/hg19/hg38，记住**b37和hg19并不是完全一样**的，有些微区别哦！！！
 
@@ -55,7 +56,7 @@ done
 rm -fr chr*.fasta
 ```
 
-<a name="gatk4-map-ref"><h2>2. BWA: Map to Reference [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-map-ref"><h2>2. BWA: Map to Reference [<sup>目录</sup>](#content)</h2></a>
 
 1. 建立参考序列索引
 
@@ -124,7 +125,7 @@ rm -fr chr*.fasta
 	      RGSM=20
 	```
 
-<a name="gatk4-post-alignment-processing"><h2>3. 前期处理 [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-post-alignment-processing"><h2>3. 前期处理 [<sup>目录</sup>](#content)</h2></a>
 
 在进行本部分的操作之前先要做好以下两部的准备工作
 
@@ -145,9 +146,9 @@ GATK4的调用语法：
 ```
 gatk [--java-options "-Xmx4G"] ToolName [GATK args]
 ```
-<a name="gatk4-remove-read-duplicates"><h3>3.1. 去除PCR重复 [<sup>目录</sup>](#content)</h3></p>
+<a name="gatk4-remove-read-duplicates"><h3>3.1. 去除PCR重复 [<sup>目录</sup>](#content)</h3></a>
 
-<a name="reason-of-duplicates"><h4>3.1.1. duplicates的产生原因 [<sup>目录</sup>](#content)</h4></p>
+<a name="reason-of-duplicates"><h4>3.1.1. duplicates的产生原因 [<sup>目录</sup>](#content)</h4></a>
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-reason-of-duplicates.jpg width=900/></p>
 
@@ -167,7 +168,7 @@ PCR扩增时，同一个DNA片段会产生多个相同的拷贝，第4步测序�
 
 它是文库分子的两条互补链同时都与Flowcell上的引物结合分别形成了各自的cluster被测序，最后产生的这对reads是完全反向互补的。比对到参考基因组时，也分别在正负链的相同位置上，在有些分析中也会被认为是一种duplicates。
 
-<a name="poisson-distribution-to-duplication"><h4>3.1.2. 用泊松分布解释 NGS 测序数据的 duplication 问题 [<sup>目录</sup>](#content)</h4></p>
+<a name="poisson-distribution-to-duplication"><h4>3.1.2. 用泊松分布解释 NGS 测序数据的 duplication 问题 [<sup>目录</sup>](#content)</h4></a>
 
 我曾经有这样的疑惑，为什么文库构建过程中的 PCR 将每个文库分子都扩增了上千倍，以 PCR 10个循环为例 2<sup>10</sup>= 1024 ，但是实际测序数据中 duplication 率并不高（低于20%）
 
@@ -206,7 +207,7 @@ unique 分子数量减少，被测序 2次的概率增大，duplication 率显�
 
 到这里已经可以很明白的看出 **duplication 率主要与文库中 unique 分子数量有关**，所以建库过程中最大化 unique 分子数是降低 duplication 率的关键。文库中 unique 分子数越多，说明建库起始量越高，需要 PCR 的循环数越少，而文库中 unique 分子数越少，说明建库起始量越低，需要 PCR 的循环数越多，因此提高建库起始量是关键。
 
-<a name="influence-of-pcr-bias"><h4>3.1.3. PCR bias的影响 [<sup>目录</sup>](#content)</h4></p>
+<a name="influence-of-pcr-bias"><h4>3.1.3. PCR bias的影响 [<sup>目录</sup>](#content)</h4></a>
 
 1. DNA在打断的那一步会发生一些损失， 主要表现是会引发一些碱基发生颠换变换（嘌呤-变嘧啶或者嘧啶变嘌呤） ， 带来假的变异。 PCR过程会扩大这个信号， 导致最后的检测结果中混入了假的结果；
 
@@ -216,7 +217,7 @@ unique 分子数量减少，被测序 2次的概率增大，duplication 率显�
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-1.png width=900/></p>
 
-<a name="principle-of-remove-duplicates"><h4>3.1.4. 探究samtools和picard去除read duplicates的方法 [<sup>目录</sup>](#content)</h4></p>
+<a name="principle-of-remove-duplicates"><h4>3.1.4. 探究samtools和picard去除read duplicates的方法 [<sup>目录</sup>](#content)</h4></a>
 
 **1、samtools**
 
@@ -249,7 +250,7 @@ picard对于单端或者双端测序数据并没有区分参数，可以用同�
 对应单端测序，picard的处理结果与samtools rmdup没有差别，不过这个java软件的缺点就是**奇慢无比**
 
 
-<a name="operate-remove-read-duplicates"><h4>3.1.5. 操作：排序及标记重复 [<sup>目录</sup>](#content)</h4></p>
+<a name="operate-remove-read-duplicates"><h4>3.1.5. 操作：排序及标记重复 [<sup>目录</sup>](#content)</h4></a>
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-2.png width=800/></p>
 
@@ -321,7 +322,7 @@ gatk MarkDuplicates -I preprocess/T.chr17.sort.bam -O preprocess/T.chr17.markdup
 
 <p align="center"><img src=./picture/GATK4-pipeline-remove-duplicates-5.png width=900/></p>
 
-<a name="gatk4-recallbrate-base-quality-scores"><h3>3.2. 质量值校正 [<sup>目录</sup>](#content)</h3></p>
+<a name="gatk4-recallbrate-base-quality-scores"><h3>3.2. 质量值校正 [<sup>目录</sup>](#content)</h3></a>
 
 检测碱基质量分数中的系统错误，需要用到 GATK4 中的 BaseRecalibrator 工具
 
@@ -359,9 +360,9 @@ $ gatk ApplyBQSR -R Ref/mouse/mm10/bwa/mm10.fa -I PharmacogenomicsDB/mouse/SAM/E
 PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/SAM/ERR118300.recal.bam
 ```
 
-<a name="gatk4-snp-indel-identify-and-filter"><h2>4. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h2></p>
+<a name="gatk4-snp-indel-identify-and-filter"><h2>4. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h2></a>
 
-<a name="gatk4-choice-for-snp-calling-strategies"><h3>4.1. SNP calling 策略的选择 [<sup>目录</sup>](#content)</h3></p>
+<a name="gatk4-choice-for-snp-calling-strategies"><h3>4.1. SNP calling 策略的选择 [<sup>目录</sup>](#content)</h3></a>
 
 当你有多个samples，然后你call snp时候，你是应该将所有sample分开call完之后，再merge在一起。还是直接将所有samples，同时用作input然后call snp呢？
 
@@ -392,7 +393,7 @@ PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/S
 现在使用过滤变异的方法例如VQSR等利用的统计模型，都基于一个比较大的samples size。joint calling 这种方法可以提供足够的数据，确保过滤这一步是统一应用于所有samples的。
 
 
-<a name="gatk4-germline-snps-indels"><h3>4.2. Germline SNPs + Indels [<sup>目录</sup>](#content)</h3></p>
+<a name="gatk4-germline-snps-indels"><h3>4.2. Germline SNPs + Indels [<sup>目录</sup>](#content)</h3></a>
 
 将一个或多个个体放在一起call snp，得到一个 joint callset，该snp calling的策略称为**joint calling**
 
@@ -402,7 +403,7 @@ PharmacogenomicsDB/mouse/SAM/ERR118300.recal.table -O PharmacogenomicsDB/mouse/S
 
 - 第二步，依据第一步完成的gVCF对这个群体进行Joint Calling，从而得到这个群体的变异结果和每个人准确的基因型（Genotype），最后使用VQSR完成变异的质控。
 
-<a name="gatk4-germline-snps-indels-identify"><h4>4.2.1. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h4></p>
+<a name="gatk4-germline-snps-indels-identify"><h4>4.2.1. SNP、 INDEL位点识别 [<sup>目录</sup>](#content)</h4></a>
 
 1、单独为每个样本生成后续分析所需的中间文件——gVCF文件
 
@@ -486,7 +487,7 @@ $ gatk --java-options "-Xmx4g" GenotypeGVCFs \
    -O output.vcf.gz
 ```
 
-<a name="gatk4-germline-snps-indels-filter"><h4>4.2.2. SNP、 INDEL位点过滤[<sup>目录</sup>](#content)</h4></p>
+<a name="gatk4-germline-snps-indels-filter"><h4>4.2.2. SNP、 INDEL位点过滤[<sup>目录</sup>](#content)</h4></a>
 
 - 方法一：通过质量校正来过滤（Filter Variants by Variant (Quality Score) Recalibration）
 
@@ -633,7 +634,7 @@ $ gatk --java-options "-Xmx4g" GenotypeGVCFs \
 		                              more times. Default value: null.
 		```
 
-<a name="gatk4-germline-snps-indels-hard-filter-shreshold"><h4>4.3.3. Hard-filter阈值探究[<sup>目录</sup>](#content)</h4></p>
+<a name="gatk4-germline-snps-indels-hard-filter-shreshold"><h4>4.3.3. Hard-filter阈值探究[<sup>目录</sup>](#content)</h4></a>
 
 GATK4官网给出的推荐阈值：
 
@@ -732,6 +733,31 @@ Notice most of the variants that have an SOR value greater than 3 fail the VQSR 
 
 推荐：MQRankSum≥-2.5
 
+<a name="samtools-bcftools"><h1 align="center">SAMtools-BCFtools流程</h1></a>
+
+
+
+
+
+<a name="snp-filtering"><h1 align="center">关于SNP的过滤</h1></a>
+
+SNP过滤的意义：
+
+> - 第一，过滤到一些低质量的SNP可以防止calling一些假阳性的SNP，这些假阳性的SNP会很大程度影响到后续的一系列的分析，例如GWAS等的分析，最后影响相关生物学问题的解答；
+> 
+> - 第二，如果你有很多的个体，往往你的call完SNP后，VCF文件的大小的会比较大，如果不经过过滤，对下游的群体结构分析，PCA等相关的计算，都会对计算机产生巨大的负担（运行速度还有需要的内存等）
+
+<a name="snp-filtering-using-vcftools"><h2>使用vcftools进行SNP过滤 [<sup>目录</sup>](#content)</h2></a>
+
+VCFtools能干什么
+
+> - 过滤特定的变异
+> - 比较文件
+> - 变异注释
+> - 文件格式转换
+> - 校验和合并文件
+> - 对变异位点集合进行坐标运算
+
 
 ---
 
@@ -762,3 +788,7 @@ Notice most of the variants that have an SOR value greater than 3 fail the VQSR 
 (12) [GATK Forum：Hard-filtering germline short variants](https://software.broadinstitute.org/gatk/documentation/article?id=11069)
 
 (13) [生信杂谈：用泊松分布解释 NGS 测序数据的 duplication 问题](https://mp.weixin.qq.com/s/Juf7LklWkaCmUT_pusOuCA)
+
+(14) [【简书】关于SNP的过滤（1）：如何使用vcftools进行SNP过滤](https://www.jianshu.com/p/e05ff3cace56)
+
+(15) [VCFtools官网](https://vcftools.github.io/index.html)
