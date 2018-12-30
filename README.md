@@ -34,5 +34,4 @@
 
 ## 群体遗传学
 
-1. [连锁不平衡](./Linkage-Disequilibrium.md
-)
+1. [群体遗传学知识点](./Population-Genetics.md)
