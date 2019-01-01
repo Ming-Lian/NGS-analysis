@@ -5,7 +5,7 @@
 
 1. [RNA-seq分析流程](./RNA-seq.md)
 2. [RNA-seq分析番外篇：细菌库过滤+饱和度分析](./RNA-seq%E5%88%86%E6%9E%90%E7%95%AA%E5%A4%96%E7%AF%87.md)
-3. [差异表达分析：算法与原理](./Different-Expression-Analysis.md)
+3. [差异表达分析：算法与原理](./Stat-on-RNAseq.md)
 
 ## 表观组
 
