@@ -7,10 +7,13 @@
 	- [1.3. Read Depth方法](#detect-method-read-depth)
 	- [1.4. 基于 de novo assembly](#detect-method-denovo-assembly)
 - [2. 专注CNV的检测](#focus-on-cnv-discovery)
-	- [2.1. CNV-seq](#cnv-seq)
-	- [2.2. CNV检测工具](#tools)
-		- [2.2.1. GATK4 somatic CNV discovery](#gatk4)
-		- [2.2.2. CNVnator](#cnvnator)
+	- [2.1. 基于芯片的检测方法](#detect-by-array)
+	- [2.2. CNV-seq](#cnv-seq)
+	- [2.3. Somatic CNV 检测](#scna)
+	- [2.4. 实操一：CNV检测](#inaction-cnv-calling)
+		- [2.4.1. GATK4 somatic CNV discovery](#gatk4)
+		- [2.4.2. CNVnator](#cnvnator)
+	- [2.5. 实操二：CNV区域注释基因](#inaction-cnv-annotation)
 - [3. 专注SV的检测](#focus-on-sv-discovery)
 	- [3.1. lumpy](#lumpy)
 	- [3.2. delly](#delly)
@@ -31,7 +34,7 @@
 > - 有研究发现，基因组上的SVs比起SNP而言，更能代表人类群体的多样性特征；
 > - 稀有且相同的一些结构性变异往往和疾病（包括癌症）的发生相互关联甚至还是其直接的致病诱因。
 
-<a name="svs-detection-principle"><h2>1. 基于NGSSVs检测原理 [<sup>目录</sup>](#content)</h2></a>
+<a name="svs-detection-principle"><h2>1. 基于NGS SVs检测原理 [<sup>目录</sup>](#content)</h2></a>
 
 目前已有的检测SVs的策略：
 
@@ -41,6 +44,8 @@
 - 序列从头组装（de novo Assembly， 简称AS）的方法。
 
 <p align="center"><img src=./picture/StructralVariation-SVs-detection-principle-outline.png width=800 /></p>
+
+<p align="center"><img src=./picture/StructralVariation-SVs-detection-principle-outline-2.jpg width=800 /></p>
 
 <a name="detect-method-read-pair"><h3>1.1. Read Pair方法 [<sup>目录</sup>](#content)</h3></a>
 
@@ -68,6 +73,25 @@ RP方法存在的缺陷：
 > 
 > 如果这个Insertion序列很长——举个极端的例子——整个插入片段都是Insertion序列，那么你会发现read1和read2根本就不会比对上基因组，它在基因组上一点信号都没有，你甚至都不知道有这个序列的存在。另外，Insertion的检测精度也同时受限于插入片段长度的标准差。
 
+PEM方法共有两种策略来鉴定SVs/CNVs：
+
+- **clustering approach**：使用**预先定义的距离**（predefined distance）来检测异常（discordant）的PE reads，那这里就产生了一个问题：**如何得到合适的预定义距离？**
+- **model-based approach**：对全基因范围的PE read的插入长度进行**概率分布建模**，然后基于统计检验得到异常的PE reads；
+
+
+
+
+<p align="center">使用PEM方法检测CNV的工具列表</p>
+
+|	Tool	|	URL	|	Language	|	Input	|	Comments	|
+|:---|:---|:---|:---|:---|
+|	BreakDancer	|	http://breakdancer.sourceforge.net/	|	Perl, C++	|	Alignment files	|	Predicting nsertions, deletions, inversions, inter- and intra-chromosomal translocations	|
+|	PEMer	|	http://sv.gersteinlab.org/pemer/	|	Perl, Python	|	FASTA	|	Using simulation-based error models to call SVs	|
+|	VariationHunter	|	http://compbio.cs.sfu.ca/strvar.htm	|	C	|	DIVETa	|	Detecting insertions, deletions and inversions	|
+|	commonLAW	|	http://compbio.cs.sfu.ca/strvar.htm	|	C++	|	Alignment files	|	Aligning multiple samples simultaneously to gain accurate SVs using maximum parsimony model	|
+|	GASV	|	http://code.google.com/p/gasv/	|	Java	|	BAM	|	A geometric approach for classification and comparison of structural variants	|
+|	Spanner	|	N/A	|	N/A	|	N/A	|	Using PEM to detect tandem duplications	|
+
 <a name="detect-method-split-read"><h3>1.2. Split Read方法 [<sup>目录</sup>](#content)</h3></a>
 
 SR算法的核心也是对非正常PE比对数据的利用
@@ -84,7 +108,29 @@ SR算法的核心也是对非正常PE比对数据的利用
 
 SR的一个优势在于，它所检测到的SVs断点能**精确到单个碱基**，但是也和大多数的RP方法一样，无法解决复杂结构性变异的情形。
 
+<p align="center">使用Split-Read方法检测CNV的工具列表</p>
+
+|	Tool	|	URL	|	Language	|	Input	|	Comments	|
+|:---|:---|:---|:---|:---|
+|	AGE	|	http://sv.gersteinlab.org/age	|	C++	|	FASTA	|	A dynamic-programming algorithm using optimal alignments with gap excision to detect breakpoints	|
+|	Pindel	|	http://www.ebi.ac.uk/~kye/pindel/	|	C++	|	BAM /FASTQ	|	Using a pattern growth approach to identify breakpoints of various SVs	|
+|	SLOPE	|	http://www-genepi.med.utah.edu/suppl/SLOPE	|	C++	|	SAM/FASTQ/MAQb	|	Locating SVs from targeted sequencing data	|
+|	SRiC	|	N/A	|	N/A	|	BLAT output	|	CalibratingSV calling using realistic error models	|
+
+
 <a name="detect-method-read-depth"><h3>1.3. Read Depth方法 [<sup>目录</sup>](#content)</h3></a>
+
+其实CNV实质上是序列Deletion或Duplication，是可以归类于Deletion和Insertion这个大的分类的，只是由于它的发生有着其独特的特点，而且往往还比较长，所以也就习惯了独立区分。
+
+Read Depth方法一般用于CNVs的检测，其检测原理为：
+
+> 基因组区域的Read Depth与其拷贝数相关
+> 
+> 全基因组测序（WGS）得到的覆盖深度呈现出来的是一个泊松分布——因为基因组上任意一个位点被测到的几率都是很低的——是一个小概率事件，在很大量的测序read条件下，其覆盖就会呈现一个泊松分布，如下图。
+> 
+> <p align="center"><img src=./picture/StructralVariation-SVs-detection-principle-ReadDepth-poission.png width=800 /></p>
+> 
+> **拷贝数增加会使得该区域的Read Depth高于期望值，而拷贝数缺失使得该区域的Read Depth低于高于期望值**
 
 目前有两种利用Read depth信息检测CNV的策略：
 
@@ -94,6 +140,27 @@ SR的一个优势在于，它所检测到的SVs断点能**精确到单个碱基*
 
 CNVnator使用的是第一种策略，同时也广泛地被用于检测大的CNV，当然还有很多冷门的软件，这里就不再列举了；CNV-seq使用的则是第二种策略。
 
+<p align="center">使用Read-Depth方法检测CNV的工具列表</p>
+
+|	Tool	|	URL	|	Language	|	Input	|	Comments	|
+|:---|:---|:---|:---|:---|
+|	SegSeqa	|	http://www.broad.mit.edu/cancer/pub/solexa_copy_numbers/	|	Matlab	|	Aligned read positions	|	Detecting CNV breakpoints using massively parallel sequence data	|
+|	CNV-seqa	|	http://tiger.dbs.nus.edu.sg/cnv-seq/	|	Perl, R	|	Aligned read positions	|	Identifying CNVs using the difference of observed copy number ratios	|
+|	RDXplorerb	|	http://rdxplorer.sourceforge.net/	|	Python, Shell	|	BAM	|	Detecting CNVs through event-wise testing algorithm on normalized read depth of coverage	|
+|	BIC-seqa	|	http://compbio.med.harvard.edu/Supplements/PNAS11.html	|	Perl, R	|	BAM	|	Using the Bayesian information criterion to detect CNVs based on uniquely mapped reads	|
+|	CNAsega	|	http://www.compbio.group.cam.ac.uk/software/cnaseg	|	R	|	BAM	|	Using flowcell-to-flowcell variability in cancer and control samples to reduce false positives	|
+|	cn.MOPSb	|	http://www.bioinf.jku.at/software/cnmops/	|	R	|	BAM/read count matrices	|	Modelling of read depths across samples at each genomic position using mixture Poisson model	|
+|	JointSLMb	|	http://nar.oxfordjournals.org/content/suppl/2011/02/16/gkr068.DC1/JointSLM_R_Package.zip	|	R	|	SAM/BAM	|	Population-based approach to detect common CNVs using read depth data	|
+|	ReadDepth	|	http://code.google.com/p/readdepth/	|	R	|	BED files	|	Using breakpoints to increase the resolution of CNV detection from low-coverage reads	|
+|	rSW-seqa	|	http://compbio.med.harvard.edu/Supplements/BMCBioinfo10-2.html	|	C	|	Aligned read positions	|	Identifying CNVs by comparing matched tumor and control sample	|
+|	CNVnator	|	http://sv.gersteinlab.org/	|	C++	|	BAM	|	Using mean-shift approach and performing multiple-bandwidth partitioning and GC correction	|
+|	CNVnorma	|	http://www.precancer.leeds.ac.uk/cnanorm	|	R	|	Aligned read positions	|	Identifying contamination level with normal cells	|
+|	CMDSb	|	https://dsgweb.wustl.edu/qunyuan/software/cmds	|	C, R	|	Aligned read positions	|	Discovering CNVs from multiple samples	|
+|	mrCaNaVar	|	http://mrcanavar.sourceforge.net/	|	C	|	SAM	|	A tool to detect large segmental duplications and insertions	|
+|	CNVeM	|	N/A	|	N/A	|	N/A	|	Predicting CNV breakpoints in base-pair resolution	|
+|	cnvHMM	|	http://genome.wustl.edu/software/cnvhmm	|	C	|	Consensus sequence from SAMtools	|	Using HMM to detect CNV	|
+
+
 <a name="detect-method-denovo-assembly"><h3>1.4. 基于 de novo assembly [<sup>目录</sup>](#content)</h3></a>
 
 其实从上面看下来，**SVs检测最大的难点实际上是read太短导致的**。就因为read太短，我们不能够在比对的时候横跨基因组重复区域；就因为read太短，很多大的Insertion序列根本就没能够看到信息；就因为read太短，比对才那么纠结，我们才需要用各种数学模型来 猜测这个变异到底应该是什么等等。
@@ -102,9 +169,54 @@ CNVnator使用的是第一种策略，同时也广泛地被用于检测大的CNV
 
 <p align="center"><img src=./picture/StructralVariation-SVs-detection-principle-denovo-assembly-1.png width=800 /></p>
 
+
+
 <a name="focus-on-cnv-discovery"><h2>2. 专注CNV的检测 [<sup>目录</sup>](#content)</h2></a>
 
-<a name="cnv-seq"><h3>2.1. CNV-seq [<sup>目录</sup>](#content)</h3></a>
+<a name="detect-by-array"><h3>2.1. 基于芯片的检测方法 [<sup>目录</sup>](#content)</h3></a>
+
+最早的CNV检测实验方法，是采用**染色体核型分析 (karyotyping)**和**FISH（荧光原味杂交）**
+
+在2003年，出现了**arrayCGH**方法和**SNP芯片**方法，这两种全基因范围的高通量检测方法，它们的检测原理是：
+
+> 依据拷贝数与杂交信号的强度正相关，对特定的待检测基因组区段设计特异性杂交探针，将配对的Test Genome和Reference Genome分别用不同颜色的荧光标记，然后与芯片进行杂交，比较两种荧光信号的强弱
+
+<p align="center"><img src=./picture/StructralVariation-CNV-seq-aCGH.jpg width=500 /></p>
+
+比如SNP6.0芯片就是其中的一款代表产品，TCGA里面主要是通过Affymetrix SNP6.0 array这款芯片来测拷贝数变异，值得注意的是，并不是只有TCGA利用了SNP6.这个芯片数据，著名的CCLE计划也对一千多细胞系处理了SNP6.0芯片，数据也是可以下载的。
+
+对SNP6.0的拷贝数芯片来说，通常是用`PICNIC`等软件处理原始数据，就可以得到的segment记录文件，每个样本一个结果，下面是示例结果：
+
+```
+Chromosome  Start   End Num_Probes  Segment_Mean
+1   61735   1510801 226 -0.0397
+1   1627918 1672603 17  -0.92
+1   1687587 16153497    8176    0.0077
+1   16153536    16153925    5   -2.7441
+1   16154201    16155010    4   -0.8711
+1   16165661    72768498    34630   0.0048
+1   72768916    72811148    46  -1.7394
+1   72811904    95674710    14901   0.0026
+1   95676511    95676518    2   -1.6636
+```
+
+表明了某条染色体的某个区域内，SNP6.0芯片设计了多少个探针，芯片结果的拷贝数值是多少(这个区域的拷贝数用Segment_Mean)。通常二倍体的Segment_Mean值为0，可以用-0.2和0.2来作为该区域是否缺失或者扩增，也有人选择0.4作为阈值。
+
+但是这些基于芯片杂交的检测方法存在一些缺点：
+
+> - 存在杂交信号噪声；
+> - 只能对已知的变异进行检测，无法发现新型的变异和罕见变异；
+> - 低分辨率；
+> - 有限的基因组覆盖度，有些区域因为一些原因没有设计检测探针，因此也就覆盖不到这些区域；
+
+
+
+
+
+
+
+
+<a name="cnv-seq"><h3>2.2. CNV-seq [<sup>目录</sup>](#content)</h3></a>
 
 CNV-seq：通过低倍全基因组测序检测CNV技术，2009年由Xie等开发提出
 
@@ -134,9 +246,22 @@ CNV-seq：通过低倍全基因组测序检测CNV技术，2009年由Xie等开发
 
 从上图可以看到CNV-seq的检测灵敏度明显要高于芯片平台，而且**以mate-pair方式建库的NGS检测方法的检出率更高**
 
-<a name="tools"><h3>2.2. CNV检测工具 [<sup>目录</sup>](#content)</h3></a>
+<a name="scna"><h3>2.3. Somatic CNV 检测 [<sup>目录</sup>](#content)</h3></a>
 
-<a name="gatk4"><h4>2.2.1. GATK4 somatic CNV discovery [<sup>目录</sup>](#content)</h4></a>
+SCNA: somatic copy number alterations，一般指的是癌症中tumor tissue中的拷贝数变异
+
+SCNA检测存在的难度：
+
+- 进行tumor tissue的bulk取样测序，组织中的细胞异质性高，信号比较弱
+- 可能受到正常的germline细胞的污染
+- 来自父本和母本的reads混在一起
+
+
+
+
+<a name="tools"><h3>2.4. CNV检测工具 [<sup>目录</sup>](#content)</h3></a>
+
+<a name="gatk4"><h4>2.4.1. GATK4 somatic CNV discovery [<sup>目录</sup>](#content)</h4></a>
 
 <p align="center"><img src=./picture/StructralVariation-CNV-discovery-GATK4-workflow.png width=800 /></p>
 
@@ -230,7 +355,7 @@ do
 -O segments/$j.clean.called.seg
 ```
 
-<a name="cnvnator"><h4>2.2.2. CNVnator [<sup>目录</sup>](#content)</h4></a>
+<a name="cnvnator"><h4>2.4.2. CNVnator [<sup>目录</sup>](#content)</h4></a>
 
 ```
 # 1.提取mapping信息
@@ -284,16 +409,22 @@ $ delly filter \
 
 (1) [【简书】一篇文章说清楚基因组结构性变异检测的方法](https://www.jianshu.com/p/4c8e109f0e6a)
 
-(2) [【基因学苑】好东西应该再次分享——CNV数据分析](https://mp.weixin.qq.com/s/5xuqHTjYLDd-_1jzLXEeOw)
+(2) [【简书】TCGA的28篇教程之CNV那点事](https://www.jianshu.com/p/eadfc45f1f18?utm_campaign=haruki&utm_content=note&utm_medium=reader_share&utm_source=weixin)
 
-(3) Zhou B, Ho SS, Zhang X, et al.Whole-genome sequencing analysis of CNV using low-coverage and paired-end strategies is efficient and outperforms array-based CNV analysis Journal of Medical Genetics 2018;55:735-743.
+(3) [【基因学苑】好东西应该再次分享——CNV数据分析](https://mp.weixin.qq.com/s/5xuqHTjYLDd-_1jzLXEeOw)
 
-(4) [GATK4 best practice for somatic CNV discovery](https://software.broadinstitute.org/gatk/best-practices/workflow?id=11147)
+(4) Zhou B, Ho SS, Zhang X, et al.Whole-genome sequencing analysis of CNV using low-coverage and paired-end strategies is efficient and outperforms array-based CNV analysis Journal of Medical Genetics 2018;55:735-743.
 
-(5) [【github】GATK4官方somatic CNV鉴定流程](cnv_somatic_panel_workflow.wdl
+(5)  Xie C , Tammi M T . CNV-seq, a new method to detect copy number variation using high-throughput sequencing[J]. BMC Bioinformatics, 2009, 10(1):80-0.
+
+(6) Zhao M, Wang Q, Wang Q, Jia P, Zhao Z. Computational tools for copy number variation (CNV) detection using next-generation sequencing data: features and perspectives. BMC Bioinformatics. 2013;14 Suppl 11(Suppl 11):S1. 
+
+(7) [GATK4 best practice for somatic CNV discovery](https://software.broadinstitute.org/gatk/best-practices/workflow?id=11147)
+
+(8) [【github】GATK4官方somatic CNV鉴定流程](cnv_somatic_panel_workflow.wdl
 )
 
-(6) [【生信技能树】GATK4的CNV流程-hg38](https://mp.weixin.qq.com/s/Lvfy7Y352WhLMuzawMvroA)
+(9) [【生信技能树】GATK4的CNV流程-hg38](https://mp.weixin.qq.com/s/Lvfy7Y352WhLMuzawMvroA)
 
-(7) [【基因学苑】一个人全基因组完整数据分析脚本](https://mp.weixin.qq.com/s/TBOhU_4d3iPQIBDRfv3e0A)
+(10) [【基因学苑】一个人全基因组完整数据分析脚本](https://mp.weixin.qq.com/s/TBOhU_4d3iPQIBDRfv3e0A)
 
