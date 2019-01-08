@@ -17,7 +17,10 @@
 - [3. 专注SV的检测](#focus-on-sv-discovery)
 	- [3.1. lumpy](#lumpy)
 	- [3.2. delly](#delly)
-
+- [补充部分](#extend)
+	- [对于multiple mapping情况的处理](#extend-deal-with-multimapping)
+	- [reference genome中多个相似拷贝对CNV calling的影响](#similar-copies-confound-cnv-calling)
+	- [mean-shift算法](#mean-shift-algorithm)
 
 
 
@@ -357,6 +360,29 @@ do
 
 <a name="cnvnator"><h4>2.4.2. CNVnator [<sup>目录</sup>](#content)</h4></a>
 
+CNVnator的CNV检测原理：
+
+> 1. 切分bins，定量bins的RD信号值；
+> 
+> 	首先将整个基因组切分成连续而不重叠的bins，每个bins的大小相同。然后计算每个bin的RD信号强度，由于在之前的研究中发现GC含量会影响RD信号的定量
+> 	
+> 	<p align="center"><img src=./picture/StructralVariation-CNV-discovery-CNVnator-GCcorrection.png width=800 /></p>
+> 	
+> 	因此根据GC含量对RD信号进行了校正，公式如下：
+> 	
+> 	<p align="center"><img src=./picture/StructuralVariation-CNV-discovery-CNVnator-GCcorrection-formula.jpg width=800 /></p>
+> 
+> 2. 分割不同CN的片段 (segments)。从全基因组范围的bins的RD信号分布图中，找出不同的CN (Copy Number) 的区域，确定相邻CN区域的breakpoint
+> 
+> 	该过程用到了图像处理领域常用的一个算法：mean shift 算法，该算法在下文补充部分有进一步的说明，点 [这里](#mean-shift-algorithm) 查看
+> 
+> 	<p align="center"><img src=./picture/StructuralVariation-CNV-discovery-CNVnator-meanshift.jpg width=600 /></p>
+> 
+> 	对于图中的每一个点（每一个点表示一个bin）获得它的mean-shift向量——指向与它最相似的那些bins（要么朝左要么朝右）；
+> 
+> 	根据这些bins的mean-shift向量的朝向，确定相邻CN区域的breakpoint——当相邻两个bins的mean-shift向量的朝向为背靠背形式时，breakpoint位于这两个bins之间；
+
+
 ```
 # 1.提取mapping信息
 $ cnvnator -root Sample1.root -tree Sample1.sorted.bam -unique 
@@ -403,6 +429,62 @@ $ delly filter \
 	-o Sample1.delly.sv.filter.bcf
 ```
 
+<a name="extend"><h2>补充部分 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="extend-deal-with-multimapping"><h3>对于multiple mapping情况的处理 [<sup>目录</sup>](#content)</h3></a>
+
+
+大多数的reads都能在基因组中找到它唯一的mapping位置，但是如果这条reads是来源于重复序列区域，那么它就会得到multiple mapping的位置，且每条mapping的结果的分值都相同，此时对于这些multiple mapping的reads如何处置呢？
+
+目前有两种主要的处理办法：
+
+- 一种处理方式是在mapping之前，将reference中的重复序列过滤（mask）；
+- 另一种方法是，从这些得分相同的multiple mapping位置中随机挑选一个，最为这条reads最后的归属；
+
+对于paired-end的测序数据，还可以利用额外的信息来辅助multiple mapping情况的处置：
+
+> 利用PE reads mapping的插入片段距离和双端的mapping方向，将那些距离或方向存在异常的mapping位置丢弃，以此来排除最不可能的mappning情况
+
+<a name="similar-copies-confound-cnv-calling"><h3>reference genome中多个相似拷贝对CNV calling的影响 [<sup>目录</sup>](#content)</h3></a>
+
+当参考基因组中存在多个相同或相似的拷贝区域时，会对CNV calling带来一定的误导
+
+例如，在参考基因组（单倍体）中存在两个完全相同的片段重复，分别记为A和B，而在检测的样本中
+只存在A拷贝，由于人是二倍体，样本会存在两份A拷贝，那么来着样本的A区域的reads在mapping过程中会随机均匀地分布在参考基因组的A区域和B区域（分值相同的multiple mapping随机指定一个mapping位置），则A区域和B区域的Read Depth为实际的一半，因此这两个基因组区域都会被鉴定为Deletion
+
+为了解决这种情况，CNVnator提出了一种解决方案：
+
+> 对于那些multiple mapping的reads，会被赋予一个mapping quality，为0，这些reads被称为q0 reads
+> 
+> 统计每个called CNV segments的q0 reads的比例，然后统计这些比例的频数分布，得到下面的直方图：
+> 
+> <p align="center"><img src=./picture/StructuralVariation-extend-deal-with-similar-segements-confound.png width=800 /></p>
+> 
+> 若一个CNV片段的q0比例大于50%，则暗示着它有可能是在参考基因组中存在高度相似的多个基因组区域，此时的CNV calling的结果可能不准确，需要进行过滤
+
+
+<a name="mean-shift-algorithm"><h3>mean-shift算法 [<sup>目录</sup>](#content)</h3></a>
+
+假设我们有一堆点，和一个小的圆形窗口，我们要完成的任务就是将这个窗口移动到最大灰度密度处（也就是点最多的地方）。如下图所示：
+
+<p align="center"><img src=./picture/StructralVariation-extend-mean-shift-algorithm.png width=800 /></p>
+
+初始窗口是蓝色的C1，它的圆心为蓝色方框的C1_o，而窗口中所有点质心却是C1_r，很明显圆心和点的质心没有重合。所以移动圆心C1_o到质心C1_r，这样我们就得到了一个新的窗口。这时又可以找到新的窗口内所以点的质心，大多数情况下还是不重合，所以重复上面的操作直到：将新窗口的圆心和它所包含的点的质心重合，这样我们的窗口会落在像素值（和）最大的地方。如上图C2是窗口的最后位置，它包含的像素点最多。
+
+每一次迭代中需要移动圆心到质心，这个移动的方向称为**Mean Shift向量**
+
+那这个Mean Shift向量怎么计算呢？
+
+> 对于给定d维空间 R<sup>d</sup> 中的n个样本点x<sub>i</sub>,i=1,2,…,n在xd点的Mean Shift向量的基本形式定义为： 
+> 
+> <p align="center"><img src=./picture/StructralVariation-extend-mean-shift-algorithm-2.png width=200 /></p>
+> 
+> 其中，S<sub>h</sub>是一个半径为h的高维球区域：S<sub>h</sub>(x)={y:(y−x)T(y−x)≤h<sup>2</sup>}，k表示在这n个样本点中有k个落入球S<sub>h</sub>中。
+> 
+> 直观上来看，这k个样本点在x处的偏移向量即为：对落入Sh区域中的k个样本点相对于点x的偏移向量求和然后取平均值；
+> 
+> 几何解释为：如果样本点xi服从一个概率密度函数为f(x)的分布，由于非零的概率密度函数的梯度指向概率密度增加最大的方向，因此从平均上来说，Sh区域内的样本点更多的落在沿着概率密度梯度的方向。因此，Mean Shift向量Mh(x)应该指向概率密度梯度的方向
+
 ---
 
 参考资料：
@@ -427,4 +509,10 @@ $ delly filter \
 (9) [【生信技能树】GATK4的CNV流程-hg38](https://mp.weixin.qq.com/s/Lvfy7Y352WhLMuzawMvroA)
 
 (10) [【基因学苑】一个人全基因组完整数据分析脚本](https://mp.weixin.qq.com/s/TBOhU_4d3iPQIBDRfv3e0A)
+
+(11) [【CSDN博客】OpenCV学习笔记-MeanShift](https://blog.csdn.net/qq_36387683/article/details/80598587)
+
+(12) [【CSDN博客】OpenCV之均值漂移(Mean Shift)算法](https://blog.csdn.net/qq_23968185/article/details/51804574)
+
+(13) Abyzov A, Urban AE, Snyder M, Gerstein M. CNVnator: an approach to discover, genotype, and characterize typical and atypical CNVs from family and population genome sequencing. Genome Res. 2011;21(6):974-84. 
 
