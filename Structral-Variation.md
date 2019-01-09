@@ -383,22 +383,82 @@ CNVnator的CNV检测原理：
 > 	根据这些bins的mean-shift向量的朝向，确定相邻CN区域的breakpoint——当相邻两个bins的mean-shift向量的朝向为背靠背形式时，breakpoint位于这两个bins之间；
 
 
-```
-# 1.提取mapping信息
-$ cnvnator -root Sample1.root -tree Sample1.sorted.bam -unique 
+1. **提取mapping信息**
 
-# 2.生成质量分布图HISTOGRAM
-$ cnvnator -root Sample1.root -his 100  -d hg38/Homo_sapiens_assembly38.fasta 
+	```
+	$ ./cnvnator [-genome name] -root out.root [-chrom name1 ...] -tree [file1.bam ...]
 
-# 3.生成统计结果
-$ cnvnator -root Sample1.root -stat 100 
+	Example:
+	cnvnator -root Sample1.root -tree Sample1.sorted.bam -unique
+	```
 
-# 4.RD信息分割partipition
-$ cnvnator -root Sample1.root -partition 100 
+	注意：这一步非常耗内存，可以通过指定`-chrom`参数来只对指点的染色体提取mapping信息，来降低内存压力，但是染色体名必须与SAM/BAM文件的Header信息中的染色体名一致
 
-# 5.变异检出
-$ cnvnator -root Sample1.root -call 100 > Sample1.cnvnator.vcf
-```
+	```
+	@HD VN:1.4    GO:none  SO:coordinate
+	@SQ SN:1      LN:249250621
+	@SQ SN:2      LN:243199373
+	@SQ SN:3      LN:198022430
+	```
+
+2. **生成质量分布图HISTOGRAM**
+
+	```
+	$ ./cnvnator [-genome name] -root file.root [-chrom name1 ...] -his bin_size [-d dir]
+	
+	Example:
+	cnvnator -root Sample1.root -his 100  -d hg38/Homo_sapiens_assembly38.fasta
+	```
+
+	这一步操作内存消耗不高，但也可以通过指定`-chrom`参数来只对指点的染色体进行操作
+
+	需要提供每条染色体的fasta序列，用`-d`参数指定
+ 
+3. **生成统计结果**
+
+	```
+	$ ./cnvnator -root file.root [-chrom name1 ...] -stat bin_size
+	
+	Example:
+	cnvnator -root Sample1.root -stat 100
+	```
+
+4. **RD信息分割partipition**
+
+	```
+	$ ./cnvnator -root file.root [-chrom name1 ...] -partition bin_size [-ngc]
+
+	Example:
+	cnvnator -root Sample1.root -partition 100
+	```
+
+	可以通过设置`-ngc`参数关闭GC校正RD信息功能
+
+5. **变异检出**
+
+	```
+	$ ./cnvnator -root file.root [-chrom name1 ...] -call bin_size [-ngc]
+	
+	Example:
+	cnvnator -root Sample1.root -call 100 > Sample1.cnvnator.vcf
+	```
+
+	运行结果默认以标准输出输出`STDOUT`
+
+	输出形式如下：
+
+	```
+	CNV_type coordinates CNV_size normalized_RD e-val1 e-val2 e-val3 e-val4 q0
+
+	normalized_RD -- normalized to 1.
+	e-val1        -- is calculated using t-test statistics.
+	e-val2        -- is from the probability of RD values within the region to be in
+	the tails of a gaussian distribution describing frequencies of RD values in bins.
+	e-val3        -- same as e-val1 but for the middle of CNV
+	e-val4        -- same as e-val2 but for the middle of CNV
+	q0            -- fraction of reads mapped with q0 quality
+	```
+
 
 <a name="focus-on-sv-discovery"><h2>3. 专注SV的检测 [<sup>目录</sup>](#content)</h2></a>
 
@@ -516,3 +576,4 @@ $ delly filter \
 
 (13) Abyzov A, Urban AE, Snyder M, Gerstein M. CNVnator: an approach to discover, genotype, and characterize typical and atypical CNVs from family and population genome sequencing. Genome Res. 2011;21(6):974-84. 
 
+(14) [CNVnator官方文档](https://github.com/abyzovlab/CNVnator)
