@@ -382,6 +382,47 @@ CNVnator的CNV检测原理：
 > 
 > 	根据这些bins的mean-shift向量的朝向，确定相邻CN区域的breakpoint——当相邻两个bins的mean-shift向量的朝向为背靠背形式时，breakpoint位于这两个bins之间；
 
+安装CNVnator软件是一种**神级坑**的体验，它底层需要依赖ROOT这个计算包，所以在安装CNVnator之前你需要将ROOT安装上，并且设置好ROOT的环境变量：
+
+```
+1. 安装配置和启动ROOT
+
+# 1.1 安装ROOT可以从ROOT官网下载源码自己编译，但是如果自己编译八成又会遇到各种稀奇古怪的报错，友情提示还是直接下载官方提供的二进制包吧
+$ wget -c https://root.cern.ch/download/root_v6.14.06.Linux-centos7-x86_64-gcc4.8.tar.gz
+$ tar zxvf root_v6.14.06.Linux-centos7-x86_64-gcc4.8.tar.gz
+# 1.2 然后编辑你的.bashrc或者.bash_profile
+	export ROOTSYS=/PATH/TO/root
+	export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
+# 1.3 启动ROOT
+source root/bin/thisroot.sh
+
+
+2. 安装CNVnator
+
+# 由于官方提供编译过的二进制安装包，所以只能自己硬着头皮下载源码编译了，伤心
+# 2.1 下载CNVnator
+$ wget -c https://github.com/abyzovlab/CNVnator/releases/download/v0.3.3/CNVnator_v0.3.3.zip
+$ unzip CNVnator_v0.3.3.zip
+# 2.2 编译CNVnator源码包中夹带的samtools，这一步很可能报错！我死在了这一步
+$ cd src/samtools
+$ make
+# 2.3 编译CNVnator，这一步也很可能报错！！
+$ cd ../
+$ make 
+```
+
+上面讲了这么多怎么安装CNVnator，然后依据自己的亲身经历告诫各位，强烈不推荐采用上面的方法自己安装，这样很可能你会经历一个从入门到放弃的一个辛酸的过程
+
+强烈推荐用conda安装
+
+```
+# 用以下命令寻找可以通过conda安装CNVnator的镜像
+$ anaconda search -t conda cnvnator
+# 通过上一步的搜索找到一个符号要求的镜像https://conda.anaconda.org/pwwang
+$ conda install --channel https://conda.anaconda.org/pwwang cnvnator
+# 或者用以下的简写形式
+$ conda install -c pwwang cnvnator
+```
 
 1. **提取mapping信息**
 
