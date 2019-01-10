@@ -13,6 +13,7 @@
 	- [2.4. 实操一：CNV检测](#inaction-cnv-calling)
 		- [2.4.1. GATK4 somatic CNV discovery](#gatk4)
 		- [2.4.2. CNVnator](#cnvnator)
+		- [2.4.3. CNVkit](#cnvkit)
 	- [2.5. 实操二：CNV区域注释基因](#inaction-cnv-annotation)
 - [3. 专注SV的检测](#focus-on-sv-discovery)
 	- [3.1. lumpy](#lumpy)
@@ -499,7 +500,87 @@ $ conda install -c pwwang cnvnator
 	e-val4        -- same as e-val2 but for the middle of CNV
 	q0            -- fraction of reads mapped with q0 quality
 	```
+<a name="cnvkit"><h4>2.4.3. CNVkit [<sup>目录</sup>](#content)</h4></a>
 
+CNVkit是为control-case配对样本的杂交捕获测序（如WES）的CNV鉴定而开发的
+
+它的检测过程如下图
+
+<p align="center"><img src=./picture/StructralVariation-CNV-discovery-CNVkit-workflow.png /></p>
+
+CNVkit主要通过`batch`工具完成这个复杂的多步计算，且对于不同的使用情景，有以下几种用法：
+
+```
+# From baits and tumor/normal BAMs
+cnvkit.py batch *Tumor.bam --normal *Normal.bam \
+    --targets my_baits.bed --annotate refFlat.txt \
+    --fasta hg19.fasta --access data/access-5kb-mappable.hg19.bed \
+    --output-reference my_reference.cnn --output-dir results/ \
+    --diagram --scatter
+
+# Reusing a reference for additional samples
+cnvkit.py batch *Tumor.bam -r Reference.cnn -d results/
+
+# Reusing targets and antitargets to build a new reference, but no analysis
+cnvkit.py batch -n *Normal.bam --output-reference new_reference.cnn \
+    -t my_targets.bed -a my_antitargets.bed \
+    -f hg19.fasta -g data/access-5kb-mappable.hg19.bed
+```
+
+其实`batch`工具是CNVkit内部多个工具命令的组合打包，完整的执行过程如下：
+
+```
+cnvkit.py access hg19.fa -o access.hg19.bed
+cnvkit.py autobin *.bam -t baits.bed -g access.hg19.bed [--annotate refFlat.txt --short-names]
+
+# For each sample...
+cnvkit.py coverage Sample.bam baits.target.bed -o Sample.targetcoverage.cnn
+cnvkit.py coverage Sample.bam baits.antitarget.bed -o Sample.antitargetcoverage.cnn
+
+# With all normal samples...
+cnvkit.py reference *Normal.{,anti}targetcoverage.cnn --fasta hg19.fa -o my_reference.cnn
+
+# For each tumor sample...
+cnvkit.py fix Sample.targetcoverage.cnn Sample.antitargetcoverage.cnn my_reference.cnn -o Sample.cnr
+cnvkit.py segment Sample.cnr -o Sample.cns
+
+# Optionally, with --scatter and --diagram
+cnvkit.py scatter Sample.cnr -s Sample.cns -o Sample-scatter.pdf
+cnvkit.py diagram Sample.cnr -s Sample.cns -o Sample-diagram.pdf
+```
+
+（1）虽然CNVkit是为捕获测序开发的但是也可以用于WGS的分析，可以将WGS理解为对**全基因组的捕获测序**
+
+> 可以通过`--method wgs	`参数，设置为WGS模式；
+> 
+> 一旦设为WGS模式，整个基因组就成了sequencing-accessible regions（通过`--access`指定），那么对于捕获测序需要提供的目标区域BED文件（通过`-t`参数指定），此时会使用`--access`指定的区域，因此就不需要再提供了；
+> 
+> 需要提供注释文件，通过`--annotate`参数指定；
+
+```
+$ cnvkit.py batch Sample1.bam Sample2.bam -n Control1.bam Control2.bam \
+        -m wgs -f hg19.fasta --annotate refFlat.txt
+```
+
+为了提高WGS检测CNV的准确性，开发者提供了以下几点建议：
+
+
+
+（2）当没有配对样本时，如何解决？
+
+> 官方提供的解决方案是，通过在`--normal/-n`选项后不添加任何参数（即不知道BAM文件）来构造一个 “flat” reference：在这个人为构造的reference中，所有的bins的coverage相同
+> 
+> ```
+> $ cnvkit.py batch *Tumor.bam -n -t my_baits.bed -f hg19.fasta \
+>     --access data/access-5kb-mappable.hg19.bed \
+>     --output-reference my_flat_reference.cnn -d example2/
+> ```
+
+（3）若要处理的情况是WGS且为非配对样本，即是上面提到的两个情况的组合，此时怎么解决？
+
+```
+$ cnvkit.py batch Sample.bam -n -m wgs -f hg19.fasta --annotate refFlat.txt
+```
 
 <a name="focus-on-sv-discovery"><h2>3. 专注SV的检测 [<sup>目录</sup>](#content)</h2></a>
 
@@ -618,3 +699,5 @@ $ delly filter \
 (13) Abyzov A, Urban AE, Snyder M, Gerstein M. CNVnator: an approach to discover, genotype, and characterize typical and atypical CNVs from family and population genome sequencing. Genome Res. 2011;21(6):974-84. 
 
 (14) [CNVnator官方文档](https://github.com/abyzovlab/CNVnator)
+
+(15) [CNVkit官方文档](http://cnvkit.readthedocs.org/)
