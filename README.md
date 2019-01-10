@@ -16,7 +16,8 @@
 
 1. [GATK4分析流程](./Try-CallSnp-using-GATK4.md)
 2. [深入了解snp-calling流程](./call-snp.md)
-3. [基因型填充](./Genotype-Imputation.md)
+3. [深入了解Structural Variation的分析方法](./Structural-Variation.md)
+4. [基因型填充](./Genotype-Imputation.md)
 
 ## 宏基因组
 
