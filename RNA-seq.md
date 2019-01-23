@@ -15,6 +15,9 @@
 		- [hisat2比对](#hisat2-map)
 		- [stringtie转录本拼接](#stringtie-assm)
 		- [stringtie定量](#stringtie-quant)
+	- [RSEM流程](#rsem)
+		- [创建索引](#rsem-index)
+		- [转录本定量](#rsem-quant)
 - [差异表达分析](#diff-exp)
 	- [DESeq2](#deseq2)
 	- [Ballgown](#ballgown)
@@ -214,6 +217,110 @@ ERR188034 <PATH_TO_ERR188034.gtf>
 ERR188037 <PATH_TO_ERR188037.gtf>
 ```
 
+<a name="rsem"><h3 ><li>RSEM流程[<sup>目录</sup>](#content)</li></h3></a>
+
+<br size=1 />
+
+RSEM属于Alignment-based transcript quantification的转录本定量工具的一种，也就是先比对后定量
+
+RSEM最早被广泛应用于无参转录组的定量分析，因为无参转录组需要对reads进行拼接，然后将reads比对至拼接的转录本上，再通过定量获得其表达丰度
+
+RSEM是在2010年发表的，最新更新是在2016年，下载地址则 `http://deweylab.github.io/RSEM/`，下载后编译下即可
+
+```
+$ make
+$ make install
+```
+
+RSEM整体上来说是属于定量软件，但其支持调用其他比对软件，如Bowtie，Bowtie2和STAR，来将reads比对至转录本上，所以必须至少预先安装上述3款比对软件中的一种
+
+<a name="rsem-index"><h4><li>创建索引 [<sup>目录</sup>](#content)</li></h4></a>
+
+这步可以理解为是对转录本建索引，RSEM支持两种方式：
+
+> 1. **提供参考基因组fa序列和GTF注释文件**
+> 
+> 	RSEM则会通过GTF注释文件从参考基因组序列中提取出各个转录本的序列，然后利用Bowtie2 or STAR等软件来建索引
+> 	
+> 	```
+> 	$ ~/biosoft/rsem/RSEM-1.3.0/rsem-prepare-reference \
+> 		-gtf ~/annotation/hg38/gencode.v27.annotation.gtf \
+> 		--bowtie2 \
+> 		~/reference/genome/hg38/GRCh38.p10.genome.fa ~/reference/index/RSEM/hg38/hg38
+> 	```
+> 
+> 2. **直接提供转录本序列，然后再建索引**
+> 
+> 	无参转录组一般是这样的
+> 	
+> 	如果还想有基于基因水平的定量结果，则需再加--transcript-to-gene-map参数，用于导入转录本和基因的对应关系的文件（一列基因ID，一列对应的转录本ID）
+
+在~/reference/index/RSEM/hg38/目录下包含有从参考基因组提取出来的转录本的序列文件以及bowtie2的索引文件（以.bt2结尾）等
+
+<a name="rsem-quant"><h4><li>转录本定量 [<sup>目录</sup>](#content)</li></h4></a>
+
+用RSEM的`rsem-calculate-expression`命令来对reads进行bowtie2比对以及表达水平的定量
+
+```
+$ ~/biosoft/rsem/RSEM-1.3.0/rsem-calculate-expression \
+	--paired-end \
+	-p 6 \
+	--bowtie2 \
+	--append-names \
+	--output-genome-bam \
+	sample_R1.fastq sample_R2.fastq \
+	~/reference/index/RSEM/hg38/ \
+	RSEM/sample
+```
+
+参数说明：
+
+> - `–paired-end` 表明是双端测序数据
+> - `–bowtie2` 指定bowtie2来用于reads比对
+> - `–append-names` 用于在结果中附加上gene name和transcript name
+> - `–output-genome-bam` 结果中输出基于基因水平的bam文件（默认只有转录水平的bam文件）
+> - `–estimate-rspd` 文档中的例子还加了这个参数，用于estimate the read start position distribution，看是否有positional biases
+
+
+RSEM通过调用bowtie2来完成mapping，其调用bowtie2时使用的默认参数为：
+
+```
+$ bowtie2 \
+	-q \
+	--phred33 \
+	--sensitive \
+	--dpad 0 \
+	--gbar 99999999 \	# 不支持有gap的比对
+	--mp 1,1 \
+	--np 1 \
+	--score-min L,0,-0.1 \
+	-I 1 -X 1000 --no-mixed \
+	--no-discordant \	# 不支持paired reads discordant的比对
+	-p 6 \
+	-k 200 \	# 输出最佳的200个比对结果
+	-x /home/anlan/reference/index/RSEM/hg38/ \
+	-1 SRR6269049.clean_1.fastq \
+	-2 SRR6269049.clean_2.fastq | samtools view -S -b -o RSEM/SRR6269049.temp/SRR6269049.bam
+```
+
+也可以自己用bowtie2进行mapping将mapping得到的文件作为RSEM定量的输入，但是必须保证：
+
+> - 不支持有gap的比对
+> - 不支持paired reads discordant的比对
+> - 输出最佳的200个比对结果
+
+否则RSEM会报错！
+
+**RSEM对multiple mapping结果的处理是这款工具的亮点**：
+
+> 对于RSEM如何处理multimapping reads，RSEM官方教程特意讲了一点
+> 
+> 以Ccl6基因的3个转录本的比对结果为例，其第2个转录本全长与第1个转录本重叠，所以在这重叠区域会产生大量的multimapping reads，黑色表示uniquely aligned reads，红色表示multi-mapping reads
+> 
+> RSEM的处理方法是这样的：RSEM先尽量让第1个转录本在其重叠区域的reads（包括unique reads和multimapping reads）分布趋于平滑？因此再将在区域的剩下multimapping reads算在第2个转录本上；至于第3个转录本，其没有reads比对上，所以就空的；总体上如下图所示
+> 
+> <p align="center"><img src=./picture/RNA-seq-RSEM.png width=800 />
+
 <a name="diff-exp"><h3 >差异表达分析 [<sup>目录</sup>](#content)</h3></a>
 
 ---
@@ -352,4 +459,8 @@ write.csv(result_trans_sort,file=paste("SingleCell_process/Cleandata/Expression/
 
 (3) Pertea M, Kim D, Pertea G M, et al. Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie and Ballgown.[J]. Nature Protocols, 2016, 11(9):1650.
 
-(4) [知乎《高通量测序技术》专栏：生物信息学100个基础问题 —— 第25题 GTF/GFF的注释是怎么来的，应该从哪里下载？](https://zhuanlan.zhihu.com/p/36065699)
+(4) [Alignment-based的转录本定量-RSEM](http://www.bioinfo-scrounger.com/archives/482)
+
+(5) [RSEM官方教程](https://github.com/bli25broad/RSEM_tutorial)
+
+(6) [知乎《高通量测序技术》专栏：生物信息学100个基础问题 —— 第25题 GTF/GFF的注释是怎么来的，应该从哪里下载？](https://zhuanlan.zhihu.com/p/36065699)
