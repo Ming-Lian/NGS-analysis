@@ -9,6 +9,11 @@
 		- [1.2.3. Quantile](#normalization-quantile)
 		- [1.2.4. Median of Ration](#normalization-deseq2)
 		- [1.2.5. TMM](#normalization-tmm)
+	- [1.3. 为什么说FPKM和RPKM都错了？](#analysis-fpkm-and-rpkm)
+		- [1.3.1. FPKM和RPKM分别是什么](#introduction-for-fpkm-and-rpkm)
+		- [1.3.2. 什么样才算好的统计量](#what-is-proper-statistics)
+		- [1.3.3. FPKM和RPKM犯的错](#wrong-within-fpkm-and-rpkm)
+		- [1.3.4. TPM是一个合适的选择](#tpm-is-a-good-choice)
 - [2. 统计学原理](#statistic-principle)
 	- [2.1. 转录组数据统计推断的难题](#statistic-difficulty-in-transcriptome)
 	- [2.2. 泊松分布 or 负二项分布？](#poisson-or-negative-binomial-distribution)
@@ -152,6 +157,107 @@ normalization_factor_sampleB <- median(c(0.78, 0.77, 0.72, 0.74, 1.35))
 > 
 > <p align="center">Scaling-Factor = 2 <sup>weight-average</sup></p>
 
+<a name="analysis-fpkm-and-rpkm"><h3>1.3. 为什么说FPKM和RPKM都错了？ [<sup>目录</sup>](#content)</h3></a>
+
+<a name="introduction-for-fpkm-and-rpkm"><h4>1.3.1. FPKM和RPKM分别是什么 [<sup>目录</sup>](#content)</h4></a>
+
+FPKM和RPKM分别是什么
+
+> **RPKM**是Reads Per Kilobase per Million的缩写，它的计算方程非常简单：
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-1.png height=50 /></p>
+> 
+> **FPKM**是Fregments Per Kilobase per Million的缩写，它的计算与RPKM极为类似，如下：
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-2.png height=50 /></p>
+> 
+> 与RPKM唯一的区别为：F是fragments，R是reads，如果是PE(Pair-end)测序，每个fragments会有两个reads，FPKM只计算两个reads能比对到同一个转录本的fragments数量，而RPKM计算的是可以比对到转录本的reads数量而不管PE的两个reads是否能比对到同一个转录本上。如果是SE(single-end)测序，那么FPKM和RPKM计算的结果将是一致的。
+
+这两个量的计算方式的目的是为了解决计算RNA-seq转录本丰度时的两个bias：
+
+- 相同表达丰度的转录本，往往会由于其基因长度上的差异，导致测序获得的Read（Fregment）数不同。总的来说，越长的转录本，测得的Read（Fregment）数越多；
+- 由测序文库的不同大小而引来的差异。即同一个转录本，其测序深度越深，通过测序获得的Read（Fregment）数就越多。
+
+<a name="what-is-proper-statistics"><h4>1.3.2. 什么样才算好的统计量 [<sup>目录</sup>](#content)</h4></a>
+
+首先，到底什么是RNA转录本的表达丰度这个问题
+
+对于样本X，其有一个基因g被转录了mRNA_g次，同时样本X中所有基因的转录总次数假定是mRNA_total, 那么正确描述基因g转录丰度的值应该是：
+
+<p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-3.png height=50 /></p>
+
+则一个样本中基因表达丰度的均值为
+
+<p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-4.png height=70 /></p>
+
+而
+
+<p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-5.png height=70 /></p>
+
+所以
+
+<p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-6.png height=50 /></p>
+
+这个期望值竟然和测序状态无关！仅仅由样本中基因的总数所决定的
+
+也就是说，对于同一个物种，不管它的样本是哪种组织（正常的或病变的），也不管有多少个不同的样本，只要它们都拥有相同数量的基因，那么它们的r_mean都将是一致的
+
+由于上面的结果是在理论情况下推导出来的，实际上我们无法直接计算这个r，那么我们可以尝试通过其他方法来近似估计r，**只要这些近似统计量可以隐式地包含这一恒等关系即可**
+
+<a name="wrong-within-fpkm-and-rpkm"><h4>1.3.3. FPKM和RPKM犯的错 [<sup>目录</sup>](#content)</h4></a>
+
+实际数据来证明
+
+> 假定有两个来自同一个个体不同组织的样本X和Y，这个个体只有5个基因，分别为A、B、C、D和E它们的长度分别如下：
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-7.png width=400 /></p>
+> 
+> r_mean值是:
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-8.png height=50 /></p>
+> 
+> 如果FPKM或RPKM是一个合适的统计量的话，那么，样本X和Y的平均FPKM（或RPKM）应该相等。
+> 
+> 以下这个表格列出的分别是样本X和Y在这5个基因分别比对上的fregment数和各自总的fregment数量：
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-9.jpg width=800 /></p>
+> 
+> 可以算出：样本X在这5个基因上的FPKM均值FPKM_mean = 5,680;样本Y在这5个基因上的FPKM均值FPKM_mean = 161,840
+> 
+> 很明显，它们根本不同，而且差距相当大
+
+究竟为什么会有如此之大的差异？
+
+可以从其公式上找到答案
+
+> 首先，我们可以把FPKM的计算式拆分成如下两部分。
+> 
+> 第一部分的统计量是对一个基因转录本数量的一个等价描述（虽然严格来讲也没那么等价）：
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-10.png height=50 /></p>
+> 
+> 第二部分的统计量是测序获得的总有效Fregment数量的百万分之一：
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-11.png height=50 /></p>
+> 
+> 这么一拆，就可以看出这个公式的问题了：逻辑上根本说不通嘛！
+> 
+> 尤其是第二部分（N/10^6），本来式子的第一部分是为了描述一个基因的转录本数量，那么正常来讲，第二部分就应该是样本的转录本总数量（或至少是其总数量的等价描述）才能形成合理的比例关系，而且可以看出来FPKM/RPMK是有此意的，这本来就是这个统计量的目的。
+> 
+> 但是N/10^6并不能描述样本的转录本总数量。N/10^6的大小其实是由RNA-seq测序深度所决定的，并且是一个和总转录本数量无直接线性关系的统计量——N与总转录本数量之间的关系还受转录本的长度分布所决定，而这个分布往往在不同样本中是有差异的！
+
+<a name="tpm-is-a-good-choice"><h4>1.3.4. TPM是一个合适的选择 [<sup>目录</sup>](#content)</h4></a>
+
+这个统计量在2012年所发表的一篇讨论RPKM的文章（RPKM measure is inconsistent among samples. Wagner GP, Kin K, Lynch VJ. Theory Biosci. 2012.）中就被提出来了，称之为TPM —— Transcripts Per Million，它的计算是：
+
+<p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-12.png height=140 /></p>
+
+简单计算之后我们就可以发现TPM的均值是一个独立于样本之外的恒定值，它等于：
+
+<p align="center"><img src=./picture/DiffExpAna-normalization-analysis-FPKM-RPKM-13.png height=50 /></p>
+
+这个值刚好是r_mean的一百万倍，满足等价描述的关系。
+
 <a name="statistic-principle"><h2>2. 统计学原理 [<sup>目录</sup>](#content)</h2></a>
 
 <a name="statistic-difficulty-in-transcriptome"><h3>2.1. 转录组数据统计推断的难题 [<sup>目录</sup>](#content)</h3></a>
@@ -282,13 +388,15 @@ dispersion指的是离散程度，研究一个数据分布的离散程度，我�
 
 (3) [生信菜鸟团：StatQuest生物统计学专题 - library normalization进阶之edgeR的标准化方法 ](https://mp.weixin.qq.com/s?__biz=MzUzMTEwODk0Ng==&mid=2247485369&idx=1&sn=791cb8c26b19a1181ceccf586787f078&scene=21#wechat_redirect)
 
-(4) [【生信修炼手册】负二项分布在差异分析中的应用](https://mp.weixin.qq.com/s/m2ydqpKofYo2bK61A9hZWw)
+(4) [【简书】为什么说FPKM和RPKM都错了？](https://www.jianshu.com/p/35e861b76486)
 
-(5) [【 生信百科】转录组差异表达筛选的真相](https://mp.weixin.qq.com/s/VcjnvI5FqwOFEC9wSUfdSw)
+(5) [【生信修炼手册】负二项分布在差异分析中的应用](https://mp.weixin.qq.com/s/m2ydqpKofYo2bK61A9hZWw)
 
-(6) [【生信媛】RNA-seq分析中的dispersion，你知道吗？](https://mp.weixin.qq.com/s/UTmSzCgDIFYbG2WByzaqQQ)
+(6) [【 生信百科】转录组差异表达筛选的真相](https://mp.weixin.qq.com/s/VcjnvI5FqwOFEC9wSUfdSw)
 
-(7) H. J. Pimentel, et al. Differential analysis of RNA-Seq incorporatingquantification uncertainty. bioRxiv, 2016
+(7) [【生信媛】RNA-seq分析中的dispersion，你知道吗？](https://mp.weixin.qq.com/s/UTmSzCgDIFYbG2WByzaqQQ)
+
+(8) H. J. Pimentel, et al. Differential analysis of RNA-Seq incorporatingquantification uncertainty. bioRxiv, 2016
 
 
 
