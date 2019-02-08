@@ -1,57 +1,52 @@
 <p name="content">目录</p>
 
 [Analysis pipeline for RNA-seq](#title)
-- [测序数据下载](#download)
-- [比对与定量](#map-quant)
-	- [Salmon流程](#salmon)
-		- [创建索引](#salmon-index)
-		- [定量](#salmon-quant)
-	- [subread流程](#subread)
-		- [创建索引](#subread-index)
-		- [比对](#subread-map)
-		- [定量](#subread-quant)
-	- [hisat2-stringtie流程](#hisat2-stringtie)
-		- [hisat2创建索引](#hisat2-index)
-		- [hisat2比对](#hisat2-map)
-		- [stringtie转录本拼接](#stringtie-assm)
-		- [stringtie定量](#stringtie-quant)
-	- [RSEM流程](#rsem)
-		- [创建索引](#rsem-index)
-		- [转录本定量](#rsem-quant)
-- [差异表达分析](#diff-exp)
-	- [DESeq2](#deseq2)
-	- [Ballgown](#ballgown)
-- [几点思考](#think-issues)
+- [1. 测序数据下载](#download)
+- [2. 比对与定量](#map-quant)
+	- [2.1. Salmon流程](#salmon)
+		- [2.1.1. 创建索引](#salmon-index)
+		- [2.1.2. 定量](#salmon-quant)
+	- [2.2. subread流程](#subread)
+		- [2.2.1. 创建索引](#subread-index)
+		- [2.2.2. 比对](#subread-map)
+		- [2.2.3. 定量](#subread-quant)
+	- [2.3. hisat2-stringtie流程](#hisat2-stringtie)
+		- [2.3.1. hisat2创建索引](#hisat2-index)
+		- [2.3.2. hisat2比对](#hisat2-map)
+		- [2.3.3. stringtie转录本拼接](#stringtie-assm)
+		- [2.3.4. stringtie定量](#stringtie-quant)
+	- [2.4. RSEM流程](#rsem)
+		- [2.4.1. 创建索引](#rsem-index)
+		- [2.4.2. 转录本定量](#rsem-quant)
+- [3. 差异表达分析](#diff-exp)
+	- [3.1. DESeq2](#deseq2)
+	- [3.2. Ballgown](#ballgown)
+- [4. 几点思考](#think-issues)
 
 <h1 name="title">Analysis pipeline for RNA-seq</h1>
 
 <p align="center"> <img src=/picture/hisat2-stringtie-ballgown.png align="middle"> </p>
 
-<a name="download"><h3 >测序数据下载 [<sup>目录</sup>](#content)</h3></a>
-
----
+<a name="download"><h2>1. 测序数据下载 [<sup>目录</sup>](#content)</h2></a>
 
 参见： https://github.com/Ming-Lian/Memo/blob/master/ChIP-seq-pipeline.md#get-data
 
-<a name="map-quant"><h3>比对与定量 [<sup>目录</sup>](#content)</h3></a>
+<a name="map-quant"><h2>2. 比对与定量 [<sup>目录</sup>](#content)</h2></a>
 
----
-
-<a name="salmon"><h3 ><li>Salmon流程 [<sup>目录</sup>](#content)</li></h3></a>
-
-<br size=1 />
+<a name="salmon"><h3>2.1. Salmon流程 [<sup>目录</sup>](#content)</h3></a>
 
 不需要比对，直接对转录水平进行定量
 
-<a name="salmon-index"><h4>创建索引 [<sup>目录</sup>](#content)</h4></a>
+<a name="salmon-index"><h4>2.1.1. 创建索引 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ salmon index -t Arabidopsis_thaliana.TAIR10.28.cdna.all.fa.gz -i athal_index_salmon
 ```
 
-<a name="salmon-quant"><h4>定量 [<sup>目录</sup>](#content)</h4></a>
+<a name="salmon-quant"><h4>2.1.2. 定量 [<sup>目录</sup>](#content)</h4></a>
 
 salmon quant 有两种运行模式：
+
 > - **Salmon's quasi-mapping-based mode**： using raw reads
 > 
 > 输入以下命令查看该模式下的help文档
@@ -65,6 +60,7 @@ salmon quant 有两种运行模式：
 > 当使用参数`-a`时，启用该模式，否则默认使用quasi-mapping-based mode
 > 
 > 输入以下命令查看该模式下的help文档
+> 
 > ```
 > salmon quant --help-alignment
 > ```
@@ -94,16 +90,16 @@ salmon quant 参数：
 > - -p The number of threads to use
 > - -o Output quantification file.
 
-<a name="subread"><h3><li>subread流程 [<sup>目录</sup>](#content)</li></h3></a>
+<a name="subread"><h3>2.2. subread流程 [<sup>目录</sup>](#content)</h3></a>
 
-<a name="subread-index"><h4>创建索引 [<sup>目录</sup>](#content)</h4></a>
+<a name="subread-index"><h4>2.2.1. 创建索引 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ gunzip Arabidopsis_thaliana.TAIR10.28.dna.genome.fa.gz
 $ subread-buildindex -o athal_index_subread   Arabidopsis_thaliana.TAIR10.28.dna.genome.fa
 ```
 
-<a name="subread-map"><h4>比对 [<sup>目录</sup>](#content)</h4></a>
+<a name="subread-map"><h4>2.2.2. 比对 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 #! /bin/bash
@@ -122,7 +118,7 @@ done
 # map_subjunc.sh
 ```
 
-<a name="subread-quant"><h4>定量 [<sup>目录</sup>](#content)</h4></a>
+<a name="subread-quant"><h4>2.2.3. 定量 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 featureCounts=~/anaconda2/bin
@@ -133,9 +129,9 @@ nohup $featureCounts/featureCounts  -T 5 -p -t exon -g gene_name -a $gtf -o  $co
 nohup $featureCounts/featureCounts  -T 5 -p -t exon -g gene_id -a $gtf -o  $count/counts_id.txt   *.bam &
 ```
 
-<a name="hisat2-stringtie"><h3><li>hisat2-stringtie流程 [<sup>目录</sup>](#content)</li></h3></a>
+<a name="hisat2-stringtie"><h3>2.3. hisat2-stringtie流程 [<sup>目录</sup>](#content)</h3></a>
 
-<a name="hisat2-index"><h4>hisat2创建索引 [<sup>目录</sup>](#content)</h4></a>
+<a name="hisat2-index"><h4>2.3.1. hisat2创建索引 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 # build reference index
@@ -147,12 +143,14 @@ $ extract_exons.py chrX_data/genes/chrX.gtf >chrX.exon
 $ hisat2-build --ss chrX.ss --exon chrX.exon chrX_data/genome/chrX.fa chrX_tran
 ```
 
-<a name="hisat2-map"><h4>hisat2比对 [<sup>目录</sup>](#content)</h4></a>
+<a name="hisat2-map"><h4>2.3.2. hisat2比对 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ hisat2 -p 10 --dta -x chrX_tran -1 reads1_1.fastq -2 reads1_2.fastq | samtools sort -@ 8 -O bam -o reads1.sort.bam 1>map.log 2>&1
 ```
+
 `Usage: hisat2 [options]* -x <ht2-idx> {-1 <m1> -2 <m2> | -U <r>} [-S <sam>]`
+
 > - -p Number of threads to use
 > - --dta reports alignments tailored for transcript assemblers
 > - -x Hisat2 index
@@ -161,13 +159,14 @@ $ hisat2 -p 10 --dta -x chrX_tran -1 reads1_1.fastq -2 reads1_2.fastq | samtools
 > - -S File for SAM output (default: stdout)
 
 
-<a name="stringtie-assm"><h4>stringtie转录本拼接 [<sup>目录</sup>](#content)</h4></a>
+<a name="stringtie-assm"><h4>2.3.3. stringtie转录本拼接 [<sup>目录</sup>](#content)</h4></a>
 
 ```
 $ stringtie -p 16 -G Ref/hg19/grch37_tran/Homo_sapiens.GRCh37.75.gtf -o Asm/read1.gtf -l prefix Map/read1.bam 1>Asm/read1_strg_assm.log 2>&1
 # 样本间转录本合并
 $ stringtie --merge -p 16 -G Ref/hg19/grch37_tran/Homo_sapiens.GRCh37.75.gtf -o Asm/merge.gtf Asm/mergelist.txt 1>Asm/strg_merge.log 2>&1
 ```
+
 `Transcript merge usage mode: stringtie --merge [Options] { gtf_list | strg1.gtf ...}`
 
 > - -p number of threads (CPUs) to use
@@ -175,51 +174,53 @@ $ stringtie --merge -p 16 -G Ref/hg19/grch37_tran/Homo_sapiens.GRCh37.75.gtf -o 
 > - -o output path/file name for the assembled transcripts GTF
 > - -l name prefix for output transcripts (default: STRG)
 
-<a name="stringtie-quant"><h4>stringtie定量 [<sup>目录</sup>](#content)</h4></a>
+<a name="stringtie-quant"><h4>2.3.4. stringtie定量 [<sup>目录</sup>](#content)</h4></a>
 
 1. 以ballgown格式输出
 
-```
-$ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
-	Map/read1.bam 1>quant/read1/read1_strg_quant.log 2>&1
-```
-> - -e only estimate the abundance of given reference transcripts (requires -G)
-> - -B enable output of Ballgown table files which will be created in the same directory as the output GTF (requires -G, -o recommended)
+	```
+	$ stringtie -e -B -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
+		Map/read1.bam 1>quant/read1/read1_strg_quant.log 2>&1
+	```
+
+	> - -e only estimate the abundance of given reference transcripts (requires -G)
+	> - -B enable output of Ballgown table files which will be created in the same directory as the output GTF (requires -G, -o recommended)
 
 2. 以read count进行定量，作为DESeq2或edgeR的输入
 
-```
-$ stringtie -e -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
-	Map/read1.bam 1>quant/read1/read1_strg_quant.log 2>&1
-$ python prepDE.py -i sample_lst.txt
-```
-注意：
-- stringtie的用法与上面相同，除了少了一个参数`-B`
-- `prepDE.py`脚本需要到stringtie官网下载：http://ccb.jhu.edu/software/stringtie/dl/prepDE.py ，注意该脚本是用**python2**编写的
-- `prepDE.py` 会以csv格式，分别输出基因和转录本的count matrices
+	```
+	$ stringtie -e -p 16 -G Asm/merge.gtf -o quant/read1/read1.gtf \
+		Map/read1.bam 1>quant/read1/read1_strg_quant.log 2>&1
+	$ python prepDE.py -i sample_lst.txt
+	```
+	
+	注意：
+	- stringtie的用法与上面相同，除了少了一个参数`-B`
+	- `prepDE.py`脚本需要到stringtie官网下载：http://ccb.jhu.edu/software/stringtie/dl/prepDE.py ，注意该脚本是用**python2**编写的
+	- `prepDE.py` 会以csv格式，分别输出基因和转录本的count matrices
+	
+	prepDE.py参数
 
-prepDE.py参数
-> - -i the parent directory of the sample sub-directories or a textfile listing the paths to GTF files [default: ballgown]
-> - -g where to output the gene count matrix [default: gene_count_matrix.csv]
-> - -t where to output the transcript count matrix [default: transcript_count_matrix.csv]
+	> - -i the parent directory of the sample sub-directories or a textfile listing the paths to GTF files [default: ballgown]
+	> - -g where to output the gene count matrix [default: gene_count_matrix.csv]
+	> - -t where to output the transcript count matrix [default: transcript_count_matrix.csv]
 
-samplelist textfile 格式如下：
-```
-ERR188021 <PATH_TO_ERR188021.gtf>
-ERR188023 <PATH_TO_ERR188023.gtf>
-ERR188024 <PATH_TO_ERR188024.gtf>
-ERR188025 <PATH_TO_ERR188025.gtf>
-ERR188027 <PATH_TO_ERR188027.gtf>
-ERR188028 <PATH_TO_ERR188028.gtf>
-ERR188030 <PATH_TO_ERR188030.gtf>
-ERR188033 <PATH_TO_ERR188033.gtf>
-ERR188034 <PATH_TO_ERR188034.gtf>
-ERR188037 <PATH_TO_ERR188037.gtf>
-```
+	samplelist textfile 格式如下：
+	
+	```
+	ERR188021 <PATH_TO_ERR188021.gtf>
+	ERR188023 <PATH_TO_ERR188023.gtf>
+	ERR188024 <PATH_TO_ERR188024.gtf>
+	ERR188025 <PATH_TO_ERR188025.gtf>
+	ERR188027 <PATH_TO_ERR188027.gtf>
+	ERR188028 <PATH_TO_ERR188028.gtf>
+	ERR188030 <PATH_TO_ERR188030.gtf>
+	ERR188033 <PATH_TO_ERR188033.gtf>
+	ERR188034 <PATH_TO_ERR188034.gtf>
+	ERR188037 <PATH_TO_ERR188037.gtf>
+	```
 
-<a name="rsem"><h3 ><li>RSEM流程[<sup>目录</sup>](#content)</li></h3></a>
-
-<br size=1 />
+<a name="rsem"><h3>2.4. RSEM流程[<sup>目录</sup>](#content)</h3></a>
 
 RSEM属于Alignment-based transcript quantification的转录本定量工具的一种，也就是先比对后定量
 
@@ -229,12 +230,15 @@ RSEM是在2010年发表的，最新更新是在2016年，下载地址则 `http:/
 
 ```
 $ make
-$ make install
+$ make install # 默认安装在/usr/local/bin目录下
+# 自定义安装路径
+# 若要修改安装路径需要设置DESRDIR和prefix参数，默认情况下DESRDIR=''，prefix=/usr/local，最终的安装目录为 $DESTDIR/$prefix/bin
+make install DESRDIR=/Path/To/Destdir prefix=
 ```
 
-RSEM整体上来说是属于定量软件，但其支持调用其他比对软件，如Bowtie，Bowtie2和STAR，来将reads比对至转录本上，所以必须至少预先安装上述3款比对软件中的一种
+RSEM整体上来说是属于定量软件，但其支持调用其他比对软件，如Bowtie，Bowtie2和STAR，来将reads比对至转录本上，所以必须至少预先安装上述3款比对软件中的一种，且要将它们的安装路径加入到环境变量`PATH`中
 
-<a name="rsem-index"><h4><li>创建索引 [<sup>目录</sup>](#content)</li></h4></a>
+<a name="rsem-index"><h4>2.4.1. 创建索引 [<sup>目录</sup>](#content)</h4></a>
 
 这步可以理解为是对转录本建索引，RSEM支持两种方式：
 
@@ -253,24 +257,36 @@ RSEM整体上来说是属于定量软件，但其支持调用其他比对软件�
 > 
 > 	无参转录组一般是这样的
 > 	
+> 	参数与上面的情况相似，只是不需要设置`-gtf`参数，若用户不指定`-gtf`参数，则RSEM会将后面提供的参考序列作为转录本
+> 	
 > 	如果还想有基于基因水平的定量结果，则需再加--transcript-to-gene-map参数，用于导入转录本和基因的对应关系的文件（一列基因ID，一列对应的转录本ID）
 
 在~/reference/index/RSEM/hg38/目录下包含有从参考基因组提取出来的转录本的序列文件以及bowtie2的索引文件（以.bt2结尾）等
 
-<a name="rsem-quant"><h4><li>转录本定量 [<sup>目录</sup>](#content)</li></h4></a>
+<a name="rsem-quant"><h4>2.4.2. 转录本定量 [<sup>目录</sup>](#content)</h4></a>
 
 用RSEM的`rsem-calculate-expression`命令来对reads进行bowtie2比对以及表达水平的定量
 
 ```
 $ ~/biosoft/rsem/RSEM-1.3.0/rsem-calculate-expression \
-	--paired-end \
 	-p 6 \
 	--bowtie2 \
 	--append-names \
 	--output-genome-bam \
-	sample_R1.fastq sample_R2.fastq \
+	--paired-end sample_R1.fastq sample_R2.fastq \
 	~/reference/index/RSEM/hg38/ \
 	RSEM/sample
+```
+
+该命令有以下三种命令行形式：
+
+```
+# 1. Single-end，比对与定量
+rsem-calculate-expression [options] upstream_read_file(s) reference_name sample_name
+# 2. Paired-end，比对与定量
+rsem-calculate-expression [options] --paired-end upstream_read_file(s) downstream_read_file(s) reference_name sample_name
+# 3. 用户提供SAM/BAM/CRAM格式的比对文件，只进行定量
+rsem-calculate-expression [options] --alignments [--paired-end] input reference_name sample_name
 ```
 
 参数说明：
@@ -321,11 +337,9 @@ $ bowtie2 \
 > 
 > <p align="center"><img src=./picture/RNA-seq-RSEM.png width=800 />
 
-<a name="diff-exp"><h3 >差异表达分析 [<sup>目录</sup>](#content)</h3></a>
+<a name="diff-exp"><h2>3. 差异表达分析 [<sup>目录</sup>](#content)</h2></a>
 
----
-
-<a name="deseq2"><h4><li>使用DESeq2进行差异分析 [<sup>目录</sup>](#content)</li></h4></a>
+<a name="deseq2"><h3>3.1. 使用DESeq2进行差异分析 [<sup>目录</sup>](#content)</h3></a>
 
 DESeq2要求输入的表达矩阵是**read counts**
 
@@ -391,14 +405,13 @@ resOrdered <- res[order(res$padj),]
 res_Day1_Day0=as.data.frame(resOrdered)
 ```
 
-
-<a name="ballgown"><h4><li>使用Ballgown进行差异分析 [<sup>目录</sup>](#content)</li></h4></a>
+<a name="ballgown"><h4>3.2. 使用Ballgown进行差异分析 [<sup>目录</sup>](#content)</h4></a>
 
 紧接着stringtie的定量结果进行分析
 
 stringtie的定量结果提供多种表达值的表示方法，有read counts, RPKM/FPKM, TPM 。其中read counts是原始reads计算，RPKM/FPKM 和 TPM 都是基因表达值的归一化后的，因为本身的某些缺点，主流科学家强烈要求它就被TPM取代了。
 
-下面对 RPKM/FPKM 和 TPM 的说明摘抄自健明大大的简书：https://www.jianshu.com/p/e9d5d7206124 ，说得通俗易懂
+下面对 RPKM/FPKM 和 TPM 的说明摘抄自健明大大的简书：`https://www.jianshu.com/p/e9d5d7206124` ，说得通俗易懂
 
 > **TPM是什么？**
 >
@@ -406,35 +419,42 @@ stringtie的定量结果提供多种表达值的表示方法，有read counts, R
 >
 > 那么它的TPM值是多少呢？ 这个时候这些信息已经不够了，需要知道该样本其它基因的RPKM值是多少，加上该样本有3个基因，另外两个基因的RPKM值是5和35，那么我们的基因A的RPKM值为10需要换算成TPM值就是 1,000,000 \*10/(5+10+35)=200,000， 看起来是不是有点大呀！其实主要是因为我们假设的基因太少了，一般个体里面都有两万多个基因的，总和会大大的增加，这样TPM值跟RPKM值差别不会这么恐怖的。
 
-
-
 - 载入R包
+
 ```
 require(ballgown)
 require(dplyr)
 require(genefilter)
 setwd("/share/disk5/lianm")
 ```
+
 - 载入stringtie输出的表达数据，并设置表型信息（即分组信息）
+
 ```
 bg_Z1Z4<-ballgown(dataDir="SingleCell_process/Cleandata/Expression",samplePattern=“Z[14]T",meas="FPKM")
 pData(bg_Z1Z4)<-data.frame(id=sampleNames(bg_Z1Z4),group=c(rep(1,num_group1),rep(0,num_group2)))
 ```
+
 - 过滤低丰度的基因
+
 ```
 bg_Z1Z4_filt<-subset(bg_Z1Z4,"rowVars(texpr(bg_Z1Z4))>1",genomesubset=T)
 ```
+
 - 差异表达基因分析
+
 ```
 result_genes<-stattest(bg_Z1Z4_filt,feature="gene",covariate="group",getFC=T)
 result_genes<-data.frame(geneNames=geneNames(bg_Z1Z4_filt)[match(result_genes$id,geneIDs(bg_Z1Z4_filt))],geneIDs=geneIDs(bg_Z1Z4_filt)[match(result_genes$id,geneIDs(bg_Z1Z4_filt))],result_genes)
 result_genes_sort<-arrange(result_genes,pval)
 write.csv(result_genes_sort,file=paste("SingleCell_process/Cleandata/Expression/",name_group1,"_VS_",name_group2,"_geneDiff_results.csv",sep=""),row.names=F)
 ```
+
 > 分组设置对差异表达分析的影响：
 > - FC = group_1/group_0，所以分组标签互换后FC会变为原来的倒数
 
 - 差异转录本分析
+
 ```
 result_trans<-stattest(bg_Z1Z4_filt,feature="transcript",covariate="group",getFC=T)
 result_trans<-data.frame(geneNames=geneNames(bg_Z1Z4_filt),geneIDs=geneIDs(bg_Z1Z4_filt),result_trans)
@@ -442,7 +462,7 @@ result_trans_sort<-arrange(result_transs,pval)
 write.csv(result_trans_sort,file=paste("SingleCell_process/Cleandata/Expression/",name_group1,"_VS_",name_group2,"_transDiff_results.csv",sep=""),row.names=F)
 ```
 
-<a name="think-issues"><h3>几点思考 [<sup>目录</sup>](#content)</h3></a>
+<a name="think-issues"><h2>4. 几点思考 [<sup>目录</sup>](#content)</h2></a>
 
 1. 为什么要进行转录本拼接？不是都有参考转录组了吗？
 
