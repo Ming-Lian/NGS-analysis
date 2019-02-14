@@ -22,8 +22,9 @@
 ## 宏基因组
 
 1. [宏基因组分析基础：shotgun metageonome](./Analysis-of-Metagenome.md)
-2. [宏基因组分析流程（未完结）](./Shotgun-Meta.md)
+2. [宏基因组shotgun分析流程（未完结）](./Shotgun-Meta.md)
 3. [宏基因组shotgun研究套路](./Study-Strategies-for-Metagenome.md)
+4. [宏基因组16S分析流程](./Analysis-of-16S-metagenome.md)
 
 ## 三代测序
 
