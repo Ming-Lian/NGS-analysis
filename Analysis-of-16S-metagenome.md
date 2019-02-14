@@ -1,14 +1,16 @@
 <a name="content">目录</a>
 
 [16S微生物组](#title)
-- [数据预处理](#data-preprocess)
+- [1. 数据预处理：QIMME](#data-preprocess)
+- [2. OTU聚类](#otu-cluster)
+	- [2.1. UPARSE/USEARCH](#otu-cluster-using-uparse)
 
 
 
 
 <h1 name="title">16S微生物组</h1>
 
-<a name="data-preprocess"><h2>数据预处理 [<sup>目录</sup>](#content)</h2></a>
+<a name="data-preprocess"><h2>1. 数据预处理：QIMME [<sup>目录</sup>](#content)</h2></a>
 
 首先，认识一下16S的测序数据：
 
@@ -100,6 +102,51 @@
 		-o SS_trimmed SS_fna/seqs.fna
 	```
 
+<a name="otu-cluster"><h2>2. OTU聚类 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="otu-cluster-using-uparse"><h3>2.1. UPARSE/USEARCH [<sup>目录</sup>](#content)</h3></a>
+
+上次我们介绍了如何利用QIIM1的脚本拼接双端序列、拆分样本和质控，最后得到干净的16S序列，这些序列也是UPARSE进行OTU聚类所需要的输入文件。但是还需要将fasta文件的格式为`>sample.seqid`，这样后续得到的OTU表会自动统计不同样本的OTU序列数量
+
+```
+>sample1.0
+TCCGCAATGGACGAAAGTCTG…
+>sample1.1
+GGACGAAAGTCTGACGGGTGC…
+>sample2.0
+………
+```
+
+**(1) 将序列修剪到相同的长度**
+
+例如250bp，同时要保证序列左侧对齐，这样来自同一模板的序列可以完全匹配，后续才可以准确的计算unique序列的丰度
+
+```
+$ usearch -fastx_truncate seq.fa -trunclen 250 -fastaout seq_250.fa
+```
+
+**(2) 合并所有样本中来自同一模板的相同的序列得到unique序列，并按照数量从多到少排序**
+
+在该过程中，丰度低于2的unique序列默认会被丢弃，这些序列很可能来自测序过程中的错误序列，会产生不可信的OTU，对后续分析造成影响
+
+之所以需要按照数量排序，是因为丰度越高的unique序列越有可能是真实的生物序列，OTU聚类按照从丰度高到低进行搜索，以97%的一致性为标准，合并所有一致性高于该阈值的unique序列，从而得到OTU序列
+
+```
+$ usearch -fastx_uniques seq_250.fa -fastaout seq_250_unique.fa -sizeout -relabel Uniq
+```
+
+得到合并后unique序列，并且按照降序排序的文件如下：
+
+<p align="center"><img src=./picture/16S-metagenome-OUT-cluster-1.png width=800 /></p>
+
+**(3) 对这些unique序列进行OTU聚类**
+
+OTU聚类大多以97%的一致性作为阈值，之所以使用这个阈值是因为这是大多数人可以接受的一个阈值，Edgar推荐的全长16S阈值为99%，V4区的阈值为100%，但如果只做属水平的分析，一般OTU阈值设为97%就可以了
+
+```
+$ usearch -cluster_otus seq_250_unique.fa -otus seq_otus.fa -relabel allOTU
+```
+
 
 
 
@@ -111,3 +158,5 @@
 参考资料：
 
 (1) [【宇宙实验媛】16S微生物组（一）| 数据预处理](https://mp.weixin.qq.com/s?__biz=MzU1NDkzOTk2MQ==&mid=2247483967&idx=1&sn=9e779f4e2b588ee2b81488d3fb3f7a8e&scene=21#wechat_redirect)
+
+(2) [【宇宙实验媛】16S微生物组（二）| OTU聚类](https://mp.weixin.qq.com/s/xAifuchwB97Jv0QVhpQDwQ)
