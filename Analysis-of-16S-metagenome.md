@@ -147,6 +147,64 @@ OTU聚类大多以97%的一致性作为阈值，之所以使用这个阈值是�
 $ usearch -cluster_otus seq_250_unique.fa -otus seq_otus.fa -relabel allOTU
 ```
 
+聚类的过程如下，首先丰度最高的序列作为OTU代表序列，和其他序列进行比对，若相似性小于3%，则算作该OTU的相同序列，大于3%的序列算作新的OTU序列，同一条序列两部分来自不同OTU序列的算作嵌合体序列并且被丢掉。
+
+<p align="center"><img src=./picture/16S-metagenome-OUT-cluster-2.jpg width=600 /></p>
+
+通过OTU聚类得到OTU序列文件如下：
+
+<p align="center"><img src=./picture/16S-metagenome-OUT-cluster-3.png width=800 /></p>
+
+**(4) 统计样本OTU丰度**
+
+通过比对原始序列文件（seq.fa）和我们得到的OTU序列库（seq_otus.fa）对每个样本的OTU数据进行统计，得到OTU表
+
+```
+$ usearch \
+	-usearch_global seq.fa \
+	-db seq_otus.fa \
+	-id 0.97 \
+	-otutabout seq_otu_table.txt \
+	-biomout seq_otu_table.json
+```
+
+其中`-otutabout`和`-biomout`分别可以输出tsv和json格式的OTU表，各种OTU表格格式可以通过QIIME1的`biom convert`命令进行转换，例如将txt格式转换为hdf5格式：
+
+```
+$ biom convert -i seq_otu_table.txt -o seq_otu_table.hdf5 --table-type="OTU table" --to-hdf5
+```
+
+**(5) OTU丰度标准化**
+
+由于每个样本的测序数量不一样，因此得到的OTU表在进行统计分析前还需要进一步标准化,这里可以用QIIME1的脚本`normalize_table.py`，或者USEARCH v11提供的命令：
+
+```
+$ usearch -otutab_rare seq_otu_table.txt -sample_size 10000 -output seq_otu_table_10k.txt 
+```
+
+我们就得到了所有样本的OTU信息，我们后续可以对该OTU表进行统计分析、进化距离分析，并且利用序列比对将OTU序列和已知的菌种16S序列关联起来，通常可以进行属水平的菌种分析。
+
+**(6) 计算OTU多样性**
+
+USEARCH提供了计算OTU多样性的方法，例如计算alpha多样性：
+
+```
+$ usearch -alpha_div seq_otu_table_10k.txt -output alpha.txt 
+```
+
+USEARCH提供了chao1、shannon、simpson、richness等十几种alpha多样性指数，如果只计算某几种多样性可以用-metrics参数指定：
+
+```
+$ usearch -alpha_div seq_otu_table_10k.txt -output alpha.txt  -metrics chao1,simpson
+```
+
+计算beta多样性：
+
+```
+$ usearch -beta_div seq_otu_table_10k.txt -filename_prefix ./beta
+```
+
+同样的，USEARCH提供了bray curtis, euclidean, jaccard, manhatten等多种beta多样性的计算，同样可以使用-metrics参数来指定
 
 
 
@@ -160,3 +218,5 @@ $ usearch -cluster_otus seq_250_unique.fa -otus seq_otus.fa -relabel allOTU
 (1) [【宇宙实验媛】16S微生物组（一）| 数据预处理](https://mp.weixin.qq.com/s?__biz=MzU1NDkzOTk2MQ==&mid=2247483967&idx=1&sn=9e779f4e2b588ee2b81488d3fb3f7a8e&scene=21#wechat_redirect)
 
 (2) [【宇宙实验媛】16S微生物组（二）| OTU聚类](https://mp.weixin.qq.com/s/xAifuchwB97Jv0QVhpQDwQ)
+
+(3) [USEARCH官网](http://www.drive5.com/usearch/)
