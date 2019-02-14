@@ -120,7 +120,84 @@ mOTU本来作为一个独立 (Stand-alone) 的分析工具被开发出来，后�
 
 - **作为MOCAT的组件进行Taxonomic profiles**
 
+	MOCAT提供了2中方法进行Taxonomic profiles：
 
+	> - 使用`runMOCAT.sh`脚本
+	> - 逐步执行MOCAT的命令
+
+	**（1）方案一：使用`runMOCAT.sh`脚本**
+
+	在安装MOCAT后，新建一个项目专用文件夹，例如`MOCAT_analysis`，然后将`MOCAT.cfg`拷贝到该文件夹下
+
+	在`MOCAT_analysis`文件夹下，为每一个样本创建一个自文件夹，即`MOCAT_analysis/sample1`，然后将属于该样本的`the .fq(.gz)`文件保存到该文件夹下
+
+	接着创建一个`sample file`，保存需要分析的样本的样本名，一个样本一行
+
+	这样就可以执行`sh runMOCAT.sh`脚本进行分析了，该脚本以**交互形式**执行
+
+	```
+	$ runMOCAT.sh
+	
+	##############################################################################
+	# WELCOME TO THE MOCAT EXECUTER v1.3 #
+	##############################################################################
+	
+	This shell script is used to execute a number of MOCAT commands in a row.
+	Typically this is used to process raw reads up to final taxonomic or mOTU
+	profiles. Of course you can process each step individually using MOCAT.pl
+	but we have created this software for your ease to execute these commands
+	with ease without prior knowledge of how to run MOCAT. Enjoy!
+	
+	Usage: runMOCAT.sh [-sf SAMPLE_FILE -cfg CONFIG_FILE]
+	
+	SAMPLE_FILE not specified with option -sf SAMPLE_FILE
+	Looking for valid sample files in the current folder:
+	Getting files...
+	Getting folders...
+	Processing files................
+	
+	SELECT A SAMPLE FILE:
+	- sample
+	
+	ENTER SAMPLE FILE:
+	
+	--- Type 'sample' and press enter ---
+	```
+
+	然后选择要执行的功能模块：
+
+	```
+	AVAILABLE SCRIPTS:
+	1: assemble_revise_predict_genes_no_hg19_screen
+	process raw reads, assemble, revise assembly and predict genes
+	2: assemble_revise_predict_genes_with_hg19_screen
+	process raw reads, remove human contaminants, assemble, revise assembly and predict genes
+	3: taxonomic_and_motu_profiles_no_hg19_screen
+	First process raw reads and then generate taxonomic and mOTU profiles
+	4: taxonomic_and_motu_profiles_with_hg19_screen
+	First process raw reads, remove humans reads and generate taxonomic and mOTU profiles
+	
+	STEP TO EXECUTE (enter number):
+	--- Type '3' and press enter ---
+	```
+
+	**（2）逐步执行MOCAT的命令**
+
+	```
+	# 1. Initial sample processing
+	$ MOCAT.pl -sf samples -rtf
+	
+	# 2. Generate mOTU profiles
+	$ MOCAT.pl -sf samples -s mOTU.v1.padded -identity 97
+	$ MOCAT.pl -sf samples -f mOTU.v1.padded -identity 97
+	$ MOCAT.pl -sf samples -p mOTU.v1.padded -identity 97 -mode mOTU -o RESULTS
+	
+	# 3. Generate taxonomic profiles
+	$ MOCAT.pl -sf samples -s RefMG.v1.padded -r mOTU.v1.padded -e -identity 97
+	$ MOCAT.pl -sf samples -f RefMG.v1.padded -r mOTU.v1.padded -e -identity 97
+	$ MOCAT.pl -sf samples -p RefMG.v1.padded -r mOTU.v1.padded -e -identity 97 -mode RefMG -previous_db_calc_tax_stats_file -o RESULTS
+	```
+	
 ---
 
 参考资料：
