@@ -1,14 +1,16 @@
 <a name="content">目录</a>
 
-[RNA-seq中的那些统计学原理](#title)
+[RNA-seq中的那些统计学问题](#title)
 - [1. 数据预处理](#data-preprocess)
 	- [1.1. 过滤低表达的基因](#filt-low-exp-genes)
 	- [1.2. 标准化](#normalization)
-		- [1.2.1. CPM](#normalization-cpm)
-		- [1.2.2. TCS](#normalization-tcs)
-		- [1.2.3. Quantile](#normalization-quantile)
-		- [1.2.4. Median of Ration](#normalization-deseq2)
-		- [1.2.5. TMM](#normalization-tmm)
+		- [1.2.1. House-keeping gene(s)](#normalization-house-keeping-genes)
+		- [1.2.2. spike-in](#normalization-spike-in)
+		- [1.2.3. CPM](#normalization-cpm)
+		- [1.2.4. TCS](#normalization-tcs)
+		- [1.2.5. Quantile](#normalization-quantile)
+		- [1.2.6. Median of Ration](#normalization-deseq2)
+		- [1.2.7. TMM](#normalization-tmm)
 	- [1.3. 为什么说FPKM和RPKM都错了？](#analysis-fpkm-and-rpkm)
 		- [1.3.1. FPKM和RPKM分别是什么](#introduction-for-fpkm-and-rpkm)
 		- [1.3.2. 什么样才算好的统计量](#what-is-proper-statistics)
@@ -24,7 +26,7 @@
 
 
 
-<h1 name="title">差异表达分析</h1>
+<h1 name="title">RNA-seq中的那些统计学问题</h1>
 
 
 
@@ -40,15 +42,46 @@
 
 <p align="center"><img src=./picture/DiffExpAna-normalization.png width=800 /></p>
 
-由于不同文库测序深度不同，比较前当然要进行均一化！用总reads进行均一化可能最简单，但在转录组中，通常一小部分极高丰度基因往往会贡献很多reads，如果这些“位高权重”的基因还是差异表达的，则会影响所有其它基因分配到的reads数，而且，两个样本总mRNA量完全相同的前提假设也过于理想了。那如何比较呢，各个方家使出浑身解数，有用中位数的，有用75分位数的，有用几何平均数的，有用TMM(trimmed mean of Mvalues)的等等，总之要**找一个更稳定的参考**值。
+由于不同文库测序深度不同，比较前当然要进行均一化！用总reads进行均一化可能最简单，其基于以下两个基本假设：
 
-<a name="normalization-cpm"><h4>1.2.1. CPM [<sup>目录</sup>](#content)</h4></a>
+- 绝大多数的gene表达量不变；
+- 高表达量的gene表达量不发生改变；
+
+但在转录组中，通常一小部分极高丰度基因往往会贡献很多reads，如果这些“位高权重”的基因还是差异表达的，则会影响所有其它基因分配到的reads数，而且，两个样本总mRNA量完全相同的前提假设也过于理想了。那如何比较呢，各个方家使出浑身解数，有用中位数的，有用75分位数的，有用几何平均数的，有用TMM(trimmed mean of Mvalues)的等等，总之要**找一个更稳定的参考**值。
+
+<a name="normalization-house-keeping-genes"><h4>1.2.1. House-keeping gene(s) [<sup>目录</sup>](#content)</h4></a>
+
+矫正的思路很简单，就是在变化的样本中寻找不变的量
+
+那么在不同RNA-seq样本中，那些是不变的量呢？一个很容易想到的就是**管家基因** (House-keeping gene(s)) 
+
+那么 Human 常用的 House-keeping gene 怎么确定？
+
+目前大家用的比较多的一个human housekeeping gene list 来源于下面这篇文章，是2013年发表在 Cell系列的 Trends in Genetics 部分的一篇文章
+
+<p align="center"><img src=./picture/DiffExpAna-normalization-House-keeping-genes.jpg width=800 /></p>
+
+<a name="normalization-spike-in"><h4>1.2.2. spike-in [<sup>目录</sup>](#content)</h4></a>
+
+使用Housekeeping gene的办法来进行相对定量，这种办法在一定程度上能够解决我们遇到的问题。但其实这种办法有一个**非常强的先验假设**：housekeeping gene的表达量不怎么发生变化。其实housekeeping gene list有几千个，这几千个基因有一定程度上的变化是有可能的
+
+**spike-in方法**：在RNA-Seq建库的过程中掺入一些预先知道序列信息以及序列绝对数量的内参。这样在进行RNA-Seq测序的时候就可以通过不同样本之间内参（spike-in）的量来做一条标准曲线，就可以非常准确地对不同样本之间的表达量进行矫正
+
+比较常用的spike-in类型：ERCC Control RNA
+
+> ERCC = External RNA Controls Consortium
+> 
+> ERCC就是一个专门为了定制一套spike-in RNA而成立的组织，这个组织早在2003年的时候就已经宣告成立。主要的工作就是设计了一套非常好用的spike-in RNA，方便microarray，以及RNA-Seq进行内参定量
+> 
+> <p align="center"><img src=./picture/DiffExpAna-normalization-spike-in.jpg width=800 /></p>
+
+<a name="normalization-cpm"><h4>1.2.3. CPM [<sup>目录</sup>](#content)</h4></a>
 
 CPM(count-per-million)
 
 <p align="center"><img src=./picture/DiffExpAna-normalization-CPM.png height=100 /></p>
 
-<a name="normalization-tcs"><h4>1.2.2. TCS (Total Count Scaling) [<sup>目录</sup>](#content)</h4></a>
+<a name="normalization-tcs"><h4>1.2.4. TCS (Total Count Scaling) [<sup>目录</sup>](#content)</h4></a>
 
 简单来说，就是找出多个样本中library size为中位数的样本，作为参考样本，将所有的样本的library size按比例缩放到参考样本的水平
 
@@ -60,7 +93,7 @@ CPM(count-per-million)
 
 <p align="center"><img src=./picture/DiffExpAna-normalization-TCS-2.png height=50 /></p>
 
-<a name="normalization-quantile"><h4>1.2.3. Quantile [<sup>目录</sup>](#content)</h4></a>
+<a name="normalization-quantile"><h4>1.2.5. Quantile [<sup>目录</sup>](#content)</h4></a>
 
 简单来说，就是排序后求平均，然后再回序
 
@@ -69,7 +102,7 @@ CPM(count-per-million)
 在R里面，推荐用preprocessCore 包来做quantile normalization，不需要自己造轮子啦！
 但是需要明白什么时候该用quantile normalization，什么时候不应该用，就复杂很多了
 
-<a name="normalization-deseq2"><h4>1.2.4. Median of Ratio (DESeq2) [<sup>目录</sup>](#content)</h4></a> 
+<a name="normalization-deseq2"><h4>1.2.6. Median of Ratio (DESeq2) [<sup>目录</sup>](#content)</h4></a> 
 
 该方法基于的假设是，即使处在不同条件下的不同个样本，大多数基因的表达是不存在差异的，实际存在差异的基因只占很小的部分那么我们只需要将这些稳定的部分找出来，作为标准化的内参，依据内参算出各个样本的标准化因子
 
@@ -103,7 +136,7 @@ normalization_factor_sampleA <- median(c(1.28, 1.3, 1.39, 1.35, 0.59))
 normalization_factor_sampleB <- median(c(0.78, 0.77, 0.72, 0.74, 1.35))
 ```
 
-<a name="normalization-tmm"><h4>1.2.5. TMM (Trimmed Mean of M value, edgeR) [<sup>目录</sup>](#content)</h4></a> 
+<a name="normalization-tmm"><h4>1.2.7. TMM (Trimmed Mean of M value, edgeR) [<sup>目录</sup>](#content)</h4></a> 
 
 该方法的思想与DESeq2的Median of Ratio相同，假设前提都是：大多数基因的表达是不存在差异的
 
@@ -382,21 +415,25 @@ dispersion指的是离散程度，研究一个数据分布的离散程度，我�
 
 参考资料：
 
-(1) [【生信菜鸟团】quantile normalization到底对数据做了什么？](http://www.bio-info-trainee.com/2043.html)
+(1) [孟浩巍《生物信息学100个基础问题 —— 第38题 当转录组普遍变化时RNA-Seq怎么进行分析(1)？》](https://zhuanlan.zhihu.com/p/51974084)
 
-(2) [Introduction to DGE](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html)
+(2) [孟浩巍《生物信息学100个基础问题 —— 第38题 当转录组普遍变化时RNA-Seq怎么进行分析(2)？》](https://zhuanlan.zhihu.com/p/52063724)
 
-(3) [生信菜鸟团：StatQuest生物统计学专题 - library normalization进阶之edgeR的标准化方法 ](https://mp.weixin.qq.com/s?__biz=MzUzMTEwODk0Ng==&mid=2247485369&idx=1&sn=791cb8c26b19a1181ceccf586787f078&scene=21#wechat_redirect)
+(3) [【生信菜鸟团】quantile normalization到底对数据做了什么？](http://www.bio-info-trainee.com/2043.html)
 
-(4) [【简书】为什么说FPKM和RPKM都错了？](https://www.jianshu.com/p/35e861b76486)
+(4) [Introduction to DGE](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html)
 
-(5) [【生信修炼手册】负二项分布在差异分析中的应用](https://mp.weixin.qq.com/s/m2ydqpKofYo2bK61A9hZWw)
+(5) [生信菜鸟团：StatQuest生物统计学专题 - library normalization进阶之edgeR的标准化方法 ](https://mp.weixin.qq.com/s?__biz=MzUzMTEwODk0Ng==&mid=2247485369&idx=1&sn=791cb8c26b19a1181ceccf586787f078&scene=21#wechat_redirect)
 
-(6) [【 生信百科】转录组差异表达筛选的真相](https://mp.weixin.qq.com/s/VcjnvI5FqwOFEC9wSUfdSw)
+(6) [【简书】为什么说FPKM和RPKM都错了？](https://www.jianshu.com/p/35e861b76486)
 
-(7) [【生信媛】RNA-seq分析中的dispersion，你知道吗？](https://mp.weixin.qq.com/s/UTmSzCgDIFYbG2WByzaqQQ)
+(7) [【生信修炼手册】负二项分布在差异分析中的应用](https://mp.weixin.qq.com/s/m2ydqpKofYo2bK61A9hZWw)
 
-(8) H. J. Pimentel, et al. Differential analysis of RNA-Seq incorporatingquantification uncertainty. bioRxiv, 2016
+(8) [【 生信百科】转录组差异表达筛选的真相](https://mp.weixin.qq.com/s/VcjnvI5FqwOFEC9wSUfdSw)
+
+(9) [【生信媛】RNA-seq分析中的dispersion，你知道吗？](https://mp.weixin.qq.com/s/UTmSzCgDIFYbG2WByzaqQQ)
+
+(10) H. J. Pimentel, et al. Differential analysis of RNA-Seq incorporatingquantification uncertainty. bioRxiv, 2016
 
 
 
