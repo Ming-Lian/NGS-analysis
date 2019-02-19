@@ -8,9 +8,9 @@
 		- [1.2.2. Taxonomic profiles](#taxonomic-profiles)
 			- [1.2.2.1. RefMG.v1](#taxonomic-profiles-refmg)
 			- [1.2.2.2. mOTU](#taxonomic-profiles-motu)
-
-
-
+- [2. taxonomic labels](#taxonomic-labels)
+	- [2.1. 常用工具与原理](#taxonomic-labels-common-used-tools-and-principle)
+	- [2.2. Kraken：又准又快](#taxonomic-labels-use-kraken)
 
 
 <h1 name="title">宏基因组shotgun分析套路</h1>
@@ -76,6 +76,15 @@
 <a name="funtional-profile"><h4>1.2.1. Gene&Funtianl profiles [<sup>目录</sup>](#content)</h4></a>
 
 <a name="taxonomic-profiles"><h4>1.2.2. Taxonomic profiles [<sup>目录</sup>](#content)</h4></a>
+
+基本原理：
+
+> 构建marker基因集合
+> 
+> - 若要对metagenome中进行尽可能全面的Taxonomic profiling，则该基因在几乎所有微生物中都存在，且为单拷贝基因；
+> - 若只对某一些clades进行Taxonomic profiling，则该基因要是该clades的特异的基因，且每个物种中该基因的拷贝数固定；
+> 
+> 然后，将reads比对到这些marker基因集合上进行定量即可
 
 <a name="taxonomic-profiles-refmg"><h5>1.2.2.1. RefMG.v1 [<sup>目录</sup>](#content)</h5></a>
 
@@ -197,7 +206,36 @@ mOTU本来作为一个独立 (Stand-alone) 的分析工具被开发出来，后�
 	$ MOCAT.pl -sf samples -f RefMG.v1.padded -r mOTU.v1.padded -e -identity 97
 	$ MOCAT.pl -sf samples -p RefMG.v1.padded -r mOTU.v1.padded -e -identity 97 -mode RefMG -previous_db_calc_tax_stats_file -o RESULTS
 	```
-	
+
+<a name="taxonomic-labels"><h2>2. taxonomic labels [<sup>目录</sup>](#content)</h2></a>
+
+<a name="taxonomic-labels-common-used-tools-and-principle"><h3>2.1. 常用工具与原理 [<sup>目录</sup>](#content)</h3></a>
+
+最基础的方法： **BLAST**
+
+	classify a sequence by finding the best alignment to a large database of genomic sequences
+
+Taxonomic labels准确性比BLAST方法有所提高的方法：
+
+> 1. **MEGAN**
+> 
+> 	a sequence is searched (using BLAST) against multiple databases, and the lowest common ancestor (LCA) of the best matches against each database is assigned to the sequence
+> 
+> 2. **PhymmBL**
+> 
+> 	combines the **results of BLAST** with **scores produced from interpolated Markov models** to a achieve higher accuracy than BLAST alone.
+> 
+> 3. **NBC** (Naïve Bayes Classifier)
+> 
+> 	applies a Bayesian rule to distributions of k-mers within a genome
+
+但是这些方法的速度都比BLAST方法慢得多
+
+<a name="taxonomic-labels-use-kraken"><h3>2.2. Kraken：又准又快 [<sup>目录</sup>](#content)</h3></a>
+
+
+
+
 ---
 
 参考资料：
@@ -215,3 +253,5 @@ mOTU本来作为一个独立 (Stand-alone) 的分析工具被开发出来，后�
 (6) Arumugam, M. et al. Enterotypes of the human gut microbiome. Nature. 2011. 473, 174-180
 
 (7) Dongen, v. Graph Clustering by Flow Simulation. PhD thesis (2000)
+
+(8) Wood DE, Salzberg SL: Kraken: ultrafast metagenomic sequence classification using exact alignments. Genome Biology 2014, 15:R46.
