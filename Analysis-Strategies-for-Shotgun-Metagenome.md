@@ -8,6 +8,7 @@
 		- [1.2.2. Taxonomic profiles](#taxonomic-profiles)
 			- [1.2.2.1. RefMG.v1](#taxonomic-profiles-refmg)
 			- [1.2.2.2. mOTU](#taxonomic-profiles-motu)
+			- [1.2.2.3. MetaPhlAn2](#taxonomic-profiles-metaphlan2)
 - [2. taxonomic labels](#taxonomic-labels)
 	- [2.1. 常用工具与原理](#taxonomic-labels-common-used-tools-and-principle)
 	- [2.2. Kraken：又准又快](#taxonomic-labels-use-kraken)
@@ -207,6 +208,117 @@ mOTU本来作为一个独立 (Stand-alone) 的分析工具被开发出来，后�
 	$ MOCAT.pl -sf samples -p RefMG.v1.padded -r mOTU.v1.padded -e -identity 97 -mode RefMG -previous_db_calc_tax_stats_file -o RESULTS
 	```
 
+<a name="taxonomic-profiles-metaphlan2"><h5>1.2.2.3. MetaPhlAn2 [<sup>目录</sup>](#content)</h5></a>
+
+2*MetaPhlAn2的Taxonomic profiling依赖于~1M unique clade-specific marker genes（从 ~17,000 个参考基因组中鉴定出的，包括 ~13,500 种细菌和古细菌，~3,500 种病毒和 ~110 种真核生物）
+
+可以实现：
+
+> - 精确的分类群分配
+> 
+> - 准确估计物种的相对丰度
+> 
+> - 达到种水平精度
+> 
+> - 株鉴定与追踪
+> 
+> - 超快的分析速度
+
+1. **对单个样本进行Taxonomic profiling**
+
+	作者考虑了不同用户的需求，有多种使用情况下都可用，下面多种方法根据自己的输入文件格式任选其一
+	
+	(1) 输入文件是fastq，直接得到Taxonomic profiles
+	
+	```
+	$ metaphlan2.py metagenome.fastq --input_type fastq > profiled_metagenome.txt
+	```
+	
+	推荐输出bowtie2的比对结果，方便下次快速重新计算
+	
+	```
+	$ metaphlan2.py metagenome.fastq \
+		--bowtie2out metagenome.bowtie2.bz2 \
+		--nproc 9 \
+		--input_type fastq \
+		> profiled_metagenome.txt
+	```
+	
+	(2) 使用bowtie2输出文件作为输入
+	
+	```
+	$ metaphlan2.py metagenome.bowtie2.bz2 \
+		--nproc 5 \
+		--input_type bowtie2out \
+		> profiled_metagenome.txt
+	```
+	
+	(3) 分别进行比对和定量
+	
+	```
+	$ bowtie2 \
+		--sam-no-hd \
+		--sam-no-sq \
+		--no-unal \
+		--very-sensitive \
+		-S metagenome.sam \
+		-x ${mpa_dir}/databases/mpa_v20_m200 \
+		-U metagenome.fastq
+	$ metaphlan2.py metagenome.sam --input_type sam > profiled_metagenome.txt
+	```
+	
+	(4) 使用双端压缩fastq文件，但并不考虑配对信息
+	
+	```
+	$ metaphlan2.py \
+		--bowtie2out metagenome.bowtie2.bz2 \
+		--nproc 9 \
+		--input_type fastq \
+		<(zcat metagenome_1.fq.gz metagenome_2.fq.gz) \
+		> profiled_metagenome1.txt
+	```
+	
+	输出结果为各层级物种相对丰度值，有点像lefse的输入文件格式(方便lefse下游差异分析)
+	
+	```
+	#SampleID    Metaphlan2_Analysis
+	k__Bacteria    100.0
+	k__Bacteria|p__Actinobacteria    49.91104
+	k__Bacteria|p__Proteobacteria    46.00995
+	k__Bacteria|p__Firmicutes    2.45456
+	k__Bacteria|p__Bacteroidetes    0.99062
+	k__Bacteria|p__Cyanobacteria    0.63383
+	k__Bacteria|p__Actinobacteria|c__Actinobacteria    49.91104
+	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria    22.82115
+	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria    16.60788
+	```
+
+2. **合并多个样本的Taxonomic profiles**
+
+	`merge_metaphlan_tables.py`脚本可以将每个样品结果表合并，程序位于程序的utils目录中
+	
+	合并时支持输入文件多个文件空格分隔，或使用通配符(如下)
+	
+	```
+	$ merge_metaphlan_tables.py metaphlan2*.txt > merged_metaphlan2.txt
+	```
+
+	获得了如下的矩阵表：
+	
+	```
+	ID    25    26    27    28
+	#SampleID    Metaphlan2_Analysis    Metaphlan2_Analysis    Metaphlan2_Analysis    Metaphlan2_Analysis
+	k__Bacteria    100.0    100.0    100.0    100.0
+	k__Bacteria|p__Actinobacteria    49.91104    45.2479    54.37222    48.77918
+	k__Bacteria|p__Actinobacteria|c__Actinobacteria    49.91104    45.2479    54.37222    48.77918
+	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Actinomycetales    49.53809    44.96297    54.09146    48.77918
+	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Actinomycetales|f__Cellulomonadaceae    0.08247    0.064    0.0    0.0
+	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Actinomycetales|f__Cellulomonadaceae|g__Cellulomonas    0.08247    0.064    0.0    0.0
+	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Actinomycetales|f__Cellulomonadaceae|g__Cellulomonas|s__Cellulomonas_unclassified    0.08247    0.064    0.0    0.0
+	```
+
+
+
 <a name="taxonomic-labels"><h2>2. taxonomic labels [<sup>目录</sup>](#content)</h2></a>
 
 <a name="taxonomic-labels-common-used-tools-and-principle"><h3>2.1. 常用工具与原理 [<sup>目录</sup>](#content)</h3></a>
@@ -254,4 +366,8 @@ Taxonomic labels准确性比BLAST方法有所提高的方法：
 
 (7) Dongen, v. Graph Clustering by Flow Simulation. PhD thesis (2000)
 
-(8) Wood DE, Salzberg SL: Kraken: ultrafast metagenomic sequence classification using exact alignments. Genome Biology 2014, 15:R46.
+(8）[MetaPhlAn2官网](http://segatalab.cibio.unitn.it/tools/metaphlan2/)
+
+(9) [刘永鑫《MetaPhlAn2-增强版宏基因组分类谱工具》](http://blog.sciencenet.cn/blog-3334560-1110159.html)
+
+(10) Wood DE, Salzberg SL: Kraken: ultrafast metagenomic sequence classification using exact alignments. Genome Biology 2014, 15:R46.
