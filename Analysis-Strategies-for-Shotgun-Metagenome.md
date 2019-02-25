@@ -355,7 +355,7 @@ Taxonomic labels准确性比BLAST方法有所提高的方法：
 
 但是这些方法的速度都比BLAST方法慢得多
 
-<a name="taxonomic-labels-use-kraken"><h3>2.2. Kraken：又准又快 [<sup>目录</sup>](#content)</h3></a>
+<a name="taxonomic-labels-use-kraken2"><h3>2.2. Kraken：又准又快 [<sup>目录</sup>](#content)</h3></a>
 
 <a name="taxonomic-labels-use-kraken2-algorithm"><h4>2.2.1. 算法原理 [<sup>目录</sup>](#content)</h4></a>
 
