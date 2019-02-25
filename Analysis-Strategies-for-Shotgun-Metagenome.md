@@ -11,7 +11,9 @@
 			- [1.2.2.3. MetaPhlAn2](#taxonomic-profiles-metaphlan2)
 - [2. taxonomic labels](#taxonomic-labels)
 	- [2.1. 常用工具与原理](#taxonomic-labels-common-used-tools-and-principle)
-	- [2.2. Kraken：又准又快](#taxonomic-labels-use-kraken)
+	- [2.2. Kraken2：又准又快](#taxonomic-labels-use-kraken2)
+		- [2.2.1. 算法原理](#taxonomic-labels-use-kraken2-algorithm)
+		- [2.2.2. 用法](#taxonomic-labels-use-kraken2-usage)
 
 
 <h1 name="title">宏基因组shotgun分析套路</h1>
@@ -224,9 +226,19 @@ mOTU本来作为一个独立 (Stand-alone) 的分析工具被开发出来，后�
 > 
 > - 超快的分析速度
 
+MetaPhlAn2的原理：
+
+
+
+
+
 1. **对单个样本进行Taxonomic profiling**
 
 	作者考虑了不同用户的需求，有多种使用情况下都可用，下面多种方法根据自己的输入文件格式任选其一
+
+	**注意**：
+
+	> 第一次使用，程序会自己下载数据库至安装目录中，保存在 `metaphlan_databases` 文件夹下，并进行校验、解压、解压、bowtie2建索引，根据网速和服务器性能可能需要很长时间1-N小时
 	
 	(1) 输入文件是fastq，直接得到Taxonomic profiles
 	
@@ -272,10 +284,10 @@ mOTU本来作为一个独立 (Stand-alone) 的分析工具被开发出来，后�
 	```
 	$ metaphlan2.py \
 		--bowtie2out metagenome.bowtie2.bz2 \
-		--nproc 9 \
+		--nproc 8 \
 		--input_type fastq \
 		<(zcat metagenome_1.fq.gz metagenome_2.fq.gz) \
-		> profiled_metagenome1.txt
+		> profiled_metagenome.txt
 	```
 	
 	输出结果为各层级物种相对丰度值，有点像lefse的输入文件格式(方便lefse下游差异分析)
@@ -345,6 +357,97 @@ Taxonomic labels准确性比BLAST方法有所提高的方法：
 
 <a name="taxonomic-labels-use-kraken"><h3>2.2. Kraken：又准又快 [<sup>目录</sup>](#content)</h3></a>
 
+<a name="taxonomic-labels-use-kraken2-algorithm"><h4>2.2.1. 算法原理 [<sup>目录</sup>](#content)</h4></a>
+
+算法原理：
+
+> mapping of every k-mer in Kraken's genomic library to the lowest common ancestor (LCA) in a taxonomic tree of all genomes that contain that k-mer
+> 
+> The set of LCA taxa that correspond to the k-mers in a read are then analyzed to create a single taxonomic label for the read; this label can be any of the nodes in the taxonomic tree
+
+Kraken2与Kraken的差别：
+
+> 由于在Kraken中使用了被排序和索引的k-mer/LCA对，使得Kraken非常占内存，Kraken2的出现就是为了解决或改善这些问题
+
+
+<a name="taxonomic-labels-use-kraken2-usage"><h4>2.2.2. 用法 [<sup>目录</sup>](#content)</h4></a>
+
+**（1）建立Kraken2 Databases**
+
+它要求Kraken2 Databases数据保存在一个文件夹下，且该文件夹下至少要有一下3个文件：
+
+- `hash.k2d`: Contains the minimizer to taxon mappings
+- `opts.k2d`: Contains information about the options used to build the database
+- `taxo.k2d`: Contains taxonomy information used to build the database
+
+这3个文件都无法以文本的方式打开，即所谓的human-unreadable format
+
+Kraken2 Databases有两种：
+
+> - Standard Kraken2 Database
+> 
+> 	执行 `$ kraken2-build --standard --threads 24 --db $DBNAME` 即可
+> 	
+> 	它会从NCBI上下载物种信息（taxonomic information）和细菌、古细菌和真菌的complete genome Refseq序列，然后在本地建立Kraken2 Database，大约要占据100G的磁盘空间
+> 
+> - Custom Databases
+> 
+> 	构建自定义的Databases需要按顺序执行以下步骤：
+> 
+> 	- Install a taxonomy
+> 
+> 		```
+> 		$ kraken2-build --download-taxonomy --db $DBNAME
+> 		```
+> 
+> 	- Install one or more reference libraries
+> 
+> 		可选的library：
+> 
+>		> - archaea
+>		> - bacteria
+>		> - plasmid
+>		> - viral
+>		> - fungi
+>		> ...
+>		
+> 		```
+> 		$ kraken2-build --download-library bacteria --db $DBNAME
+> 		```
+> 		
+> 	- Build the database
+> 	
+> 		```
+> 		$ kraken2-build --build --threads 16 --db $DBNAME
+> 		```
+
+（2）执行classification
+
+```
+$ kraken2 \
+     --db <directory for databases> \
+     --threads <int> \
+     --classified-out <output class sequence>\
+     --unclassified-out <output unclass sequence> \
+     --output <output file>
+```
+
+输出文件格式说明：
+
+<p align="center"><img src=./picture/Strategies-metagenome-taxonomic-label-Kraken2.png width=800 /></p>
+
+例如：
+
+```
+C       MH0055_GL0038344        246787  1842    0:225 246787:5 0:44 171549:1 0:1533
+U       MH0271_GL0135705        0       1458    0:1424
+U       MH0054_GL0072998        0       1329    0:1295
+U       MH0055_GL0024944        0       624     0:590
+```
+
+若在运行时添加`--use-names`参数，则输出文件的第3列，会用taxonomic name代替taxonomic id
+
+
 
 
 
@@ -371,3 +474,5 @@ Taxonomic labels准确性比BLAST方法有所提高的方法：
 (9) [刘永鑫《MetaPhlAn2-增强版宏基因组分类谱工具》](http://blog.sciencenet.cn/blog-3334560-1110159.html)
 
 (10) Wood DE, Salzberg SL: Kraken: ultrafast metagenomic sequence classification using exact alignments. Genome Biology 2014, 15:R46.
+
+(11) [Kraken2官方文档l](https://www.ccb.jhu.edu/software/kraken2/index.shtml?t=manual)
