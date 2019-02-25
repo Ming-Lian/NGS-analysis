@@ -475,4 +475,4 @@ U       MH0055_GL0024944        0       624     0:590
 
 (10) Wood DE, Salzberg SL: Kraken: ultrafast metagenomic sequence classification using exact alignments. Genome Biology 2014, 15:R46.
 
-(11) [Kraken2官方文档l](https://www.ccb.jhu.edu/software/kraken2/index.shtml?t=manual)
+(11) [Kraken2官方文档](https://www.ccb.jhu.edu/software/kraken2/index.shtml?t=manual)
