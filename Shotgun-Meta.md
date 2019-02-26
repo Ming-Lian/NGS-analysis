@@ -108,6 +108,8 @@ python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m contigs/velvet_71.fa > 
 
 3. 用 BEDTools genomeCoverageBed 基于 mapping 得到的 bam 文件计算每个contigs的coverage
 
+**（1） Map, Remove Duplicate**
+
 其中1、2步操作可以由CONCOCT中提供的脚本`map-bowtie2-markduplicates.sh`完成
 
 先要自行建好这些contigs的bowtie2索引
@@ -127,9 +129,10 @@ for f in $CONCOCT_TEST/reads/*_R1.fa; do
 done
 ```
 
-> -c option to compute coverage histogram with genomeCoverageBed
-> -t option is number of threads
-> -p option is the extra parameters given to bowtie2. In this case -f
+> - `-c` option to compute coverage histogram with genomeCoverageBed
+> - `-t` option is number of threads
+> - `-p` option is the extra parameters given to bowtie2. In this case -f
+> - `-k` 保留中间文件
 
 随后的5个参数：
 
@@ -140,14 +143,116 @@ done
 > - assembly_name, a name for the assembly, used to postfix outputfiles
 > - outputfolder, the output files will end up in this folder
 
+如果要自己逐步执行第1、2两步，则可以通过以下方式实现：
+
+```
+# Index reference, Burrows-Wheeler Transform
+$ bowtie2-build SampleA.fasta SampleA.fasta
+
+# Align Paired end, sort and index
+bowtie2 \
+	-p 32 \
+	-x SampleA.fasta \
+	-1 $Data/SampleA.1.fastq \
+	-2 $Data/SampleA.2.fastq | \
+	samtools sort -@ 18 -O BAM -o SampleA.sort.bam
+samtools index SampleA.sort.bam
+
+# Mark duplicates and index
+java -Xms32g -Xmx32g -XX:ParallelGCThreads=15 -XX:MaxPermSize=2g -XX:+CMSClassUnloadingEnabled \
+    -jar picard.jar MarkDuplicates \
+    I=./SampleA.sort.bam \
+    O=./SampleA.sort.md.bam \
+    M=./SampleA.smd.metrics \
+    VALIDATION_STRINGENCY=LENIENT \
+    MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
+    REMOVE_DUPLICATES=TRUE # 该参数默认为false，即在输出中不过滤duplicate，但是会对这些记录的flag进行修改标记
+samtools index ./SampleA.sort.md.bam
+```
+
+**（2）Quant Coverage**
+
 第3步，计算每个contigs的coverage，用`gen_input_table.py`脚本
 
 ```
-python $CONCOCT/scripts/gen_input_table.py --isbedfiles \
+# 用CONCOCT中的`gen_input_table.py`脚本
+$ python $CONCOCT/scripts/gen_input_table.py --isbedfiles \
 	--samplenames <(for s in Sample*; do echo $s | cut -d'_' -f1; done) \
 	../contigs/velvet_71_c10K.fa */bowtie2/asm_pair-smds.coverage \
 	> concoct_inputtable.tsv
 ```
+
+也可以自己写命令逐步实现，这样有利于加深对工具的理解
+
+1. 计算每条contig的depth分布（histograms）
+
+	<p align="center"><img src=./picture/Metagenome-Tools-CONCOCT-genomecov-1.png width=800 /></p>
+
+	```
+	$ bedtools genomecov -ibam ./SampleA.smds.bam > ./SampleA.smds.coverage
+	```
+	
+	`bedtools genomecov`默认计算histograms，如输出为`chr1   0  980  1000`，则说明在contig chr1上depth=0的碱基数为980bp，该contig长度为1000bp
+	
+	例如：
+
+	> ```
+	> $ cat A.bed
+	> chr1  10  20
+	> chr1  20  30
+	> chr2  0   500
+	> 
+	> $ cat my.genome
+	> chr1  1000
+	> chr2  500
+	> 
+	> $ bedtools genomecov -i A.bed -g my.genome
+	> chr1   0  980  1000  0.98
+	> chr1   1  20   1000  0.02
+	> chr2   1  500  500   1
+	> genome 0  980  1500  0.653333
+	> genome 1  520  1500  0.346667
+	> ```
+	> 
+	> 输出格式为：
+	> 
+	> - chromosome
+	> - depth of coverage from features in input file
+	> - number of bases on chromosome (or genome) with depth equal to column 2
+	> - size of chromosome (or entire genome) in base pairs
+	> - size of chromosome (or entire genome) in base pairs
+
+2. 计算每条contig的平均depth
+
+	<p align="center"><img src=./picture/Metagenome-Tools-CONCOCT-genomecov-2.png width=500 /></p>
+
+	有两种计算方法：
+
+	<p align="center"><img src=./picture/Metagenome-Tools-CONCOCT-genomecov-3.png width=400 /></p>
+
+	或
+
+	<p align="center"><img src=./picture/Metagenome-Tools-CONCOCT-genomecov-4.png width=400 /></p>
+
+	第二种计算方法本质上就是加权平均
+
+	```
+	awk 'BEGIN {pc=""} 
+	{
+	    c=$1;
+	    if (c == pc) {
+	        cov=cov+$2*$5;
+	    } else {
+	      print pc,cov;
+	      cov=$2*$5;
+	    pc=c}
+	} END {print pc,cov}' SampleA.smds.coverage | tail -n +2 > SampleA.smds.coverage.percontig
+	```
+
+
+	
+
+
 
 接着要构建 linkage per sample between contigs，**目前不是很理解它这一步的目的**
 
@@ -168,3 +273,7 @@ python $CONCOCT/scripts/bam_to_linkage.py -m 8 \
 (1) [CONCOCT’s documentation](http://concoct.readthedocs.io/en/latest/index.html)
 
 (2) [Manual for Velvet](https://www.ebi.ac.uk/~zerbino/velvet/Manual.pdf)
+
+(3) [BEDtools官网](https://bedtools.readthedocs.io/en/latest/content/tools/genomecov.html)
+
+(4) [【Yue Zheng博客】宏基因组binning-CONCOCT](http://www.zhengyue90.com/?p=182)
