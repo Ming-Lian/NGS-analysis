@@ -258,20 +258,37 @@ $ python $CONCOCT/scripts/gen_input_table.py --isbedfiles \
 	} END {print pc,cov}' SampleA.smds.coverage | tail -n +2 > SampleA.smds.coverage.percontig
 	```
 
-
-	
-
-
+**（3）Generate linkage table**
 
 接着要构建 linkage per sample between contigs，**目前不是很理解它这一步的目的**
 
 ```
-python $CONCOCT/scripts/bam_to_linkage.py -m 8 \
-	--regionlength 500 --fullsearch \
-	--samplenames <(for s in Sample*; do echo $s | cut -d'_' -f1; done) \
-	../contigs/velvet_71_c10K.fa Sample*/bowtie2/asm_pair-smds.bam \
-	> concoct_linkage.tsv
+# usage: bam_to_linkage.py [-h] [--samplenames SAMPLENAMES] [--regionlength REGIONLENGTH] [--fullsearch] [-m MAX_N_CORES] [--readlength READLENGTH] [--mincontiglength MINCONTIGLENGTH] fastafile bamfiles [bamfiles ...]
+# --samplenames 写有样品名的文件，每个文件名一行
+# --regionlength contig序列中用于linkage的两端长度 [默认 500]
+# --fullsearch 在全部contig中搜索用于linkage
+# -m 最大线程数，每个ban文件对应一个线程
+# --readlength untrimmed reads长度 [默认 100]
+# --mincontiglength 识别的最小contig长度 [默认 0]
+
+cd $CONCOCT_EXAMPLE/map
+python bam_to_linkage.py -m 8 --regionlength 500 --fullsearch --samplenames sample.txt $DATA/SampleA.fasta ./SampleA.smds.bam > SampleA_concoct_linkage.tsv
+mv SampleA_concoct_linkage.tsv ../concoct-input
+
+# 输出文件格式
+# 共2+6*i列 (i样品数)，依次为contig1、contig2、nr_links_inward_n、nr_links_outward_n、nr_links_inline_n、nr_links_inward_or_outward_n、read_count_contig1_n、read_count_contig2_n
+# where n represents sample name. 
+# Links只输出一次，如 contig1contig2 输出，则 contig2contig1 不输出
+
+# contig1: Contig linking with contig2
+# contig2: Contig linking with contig1
+# nr_links_inward: Number of pairs confirming an inward orientation of the contigs -><-
+# nr_links_outward: Number of pairs confirming an outward orientation of the contigs <--> 
+# nr_links_inline: Number of pairs confirming an outward orientation of the contigs ->->
+# nr_links_inward_or_outward: Number of pairs confirming an inward or outward orientation of the contigs. This can be the case if the contig is very short and the search region on both tips of a contig overlaps or the --fullsearch parameter is used and one of the reads in the pair is outside
+# read_count_contig1/2: Number of reads on contig1 or contig2. With --fullsearch read count over the entire contig is used, otherwise only the number of reads in the tips are counted.
 ```
+
 
 <a name="run-concoct"><h3>Run concoct [<sup>目录</sup>](#content)</h3></a>
 
