@@ -310,6 +310,8 @@ a bin, and an algorithm to convert those similarities into assignments
 >    
 >    考虑到在宏基因组组装中reads利用率很低，单样品5Gb测序量情况下，环境样品组装reads利用率一般只有10%左右，肠道样品或极端环境样品组装reads利用率一般能达到30%，这样很多物种，尤其是低丰度的物种可能没有被组装出来，没有体现在gene 或者contig 中，因此基于reads binning 才有可能得到低丰度的物种
 >
+>    如 Brian Cleary 等 (DOI:10.1038/nbt.3329.Detection) 利用基于 reads binning 的 latent strain analysis 可以聚类出丰度低至0.00001%的菌株。此方法虽然得到更全面的 bins，但低丰度 bins 信息依旧不完整。
+>
 > - **genes binning**
 > 
 >    应用非常广泛
@@ -317,6 +319,12 @@ a bin, and an algorithm to convert those similarities into assignments
 >    原因可能是（1）基于genes丰度变化模式进行binning可操作性比较强，宏基因组分析中肯定都会计算gene丰度，一般不会计算contig丰度，gene丰度数据可以信手拈来；（2）基于genes binning有很多可参考的文献，过程也并不复杂，可复制性强；（3）对计算机资源消耗比较低
 
 总体来说应用最广泛的就是基于genes binning 和 contig binning
+
+Naseer Sangwan 等 (DOI: 10.1186/s40168-016-0154-5) 总结了 contig binning 的算法和软件（如下表）
+
+<p align="center"><img src=./picture/Metagenome-gene-binning-methods-and-softwares-1.png width=800 /></p>
+
+<p align="center"><img src=./picture/Metagenome-gene-binning-methods-and-softwares-2.png width=800 /></p>
 
 **Genes binning的一般流程**
 
