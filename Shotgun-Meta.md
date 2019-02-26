@@ -175,12 +175,21 @@ samtools index ./SampleA.sort.md.bam
 第3步，计算每个contigs的coverage，用`gen_input_table.py`脚本
 
 ```
-# 用CONCOCT中的`gen_input_table.py`脚本
+# usage: gen_input_table.py [-h] [--samplenames SAMPLENAMES] [--isbedfiles] fastafile bamfiles [bamfiles ...]
+# --samplenames 写有样品名的文件，每个文件名一行
+# --isbedfiles  如果在上一步map时运行了genomeCoverageBed，则可以加上此参数后直接用 *smds.coverage文件。如果没运行genomeCoverageBed，则不加此参数，依旧使用bam文件。
+
 $ python $CONCOCT/scripts/gen_input_table.py --isbedfiles \
 	--samplenames <(for s in Sample*; do echo $s | cut -d'_' -f1; done) \
 	../contigs/velvet_71_c10K.fa */bowtie2/asm_pair-smds.coverage \
 	> concoct_inputtable.tsv
 ```
+
+注：
+
+> 这个脚本可以接受两种类型的输入
+> - （1）对bamfiles执行`genomeCoverageBed (bedtools genomecov`得到的`*smds.coverage`文件，此时要使用`--isbedfiles`参数，这样脚本只执行下面提到的第2步操作——计算每条contig的平均depth（又称为这条contig的abundance）；
+> - （2）原始的bamfiles，则脚本要执行下面提到的两步操作；
 
 也可以自己写命令逐步实现，这样有利于加深对工具的理解
 
