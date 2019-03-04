@@ -109,6 +109,8 @@ Result：
 
 这两个细胞亚群这么显著的组织间克隆共享，意味着它们很可能来自共同的祖先细胞，并且在外周血与实质组织间迁移，进一步研究发现一些涉及细胞粘附与迁移的基因的相对高表达，也从侧面印证了它们存在的迁移特性
 
+<p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-cancer-11.png width=500 /></p>
+
 
 
 
