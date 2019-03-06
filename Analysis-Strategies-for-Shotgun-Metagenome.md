@@ -451,7 +451,7 @@ U       MH0055_GL0024944        0       624     0:590
 
 若在运行时添加`--use-names`参数，则输出文件的第3列，会用taxonomic name代替taxonomic id
 
-<a name="assessing-the-quality-of-microbial-genomes"><h2>3. 微生物基因组质量评估 [<sup>目录</sup>](#content)</h2></a>
+<a name="assessing-quality-of-microbial-genomes"><h2>3. 微生物基因组质量评估 [<sup>目录</sup>](#content)</h2></a>
 
 微生物基因组质量评估的目的：
 
