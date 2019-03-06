@@ -14,7 +14,11 @@
 	- [2.2. Kraken2：又准又快](#taxonomic-labels-use-kraken2)
 		- [2.2.1. 算法原理](#taxonomic-labels-use-kraken2-algorithm)
 		- [2.2.2. 用法](#taxonomic-labels-use-kraken2-usage)
-
+- [3. 微生物基因组质量评估](#assessing-quality-of-microbial-genomes)
+	- [3.1. 常用工具与原理](#assessing-quality-common-used-tools-and-principle)
+	- [3.2. CheckM](#assessing-quality-use-checkm)
+		- [3.2.1. 算法原理](#assessing-quality-use-checkm-algorithm)
+		- [3.2.2. 用法](#assessing-quality-use-checkm-usage)
 
 <h1 name="title">宏基因组shotgun分析套路</h1>
 
@@ -447,7 +451,82 @@ U       MH0055_GL0024944        0       624     0:590
 
 若在运行时添加`--use-names`参数，则输出文件的第3列，会用taxonomic name代替taxonomic id
 
+<a name="assessing-the-quality-of-microbial-genomes"><h2>3. 微生物基因组质量评估 [<sup>目录</sup>](#content)</h2></a>
 
+微生物基因组质量评估的目的：
+
+> 评估单物种基因组拼接完整性，对于宏基因组数据来说，若是先进行bining，然后在bining内部进行reads拼接（将bining到一个bin的reads认为是来自于一个物种），得到该bin所代表物种的基因组，这样就得到若干个bin的拼接结果，需要对每个bin进行拼接质量评估
+
+<a name="assessing-quality-common-used-tools-and-principle"><h3>3.1. 常用工具与原理 [<sup>目录</sup>](#content)</h3></a>
+
+当前用于微生物基因组质量评估的常用策略：
+
+- ad hoc
+- make use of a limited number of “marker” genes conserved across all bacterial or archaeal genomes
+
+<a name="assessing-quality-use-checkm"><h3>3.2. CheckM [<sup>目录</sup>](#content)</h3></a>
+
+<a name="assessing-quality-use-checkm-algorithm"><h4>3.2.1. 算法原理 [<sup>目录</sup>](#content)</h4></a>
+
+简单来说，CheckM进行基因组评估的逻辑为：
+
+> 搜集目前公共数据库之中已经拼接且注释好的微生物基因组，对这种基因组进行完整性评估，将那些拼接完整性几乎达到complete程度的基因组保留下来；
+> 
+> 对这些基因组构建物种树，基于物种树推断出支持物种树枝杈分裂的lineage-specific marker genes，某个枝杈的分裂可能需要多个lineage-specific marker genes的支持，这样就得到了带有lineage-specific marker genes标注的物种树；
+> 
+> 接下来就可以基于上面得到的树进行输入基因组拼接结果的评估了：
+> 
+> - 将输入基因组定位到物种树的对应物种节点上，从而推断出该节点对应的lineage-specific marker genes；
+> - 基于输入基因组中这些lineage-specific marker genes的完整性来评估其基因组拼接质量；
+
+<p align="center"><img src=./picture/Strategies-metagenome-access-quality-CheckM-1.png width=800 /></p>
+
+<p align="center">CheckM的整体分析流程</p>
+
+<p align="center"><img src=./picture/Strategies-metagenome-access-quality-CheckM-2.png width=800 /></p>
+
+<p align="center">评估部分流程</p>
+
+<a name="assessing-quality-use-checkm-usage"><h4>3.2.2. 用法 [<sup>目录</sup>](#content)</h4></a>
+
+CheckM使用Fasta作为输入文件格式，可以直接输入扩展名为fna的contigs或者scafords文件，或者通过`-x`参数可以输入其他扩展名的文件
+
+checkm有三种工作流程：
+
+（1）lineage-specific（世系特异性）【推荐方法】
+
+```
+$ checkm tree <bin folder> <output folder> # 将基因组加入到参考基因组树种
+$ checkm tree_qa <output folder> #（可选）检查树
+$ checkm lineage_set <output folder> <marker file> # 创建一个Marker文件，这个文件包含用于评估基因组的lingeage-sepecific标记位点
+$ checkm analyze <marker file> <bin folder> <output folder> # 鉴定marker基因和评估基因组完整度和污染
+$ checkm qa <marker file> <output folder> # 对基因组质量进行总结
+```
+
+上述过程可以简化为一条命令：`checkm lineage_wf <bin folder> <output folder>`
+
+（2）taxonomic-specific（物种分类特异性）
+
+在有些情况下，使用一样的标记位点分析全部的基因组会比较方便，如来源于同一个分类组的基因组
+
+```
+$ checkm taxon_list # 生成一个包含所能提供标记位点的物种列表
+$ checkm taxon_set <rank> <taxon> <marker file> # 指定一个分类单元并生成marker文件
+$ checkm analyze <marker file> <bin folder> <output folder> # marker位点进行分析
+$ checkm qa <marker file> <output folder> # 对基因组质量进行总结
+```
+
+上述过程可以简化为一条命令：`checkm taxonomy_wf <rank> <taxon> <bin folder> <output folder>`
+
+（3）custom marker genes（自行指定基因maker）
+
+自行指定marker基因，使用HMMER提供的隐马尔科夫模型构建同源关系来进行分析
+
+```
+$ checkm analyze <custom HMM file> <bin folder> <output folder>
+
+$ checkm qa <custom HMM file> <output folder>
+```
 
 
 
@@ -476,3 +555,7 @@ U       MH0055_GL0024944        0       624     0:590
 (10) Wood DE, Salzberg SL: Kraken: ultrafast metagenomic sequence classification using exact alignments. Genome Biology 2014, 15:R46.
 
 (11) [Kraken2官方文档](https://www.ccb.jhu.edu/software/kraken2/index.shtml?t=manual)
+
+(12) Parks DH, Imelfort M, Skennerton CT, et al. Assessing the quality of microbial genomes recovered from isolates, single cells, and metagenomes. Genome Research, 2014, 25: 1043-1055.
+
+(13) [CheckM GitHub 文档](https://github.com/Ecogenomics/CheckM/wiki)
