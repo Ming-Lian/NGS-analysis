@@ -10,6 +10,7 @@
 	- [3. 可借鉴的分析方法](#lung-cancer-referable-methods)
 		- [3.1. 单细胞测序数据处理](#lung-cancer-single-cell-sequencing-data-processing)
 		- [3.2. TCR分析](#lung-cancer-tcr-analysis)
+		- [3.3. 组织分布偏好性或其他bias类型的分析](#bias-analysis)
 - [结直肠癌](#colorectal-carcinoma)
 	- [3. 可借鉴的分析方法](#colorectal-carcinoma-referable-methods)
 		- [3.1. 单细胞测序数据处理（R包）](#colorectal-carcinoma-single-cell-sequencing-data-processing)
@@ -116,7 +117,9 @@ Result：
 
 <p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-cancer-10.png width=500 /></p>
 
-这两个细胞亚群这么显著的组织间克隆共享，意味着它们很可能来自共同的祖先细胞，并且在外周血与实质组织间迁移，进一步研究发现一些涉及细胞粘附与迁移的基因的相对高表达，也从侧面印证了它们存在的迁移特性
+克隆发生扩张，且在三个组织中都有分布——侧面反映了T细胞克隆在从发生位置到病灶位置转移过程中，**边迁移边扩增**
+
+进一步研究发现一些涉及细胞粘附与迁移的基因的相对高表达，也从侧面印证了它们存在的迁移特性
 
 <p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-cancer-11.png width=800 /></p>
 
@@ -157,6 +160,38 @@ Result：
 
 <p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-cancer-12.png width=500 /></p>
 
+<a name="bias-analysis"><h4>3.3. 组织分布偏好性或其他bias类型的分析 [<sup>目录</sup>](#content)</h4></a>
+
+可以利用独立性检验来考察两个变量是否有关系，若两个变量之间存在关联性，它们就会以比较大的概率一起出现，从而表现出偏好性
+
+适用于独立性检验（又称关联分析）的统计学方法有
+
+> - 卡方检验（Chi-Square test）
+> 
+> - Fisher精确检验（Fisher's exact test）
+
+- **卡方检验**
+
+	<p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-method-Chi-Square-test-1.png height=70 /></p>
+	
+	<p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-method-Chi-Square-test-2.png width=500 /></p>
+
+- **Fisher精确检验**
+
+	分析男人女人节食是否有显著区别：
+	
+	<p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-method-Fisher-test-1.png width=500 /></p>
+
+	出现上述情况的概率是：
+
+	<p align="center"><img src=/picture/T-cell-sequencing-in-cancers-lung-method-Fisher-test-2.png height=100 /></p>
+
+
+
+
+
+
+
 <a name="colorectal-carcinoma"><h2>结直肠癌 [<sup>目录</sup>](#content)</h2></a>
 
 <p align="center"><img src=/picture/T-cell-sequencing-in-cancers-colorectal-cancer-1.png width=800 /></p>
@@ -180,11 +215,26 @@ Result：
 
 该聚类方法名为SC3（Single-Cell Consensus Clustering）
 
-该方法本质上就是K-means聚类
+该方法本质上就是K-means聚类，不过在执行K-means聚类的前后进行了一些特殊的操作：
+
+> - **k-means聚类前**：进行了数据预处理，即特征的构造，称为特征工程，该方法中是对输入的原始特征空间进行PCA变换或拉普拉斯矩阵变换，对变换后的新特征矩阵逐渐增加提取的主成分数，来构造一系列新特征；
+> - **k-means聚类后**：特征工程构造出来的一系列新特征集合，基于这些新特征集合通过k-means聚类能得到一系列不同的聚类结果，尝试对这些聚类结果总结出consensus clustering
 
 <p align="center"><img src=/picture/T-cell-sequencing-in-cancers-colorectal-cancer-2.png width=800 /></p>
 
-结合图拉普拉斯的半监督学习
+本人比较好奇的地方是：**怎么从一系列不同的聚类结果中总结出consensus clustering？**
+
+> 使用CSPA算法（cluster-based similarity partitioning algorithm）
+> 
+> （1）对每一个聚类结果按照以下方法构造二值相似度矩阵S：如果两个样本i和j在该聚类结果中被聚到同一个集合中，则它们之间的相似度为1，在二值相似度矩阵中对应的值 S<sub>i,j</sub> = 1，否则S<sub>i,j</sub> = 0；
+> 
+> （2）对所有的聚类结果的二值相似度矩阵S取平均，得到consensus matrix；
+> 
+> （3）基于consensus matrix进行层次聚类，得到最终的consensus clustering；
+
+
+
+
 
 
 
@@ -200,8 +250,12 @@ Result：
 
 (4) Stubbington, M. J. T. et al. T cell fate and clonality inference from single-cell transcriptomes[J]. Nat. Methods 13, 329–332 (2016).
 
-(5) Zhang L, Yu X, Zheng L, et al.Lineage tracking reveals dynamic relationships of T cells in colorectal cancer[J]. Nature, 2018 Dec;564(7735):268-272.
+(5) [简书·Yan文怡《结合日常生活的例子，了解什么是卡方检验》](https://www.jianshu.com/p/807b2c2bfd9b)
 
-(6) [HTSeqGenie's Documentation](http://www.bioconductor.org/packages/release/bioc/html/HTSeqGenie.html)
+(6) [CSDN·joey周琦《Fisher's exact test( 费希尔精确检验)》](https://blog.csdn.net/u011467621/article/details/47971909)
 
-(7) Kiselev, V. Y. et al. SC3: consensus clustering of single-cell RNA-seq data[J]. Nat. Methods 14, 483–486 (2017).
+(7) Zhang L, Yu X, Zheng L, et al.Lineage tracking reveals dynamic relationships of T cells in colorectal cancer[J]. Nature, 2018 Dec;564(7735):268-272.
+
+(8) [HTSeqGenie's Documentation](http://www.bioconductor.org/packages/release/bioc/html/HTSeqGenie.html)
+
+(9) Kiselev, V. Y. et al. SC3: consensus clustering of single-cell RNA-seq data[J]. Nat. Methods 14, 483–486 (2017).
