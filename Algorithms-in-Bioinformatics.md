@@ -4,6 +4,7 @@
 - [Sequence Alignment](#alignment)
 	- [DIAMOND](#alignment-diamond)
 	- [BLAT](#blat)
+	- [BLASR](#blasr)
 - [Motif Finding](#motif)
 	- [MEME：EM算法](#motif-em)
 - [Bining for Metageonome](#bining)
@@ -65,6 +66,26 @@ DIAMOND is a new high-throughput program for aligning DNA reads or protein seque
 <p align="center"><img src=./picture/Algorithms-Bioinf-alignment-BLAT.png width=600/></p>
 
 > Example showing the creation of non-overlapping k-mers from the target database and overlapping k-mers from the query sequence, for k=3. Coordinates of the database sequences are used to clump the matches into larger alignments (full process not shown).
+
+<a name="blasr"><h3>BLASR [<sup>目录</sup>](#content)</h3></a>
+
+BLASR是第一个针对PacBio序列的比对工具，2012年发表在《BMC Bioinformatics》期刊上，由PacBio研究团队开发，并且一直在更新，目前Google引用次数为433（截止2018.08.14）。
+
+其主要思想如下图所示：
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-BLASR-1.png width=800 /></p>
+
+包含三步：
+
+> - （A）首先通过BWT-FM压缩或后缀数组（suffix array）索引技术对基因组进行转换，寻找与待比对序列相似性比较高的候选区域或区间；
+> - （B）然后对这些候选区间进行稀疏动态比对（sparse dynamic programming）得到初步比对结果；
+> - （C）最后运用动态规划算法进行详细的序列比对，得到最终的比对结果。
+
+由于BLASR运用BWT-FM索引技术，因而可以大大提高搜索速度，并且降低内存消耗
+
+下图是BLASR与传统二代比对工具的运行比较结果。可以看出不论运行速度方面还是消耗内存方面，BLASR均优于BWA-SW算法
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-BLASR-2.png width=800 /></p>
 
 <a name="motif"><h2>Motif Finding [<sup>目录</sup>](#content)</h2></a>
 
