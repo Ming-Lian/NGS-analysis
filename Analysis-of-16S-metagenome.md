@@ -1,16 +1,78 @@
 <a name="content">目录</a>
 
 [16S微生物组](#title)
-- [1. 数据预处理：QIMME](#data-preprocess)
-- [2. OTU聚类](#otu-cluster)
-	- [2.1. UPARSE/USEARCH](#otu-cluster-using-uparse)
+- [1. 简述三大主流流程](#discuss-3-main-stream-pipeline)
+	- [1.1. RDP分析平台](#introduce-rdppipeline)
+	- [1.2. mothur](#introduce-mothur)
+	- [1.3. usearch](#introduce-usearch)
+	- [1.4. QIIME](#introduce-qiime)
+- [2. 数据预处理：QIMME](#data-preprocess)
+- [3. OTU聚类](#otu-cluster)
+	- [3.1. UPARSE/USEARCH](#otu-cluster-using-uparse)
 
 
 
 
 <h1 name="title">16S微生物组</h1>
 
-<a name="data-preprocess"><h2>1. 数据预处理：QIMME [<sup>目录</sup>](#content)</h2></a>
+<p align="center"><img src=./picture/16S-metagenome-workflow-outline.png width=800 /></p>
+
+<a name="discuss-3-main-stream-pipeline"><h2>1. 简述三大主流流程 [<sup>目录</sup>](#content)</h2></a>
+
+16s测序分析的主要步骤中用到的算法：
+
+> - 序列合并（merge）或拼接：FLASH、SeqPrep、PEAR等；
+>
+> - 序列聚类：CD-HIT、DBH、UCLUST、ESPRIT等；
+>
+> - 嵌合体去除：UCHIME、DECIPHER、Chimera Slayer等；
+
+目前主流的三大分析平台有**mothur**（2009）、**QIIME**（2010）和**usearch**（2010），当然还有其他的分析平台如RDPipeline（2007），但RDPipeline分析功能较少，其亮点主要在微生物序列分类（RDP Classifier），但其引用率丝毫不亚于usearch
+
+<p align="center"><img src=./picture/16S-metagenome-Google-Scholar-stat.png width=800 /></p>
+
+<a name="introduce-rdppipeline"><h3>1.1. RDP分析平台 [<sup>目录</sup>](#content)</h3></a>
+
+<p align="center"><img src=./picture/16S-metagenome-RDP.png width=800 /></p>
+
+RDP数据库全称“Ribosomal Database Project”，是目前世界上最大的核糖体序列数据库之一，由密歇根州立大学开发维护的在线工具，由美国科学院院士James Tiedje教授创建，目前James Cole教授作为RDP实验室主任来维护，也是目前国际上最负盛名的微生物多样性研究平台之一
+
+包括数据库和分析工具两部分：
+
+> - 分析工具：最早是用于一代测序产生的16S数据分析，其后逐步拓展了在28S、ITS、功能基因的分析功能，并支持二代测序平台产生的数据；
+
+> - 数据库：提供高质量、已注释的细菌、古菌16S rRNA基因和真菌28S rRNA基因序列。目前其数据库最新版本为RDP Release 11.5，于2016年9月30日更新。该数据库提供质控、比对、注释的细菌、古菌16S rRNA基因和真菌28S rRNA基因序列。目前其数据库最新版本的数据库包含3,356,809条比对、注释的原核16S rRNA基因序列和125,525条真菌28S rRNA基因序列。
+
+<a name="introduce-mothur"><h3>1.2. mothur [<sup>目录</sup>](#content)</h3></a>
+
+<p align="center"><img src=./picture/16S-metagenome-mothur.png width=800 /></p>
+
+mothur由密歇根大学的Patrick Schloss教授团队开发，目前mothur能够处理各种测序平台产生的序列数据，包括454个焦磷酸测序，Illumina公司的HiSeq和MiSeq，Sanger测序法，以及PacBio和IonTorrent等代表的三代测序技术。
+
+mothur把大量的工具和模块整合到了一起，并且将输入和输出标准化，非常简单易学。在高通量测序数据处理中特别有用。
+
+mothur可用于距离的计算、多样性计算，非常适合微生物生态学和种群结构的研究。
+
+<a name="introduce-usearch"><h3>1.3. usearch [<sup>目录</sup>](#content)</h3></a>
+
+usearch是速度超快（ultra-fast）的序列分析软件，由Robert Edgar开发，首要瞄准的就是**序列搜索速度**这一块，开发的软件速度就是快、快、快！
+
+其后Edgar对其软件进行功能扩增，提出好多序列分析经典算法，大多数都是以U开头，如序列聚类UCLUST、UPARSE算法、序列质控算法UNOISE和嵌合体去除UCHIME算法。目前usearch软件在序列质控、嵌合体去除、序列搜索、OTU聚类等过程都有相关命令，被广泛应用。
+
+Edgar大神之前是研究理论物理的，后来转行到生物信息学，从2004年的多序列比对软件MUSCLE开始，到现在发表了一系列经典高效的微生物序列分析软件和算法，其主要牛在这些算法的文章都是自己一个人，确实令人佩服
+
+<a name="introduce-qiime"><h3>1.4. QIIME [<sup>目录</sup>](#content)</h3></a>
+
+QIIME全称是：Quantitative Insights Into Microbial Ecology
+
+QIIME是一个集大成者，是一个专门针对微生物群落分析的平台，可以进行OTU聚类,以及微生物多样性分析等，拥有处理16s rRNA所需要的软件并呈现相应的处理结果
+
+目前QIIME有两种安装方法：
+
+- 下载QIIME专用虚拟机环境VirtualBox和虚拟镜像软件
+- 命令式安装方法：`sudo pip install qiime`
+
+<a name="data-preprocess"><h2>2. 数据预处理：QIMME [<sup>目录</sup>](#content)</h2></a>
 
 首先，认识一下16S的测序数据：
 
@@ -29,7 +91,6 @@
 > ```
 > $ validate_mapping_file.py -m mapping_file.txt
 > ```
-
 
 1. 如果是双端序列，需要将其拼接成一条序列
 
@@ -102,9 +163,9 @@
 		-o SS_trimmed SS_fna/seqs.fna
 	```
 
-<a name="otu-cluster"><h2>2. OTU聚类 [<sup>目录</sup>](#content)</h2></a>
+<a name="otu-cluster"><h2>3. OTU聚类 [<sup>目录</sup>](#content)</h2></a>
 
-<a name="otu-cluster-using-uparse"><h3>2.1. UPARSE/USEARCH [<sup>目录</sup>](#content)</h3></a>
+<a name="otu-cluster-using-uparse"><h3>3.1. UPARSE/USEARCH [<sup>目录</sup>](#content)</h3></a>
 
 上次我们介绍了如何利用QIIM1的脚本拼接双端序列、拆分样本和质控，最后得到干净的16S序列，这些序列也是UPARSE进行OTU聚类所需要的输入文件。但是还需要将fasta文件的格式为`>sample.seqid`，这样后续得到的OTU表会自动统计不同样本的OTU序列数量
 
@@ -215,8 +276,18 @@ $ usearch -beta_div seq_otu_table_10k.txt -filename_prefix ./beta
 
 参考资料：
 
-(1) [【宇宙实验媛】16S微生物组（一）| 数据预处理](https://mp.weixin.qq.com/s?__biz=MzU1NDkzOTk2MQ==&mid=2247483967&idx=1&sn=9e779f4e2b588ee2b81488d3fb3f7a8e&scene=21#wechat_redirect)
+(1) Wang Q, Garrity G M, Tiedje J M, et al. Naive Bayesian classifier for rapid assignment of rRNA sequences into the new bacterial taxonomy. Applied and environmental microbiology, 2007, 73(16): 5261-5267.
 
-(2) [【宇宙实验媛】16S微生物组（二）| OTU聚类](https://mp.weixin.qq.com/s/xAifuchwB97Jv0QVhpQDwQ)
+(2) Schloss P D, Westcott S L, Ryabin T, et al. Introducing mothur: open-source, platform-independent, community-supported software for describing and comparing microbial communities. Applied and environmental microbiology, 2009, 75(23): 7537-7541.
 
-(3) [USEARCH官网](http://www.drive5.com/usearch/)
+(3) Edgar R C. Search and clustering orders of magnitude faster than BLAST. Bioinformatics, 2010, 26(19): 2460-2461.
+
+(4) Caporaso J G, Kuczynski J, Stombaugh J, et al. QIIME allows analysis of high-throughput community sequencing data. Nature methods, 2010, 7(5): 335.
+
+(5) [生信算法《mothur QIIME usearch，三足鼎立，谁主沉浮？》](https://mp.weixin.qq.com/s/dDNfQcKl5XkpMVMgCBYiQQ)
+
+(6) [【宇宙实验媛】16S微生物组（一）| 数据预处理](https://mp.weixin.qq.com/s?__biz=MzU1NDkzOTk2MQ==&mid=2247483967&idx=1&sn=9e779f4e2b588ee2b81488d3fb3f7a8e&scene=21#wechat_redirect)
+
+(7) [【宇宙实验媛】16S微生物组（二）| OTU聚类](https://mp.weixin.qq.com/s/xAifuchwB97Jv0QVhpQDwQ)
+
+(8) [USEARCH官网](http://www.drive5.com/usearch/)
