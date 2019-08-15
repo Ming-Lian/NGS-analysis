@@ -18,7 +18,10 @@
         - [1.2. BWT](#day-2-alignment-2)
         - [1.3. Minimap2](#day-2-alignment-3)
     - [2. Genome Assembly](#day-2-assembly)
-        - []()
+        - [2.1. 拼接算法](#day-2-assembly-1)
+            - [2.1.1. OLC](#day-2-assembly-1-1)
+            - [2.1.2. de Bruijn Graph](#day-2-assembly-1-2)
+        - [2.2. Lander-Waterman statistcs：建模测序覆盖率和gaps数](#day-2-assembly-2)
 
 <h1 name="title">2019年龙星计划学习笔记</h1>
 
@@ -72,7 +75,6 @@
 
 <a name="day-2-alignment"><h2>1. Alignment [<sup>目录</sup>](#content)</h2></a>
 
-
 <a name="day-2-alignment-1"><h3>1.1. Blast [<sup>目录</sup>](#content)</h3></a>
 
 <p align="center"><img src=./picture/Note-DragonStarLecture-11.jpg width=800 /></p>
@@ -87,4 +89,42 @@
 
 <p align="center"><img src=./picture/Note-DragonStarLecture-14.jpg width=800 /></p>
 
+<p align="center"><img src=./picture/Note-DragonStarLecture-15_1.jpg width=800 /></p>
+
 <a name="day-2-alignment-3"><h3>1.3. Minimap2 [<sup>目录</sup>](#content)</h3></a>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-15_2.jpg width=800 /></p>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-16.jpg width=800 /></p>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-17_1.jpg width=800 /></p>
+
+<a name="day-2-assembly"><h2>2. Genome Assembly [<sup>目录</sup>](#content)</h2></a>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-17_2.jpg width=800 /></p>
+
+<a name="day-2-assembly-1"><h3>2.1. 拼接算法 [<sup>目录</sup>](#content)</h3></a>
+
+<a name="day-2-assembly-1-1"><h4>2.1.1. OLC [<sup>目录</sup>](#content)</h4></a>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-18.jpg width=800 /></p>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-19_1.jpg width=800 /></p>
+
+<a name="day-2-assembly-1-2"><h4>2.1.2. de Bruijn Graph [<sup>目录</sup>](#content)</h4></a>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-19_2.jpg width=800 /></p>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-20.jpg width=800 /></p>
+
+<a name="day-2-assembly-2"><h3>2.2. Lander-Waterman statistcs：建模测序覆盖率和gaps数 [<sup>目录</sup>](#content)</h3></a>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-21.jpg width=800 /></p>
+
+<p align="center"><img src=./picture/Note-DragonStarLecture-22.jpg width=800 /></p>
+
+---
+
+参考资料：
+
+[2019-DragonStar Bioinformatics ppt](https://github.com/WGLab/dragonstar2019)
