@@ -1,18 +1,57 @@
 <a name="content">目录</a>
 
-[TCR-seq文献调研](#title)
+[免疫组库入门](#title)
 - [背景介绍](#introduction)
-- [一些描述样本免疫组库的指标](#index-for-characterize-individual-immune-repertoire)
-- [PCR与测序错误的校正](#pcr-and-sequencing-error-correction)
-- [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
-- [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
-- [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-clones)
+    - [适应性免疫应答过程](#the-process-of-adaptive-immune-response)
+        - [免疫细胞的发生与成熟过程](#the-development-of-lymphocyte)
+    - [免疫组库测序技术](#the-technology-of-immune-repertoires-sequencing)
+- [仅考虑CDR3区域](#analysis-CDR3-region)
+    - [一些描述样本免疫组库的指标](#index-for-characterize-individual-immune-repertoire)
+    - [PCR与测序错误的校正](#pcr-and-sequencing-error-correction)
+    - [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
+    - [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
+    - [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-clones)
+- [考虑CDR3区域和恒定区域](#analysis-CDR3-and-constant-region)
 
 
-
-<h1 name="title">TCR-seq文献调研</h1>
+<h1 name="title">免疫组库入门</h1>
 
 <a name="introduction"><h2>背景介绍 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="the-process-of-adaptive-immune-response"><h3>适应性免疫应答过程 [<sup>目录</sup>](#content)</h3></a>
+
+<a name="the-development-of-lymphocyte"><h4>免疫细胞的发生与成熟过程 [<sup>目录</sup>](#content)</h4></a>
+
+- B细胞
+
+    （1）抗原非依赖期
+
+    B细胞在骨髓中的分化发育过程不受外来抗原影响，称为B细胞分化的**抗原非依赖期**
+
+    基因重排过程：
+
+    ![](./picture/Immunology-knownledge-B-cell-2.png)
+
+    一个B细胞克隆只表达一种BCR，只分泌一种抗体，原因：
+
+    > - 等位排斥：B细胞一条染色体的重链基因重排成功后，会抑制同源染色体上重链基因的重排；
+    >
+    > - 同种排斥：$\kappa$轻链基因重排成功后会抑制$\lambda$轻链基因的重排；
+
+    B细胞中枢免疫耐受的形成——**阴性选择**
+
+    > 前B细胞在骨髓中发育至未成熟B细胞后，期表面只表达完整的mIgM，此时若mIgM与自身抗原结合，会面临三种命运：
+    >
+    > - 细胞凋亡，克隆清除；
+    > - 通过受体编辑改变其BCR的特异性；
+    > - mIgM表达下调，仍然能进入外周免疫器官，但对抗原刺激不发生应答，称为“失能”；
+
+    （2）抗原依赖期
+
+    B细胞在骨髓微环境诱导下发育成初始B细胞，离开骨髓，到达外周免疫器官的B细胞区定值，在那里接受外来抗原的刺激而活化、增值，进一步分化为成熟的浆细胞和记忆B细胞
+
+
+<a name="the-technology-of-immune-repertoires-sequencing"><h3>免疫组库测序技术 [<sup>目录</sup>](#content)</h3></a>
 
 TCR与BCR的结构：
 
@@ -64,7 +103,9 @@ CDR3区域：
 - **Simpson diversity index**：样本间的多样性的比较
 - **Morisita-Horn similarity index**：样本间相似度的比较
 
-<a name="index-for-characterize-individual-immune-repertoire"><h2>一些描述样本免疫组库的指标 [<sup>目录</sup>](#content)</h2></a>
+<a name="analysis-CDR3-region"><h2>仅考虑CDR3区域 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="index-for-characterize-individual-immune-repertoire"><h3>一些描述样本免疫组库的指标 [<sup>目录</sup>](#content)</h3></a>
 
 - **个体免疫多样性** (immunological diversity)
 
@@ -108,7 +149,7 @@ CDR3区域：
 
 	可以通过比较chao1指数和实际检测到的unique克隆数进行比较，来评估当前样本的测序饱和度
 
-<a name="pcr-and-sequencing-error-correction"><h2>PCR与测序错误的校正 [<sup>目录</sup>](#content)</h2></a>
+<a name="pcr-and-sequencing-error-correction"><h3>PCR与测序错误的校正 [<sup>目录</sup>](#content)</h3></a>
 
 测序错误的影响及处理方法：
 
@@ -116,7 +157,9 @@ CDR3区域：
 > 
 > **（1）** 在进入后续分析之前需要执行严格的质控，但是 **（2）** 对于深度的TCR-seq则没有这个必要，因为错误的TCR序列总是表现出低丰度的特征，因此通过一个丰度的阈值筛选就可以比较轻松且准确地将这些错误的TCR克隆过滤掉；还有另外一种解决方法 **（3）** 假设每一种低丰度的克隆都是由测序错误产生的，将它们分别与高丰度的克隆依据序列相似性进行聚类，将高丰度的克隆的序列作为它的正确的序列
 
-Wei Zhang等提出了一种进行错误校正的方法
+- 基于计算方法的校正
+
+（1）Wei Zhang等提出了一种进行错误校正的方法
 
 可分为三步进行，前两步进行测序错误的校正，最后一步进行PCR错误校正：
 
@@ -130,7 +173,32 @@ Wei Zhang等提出了一种进行错误校正的方法
 >
 > （3）最后，为了消除PCR过程中引入的错误，将低丰度的reads比对高丰度reads，对于某一个低丰度reads，若能找到一条高丰度reads使得它们之间的mismatch低于3个碱基，则将它合并到对应高丰度reads中；
 
-<a name="multiplex-pcr-bias-minimization"><h2>缩小多重PCR引入的PCR bias [<sup>目录</sup>](#content)</h2></a>
+（2）Bolotin D等开发的MiXCR的错误矫正方法也同时考虑了PCR错误与测序错误：
+
+![](./picture/immuSeq-paper-survey-error-correction-mixcr.png)
+
+![](./picture/immuSeq-paper-survey-error-correction-mixcr-2.png)
+
+简单来说：
+
+校正测序错误的方法与上面的相同：用高质量的序列来校正低质量序列的低质量碱基
+
+校正PCR error依据这样一个假设：
+
+> PCR错误一般出现在PCR的比较靠后的阶段，如果共进行了N轮PCR，对于某一条template read，在这N轮PCR过程中总共发生了n次PCR错误（假设每次PCR错误只发生一个碱基错误且每轮最多只发生一次），PCR错误既可能发生在原始的template read上，也可能发生在已经发生PCR错误的read上，我们可以用一个树形结构来记录这条template read的PCR错误的发生进程（称为变异发生树）
+>
+> ![](./picture/immuSeq-paper-survey-error-correction-mixcr-3.png)
+>
+> 越靠近叶节点则错误发生得越晚，则这次错误得到的衍生序列的拷贝数就会越少
+
+基于这样的现象，如果我们能基于测序的reads构建出一系列这样的变异发生树，则我们就可以得到进行PCR扩增之前的原始read以及其真实的丰度（原始read以及各种变异衍生reads丰度的累计丰度）
+
+- 基于实验技术的方法
+
+![](./picture/immuSeq-paper-survey-error-correction-UMI.png)
+
+
+<a name="multiplex-pcr-bias-minimization"><h3>缩小多重PCR引入的PCR bias [<sup>目录</sup>](#content)</h3></a>
 
 一般PCR仅应用一对引物，通过PCR扩增产生一个核酸片段，而多重PCR (multiplex PCR)，又称多重引物PCR或复合PCR，它是在同一PCR反应体系里加上二对以上引物，同时扩增出多个核酸片段的PCR反应，其反应原理，反应试剂和操作过程与一般PCR相同·
 
@@ -138,17 +206,93 @@ Wei Zhang等提出了一种进行错误校正的方法
 
 Wei Zhang等提出了一种进行PCR bias修正的方法：
 
-该方法基于这样一个前提假设：multiplex PCR过程中，克隆的扩增效率仅受到以下两个因素的影响——模板的浓度和多重引物的效率
+该方法基于这样一个前提假设：multiplex PCR过程中，克隆的扩增效率仅受到以下两个因素的影响——**模板的浓度**和**多重引物的效率**
+
+基于上面的假设，研究人员做了以下实验来探究这些因素之间的关系：
+
+按照下表列出来的引物对应克隆配比，将33套PCR引物（足量）加入到3对样本中
+
+|	Plasmid No.	|	V gene	|	J gene	|	Plasmidmix 1-1*	|	Plasmidmix 1-2*	|	Plasmidmix 2-1*	|	Plasmidmix 2-2*	|	Plasmidmix 3-1*	|	Plasmidmix 3-2*	|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|	C-01	|	TRBV10-1	|	TRBJ2-7	|	2000	|	2000	|	10	|	10	|	100000	|	100000	|
+|	C-02	|	TRBV10-2/3	|	TRBJ2-7	|	2000	|	2000	|	1000	|	1000	|	1000	|	1000	|
+|	C-03	|	TRBV11-1/2/3	|	TRBJ1-3	|	2000	|	2000	|	10	|	10	|	100000	|	100000	|
+|	……	|	……	|	……	|	……	|	……	|	……	|	……	|	……	|	……	|
+|	C-33	|	TRBV9	|	TRBJ1-2	|	2000	|	2000	|	100	|	100	|	10000	|	10000	|
+
+注：$\text{Plasmidmix}_{i-j} , (i\in \{1,2,3\},j\in\{1,2\})$表示第i个样本对中的第j个样本
+
+可以看出同一个样本对中的两个样本，它们的每一对引物对应克隆的浓度配比都是一样的，因此，每一个克隆有三种不同的浓度
+
+它的校正思路为：
+
+> （1）先进行克隆浓度的校正。先排除引物效率的影响，即选定某一种克隆（则与它对应的PCR引物也唯一确定了，也就排除了不同引物的效率的影响了），使用不同的克隆浓度，分析克隆浓度对PCR bias（表现为不同浓度导致扩增后observed frequency的不同）的影响，构建回归模型来定量描述克隆浓度与PCR bias的关系；
+>
+> （2）进行引物效率的校正。先排除克隆浓度的影响，即选择克隆浓度相同的那些克隆放在一起分析，这些克隆浓度相同，但是所对应的PCR引物不同，则在前面的前提假设下，导致PCR bias（表现为不同PCR引物导致扩增后observed frequency的不同）的因素只有引物的效率，因可以据此分析引物效率队PCR bias的影响
+
+- **先进行浓度的校正**
+
+	为了控制潜在变量的影响，将相同浓度的克隆合并到一个相同的组进行研究，因此可以聚成5个浓度的组（总共有5种可选浓度，则理论上总共有$\left( \begin{matrix} 5 \\ 3 \end{matrix}\right)=10$种可能，但是实际上只用到了里面的5种）：10_2E4_1E5、1000_2E4、100_1000_2E4、100_1E4_2E4 和 10_1E4_2E4 （可以看出是$i\_j\_k(i<j<k)$形式，它是某个克隆的3个浓度）
+
+	以10_2E4_1E5组为例，说明依据浓度进行的方法：
+
+	先计算在这组中浓度期望分别为10、2E4和1E5的克隆实际浓度的均值
+
+	$$\mu(j)=\frac 1n \sum_{i=1}^nf(i,j) \quad j\in\{10; 2E4; 1E5\}$$
+
+	然后对每个克隆i，寻找它对应的浓度校正系数$k_i\in(0,+\infty)$使得校正后的浓度与实际浓度的均值$\mu(j)$最小，即
+
+	$$k_i^*=arg \min_{k_i\in(0,+\infty)}\sum_{j\in\{10,2E4,1E5\}}|f(i,j)k_i-\mu(j)|$$
+
+	则克隆$i$校正之后的clone frequency为
+
+	$$f_{norm}(i,j)=f(i,j)k_i^*$$
+
+	这里得到的是每组中每个克隆的校正结果，下面要依据每一组都具有的浓度2E4为基准，将5个组的校正结果相结合，并进行拟合得到克隆浓度与PCR bias的回归模型：
+
+	$$y=0.60636\log_{1.8}x+1 $$
+
+- **接着分析引物效率的影响**
+
+	为了排除克隆浓度的影响，将所有样本中浓度相同的克隆聚成相同的组，则共得到6个组：10、100、1E3、1E4、2E4 和 1E5
+
+	<p align="center"><img src=./picture/immuSeq-paper-survey-minimize-PCR-bias-1.png width=800/></p>
+
+	从上面的图可以看出，相同浓度的克隆，不同的对应引物的扩增效率存在较大的差异，表现为Observed frequency的较大波动，而浓度为2E4的那些克隆相对来说波动较小，即不同引物带来的扩增效率差异比较小
+
+	那么应该如何进行校正呢？
+
+	对于引物效率差异导致的PCR bias的校正目标很明确，就是消除PCR bias，即使相同浓度的克隆扩增出相近的observed freqency，表现在上面的图上就是曲线波动比较小，类似于2E4那条曲线
+
+	$$
+	r(i,j)=
+	\begin{cases}
+	\frac{f(i,j)l}{f(i,2E4)} \quad if \, f(i,j)l > f(i,2E4)\\
+	 \\
+	\frac{f(i,2E4)}{f(i,j)l} \quad if \, f(i,j)l < f(i,2E4)
+	\end{cases}
+	$$
+
+	其中，$l\in(0,+\infty),j\in\{10, 100, 1E3, 1E4, 2E4, 1E5\}$
+
+	对于$j$浓度的组要找到合适的校正系数$l_k$使得该组的PCR bias最小化，即
+
+	$$l_j^*=arg \min_{l_j\in (0,+\infty)} \sum_{i=1}^n r(i,j)$$
+
+	则对引物效率进行校正后的clone frequency为
+
+	$$f_{norm}(i,j)=f(i,j)l_j^*$$
 
 
 
 
 
 
+	下图是整个多重PCR bias校正的总流程图
 
+	<p align="center"><img src=./picture/immuSeq-paper-survey-minimize-PCR-bias-2.png width=800/></p>
 
-
-<a name="properties-of-a-healthy-repertoire"><h2>健康个体的免疫组库 [<sup>目录</sup>](#content)</h2></a>
+<a name="properties-of-a-healthy-repertoire"><h3>健康个体的免疫组库 [<sup>目录</sup>](#content)</h3></a>
 
 - **TCR的多样性/克隆种类**
 
@@ -185,7 +329,7 @@ Wei Zhang等提出了一种进行PCR bias修正的方法：
 	> 
 	> 因此，若两个个体同时都暴露在一种抗原环境下，针对这种抗原的T细胞克隆有很大可能性会在这两个个体中被检测到，而被鉴定为共享克隆，而如果两个个体没有接触或没有同时接触到这种抗原，则从他们中都检测到对应抗体克隆类型的可能性就偏低，从而有很大可能性被鉴定为非共享克隆，但实际上这种克隆类型有很大可能性在两者体内都有
 
-<a name="ultra-sensitive-detection-of-rare-T-cell-clones"><h2>对低丰度的T细胞克隆具有极高的灵敏度 [<sup>目录</sup>](#content)</h2></a>
+<a name="ultra-sensitive-detection-of-rare-T-cell-clones"><h3>对低丰度的T细胞克隆具有极高的灵敏度 [<sup>目录</sup>](#content)</h3></a>
 
 
 在相同的T细胞克隆的混合背景（1 million) 中添加不同量的已知的T细胞克隆作为spike-in
@@ -198,6 +342,12 @@ Wei Zhang等提出了一种进行PCR bias修正的方法：
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-02.jpg width=600 /></p>
 
+<a name="analysis-CDR3-and-constant-region"><h2>考虑CDR3区域和恒定区域 [<sup>目录</sup>](#content)</h2></a>
+
+
+
+
+
 
 
 ---
@@ -208,12 +358,16 @@ Wei Zhang等提出了一种进行PCR bias修正的方法：
 
 (2) [卢锐《Alpha多样性指数之Chao1指数 》](http://blog.sciencenet.cn/blog-2970729-1074963.html)
 
-(3) Chao, A. 1984. Non-parametric estimation of the number of classes in a population. Scandinavian Journal of Statistics 11, 265-270.
+(3) Bolotin D et al. MiXCR: software for comprehensive adaptive immunity profiling. Nature Methods 12, no. 5 (2015): 380-381.
 
-(4) Harlan Robins, Cindy Desmarais, Jessica Matthis, et al. Ultra-sensitive detection of rare T cell clones[J]. Journal of Immunological Methods, 2012, 375(1-2):14-19.
+(4) Shugay M, Britanova OV, Merzlyak EM, et al. Towards error-free profiling of immune repertoires. Nat Methods.2014 May 4
 
-(5) Woodsworth DJ, Castellarin M, Holt RA. Sequence analysis of T-cell repertoires in health and disease. Genome Med. 2013;5(10):98. Published 2013 Oct 30. doi:10.1186/gm502
+(5) Chao, A. 1984. Non-parametric estimation of the number of classes in a population. Scandinavian Journal of Statistics 11, 265-270.
 
-(6) Robins, H.S. et al. Overlap and effective size of the human CD8 + T cell receptor repertoire. Sci. Transl. Med. 2, 47ra64 (2010).
+(6) Harlan Robins, Cindy Desmarais, Jessica Matthis, et al. Ultra-sensitive detection of rare T cell clones[J]. Journal of Immunological Methods, 2012, 375(1-2):14-19.
 
-(7)  Emerson R O , Dewitt W S , Vignali M , et al. Immunosequencing identifies signatures of cytomegalovirus exposure history and HLA-mediated effects on the T cell repertoire[J]. Nature Genetics, 2017, 49(5):659-665.
+(7) Woodsworth DJ, Castellarin M, Holt RA. Sequence analysis of T-cell repertoires in health and disease. Genome Med. 2013;5(10):98. Published 2013 Oct 30. doi:10.1186/gm502
+
+(8) Robins, H.S. et al. Overlap and effective size of the human CD8 + T cell receptor repertoire. Sci. Transl. Med. 2, 47ra64 (2010).
+
+(9)  Emerson R O , Dewitt W S , Vignali M , et al. Immunosequencing identifies signatures of cytomegalovirus exposure history and HLA-mediated effects on the T cell repertoire[J]. Nature Genetics, 2017, 49(5):659-665.
