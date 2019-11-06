@@ -6,6 +6,9 @@
         - [免疫细胞的发生与成熟过程](#the-development-of-lymphocyte)
     - [免疫组库测序技术](#the-technology-of-immune-repertoires-sequencing)
 - [仅考虑CDR3区域](#analysis-CDR3-region)
+   - [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
+        - [标准结构鉴定方法](#standar-methods-for-structure-identification)
+        - [标准结构鉴定方法存在的问题及解决策略](#error-in-struture-identification-and-methods-to-overcome)
     - [一些描述样本免疫组库的指标](#index-for-characterize-individual-immune-repertoire)
     - [PCR与测序错误的校正](#pcr-and-sequencing-error-correction)
     - [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
@@ -49,6 +52,23 @@
     （2）抗原依赖期
 
     B细胞在骨髓微环境诱导下发育成初始B细胞，离开骨髓，到达外周免疫器官的B细胞区定值，在那里接受外来抗原的刺激而活化、增值，进一步分化为成熟的浆细胞和记忆B细胞
+
+- T细胞
+
+    TCR异二聚体的α和β链由可变区（V）和恒定区（C）组成，它们在胸腺发育过程中被拼接在一起，从而产生由每种T表达的单一类型的功能性TCRαβ复合物细胞
+
+    β链的V区由可变（V），多样性（D）和连接（J）基因片段编码，而α链的V区由V和J基因片段编码
+
+    TRB的候选基因片段数量：
+
+    - TRBV：42
+    - TRBD：2
+    - TRBJ：12
+
+    TRA的候选基因片段数量：
+
+    - TRAV：43
+    - TRAJ：58
 
 
 <a name="the-technology-of-immune-repertoires-sequencing"><h3>免疫组库测序技术 [<sup>目录</sup>](#content)</h3></a>
@@ -104,6 +124,34 @@ CDR3区域：
 - **Morisita-Horn similarity index**：样本间相似度的比较
 
 <a name="analysis-CDR3-region"><h2>仅考虑CDR3区域 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="structure-identification-of-cdr3-region"><h3>CDR3区域结构鉴定 [<sup>目录</sup>](#content)</h3></a>
+
+<a name="standar-methods-for-structure-identification"><h4>标准结构鉴定方法 [<sup>目录</sup>](#content)</h4></a>
+
+基本上就是基于与germline的V、D、J基因片段进行比对来鉴定，比对方法有基于Smith-Waterman算法的，有基于seed-and-vote方法的，也有基于BLAST的
+
+鉴定出的CDR3区域的解构如下图：
+
+![](./picture/immuSeq-paper-survey-CDR3-struture-identification.png)
+
+<a name="error-in-struture-identification-and-methods-to-overcome"><h4>标准结构鉴定方法存在的问题及解决策略 [<sup>目录</sup>](#content)</h4></a>
+
+由于在原始的重组过程中发生了三次随机事件：
+
+> - V、D、J基因片段的随机选择；
+>
+> - 在V基因片段的末端，D基因的两端以及J基因的起始端的随机删除；
+>
+> - 在VD与DJ重组片段之间的非模板依赖性的随机插入；
+
+这使得按照标准的结构鉴定方法鉴定出的结果会存在系统偏差：
+
+> 某一个检测到的CDR3序列，可能由多种重组方式得到，而基于序列比对方法的结构鉴定倾向于选择尽可能长匹配 germline 基因片段，来作为最优重组来源的片段，但是最长的匹配并不意味着一定是最可能的重组方式
+
+最好的方式是将所有可能的潜在重组形式列出来，然后计算出每种重组形式的似然，而似然的计算可以基于从测序数据中学习得到的概率模型算出
+
+![](./picture/immuSeq-paper-survey-advanced-CDR3-struture-identification.png)
 
 <a name="index-for-characterize-individual-immune-repertoire"><h3>一些描述样本免疫组库的指标 [<sup>目录</sup>](#content)</h3></a>
 
@@ -356,18 +404,22 @@ Wei Zhang等提出了一种进行PCR bias修正的方法：
 
 (1)  Zhang W , Du Y , Su Z , et al. IMonitor: A Robust Pipeline for TCR and BCR Repertoire Analysis[J]. Genetics, 2015, 201.
 
-(2) [卢锐《Alpha多样性指数之Chao1指数 》](http://blog.sciencenet.cn/blog-2970729-1074963.html)
+(2) Quentin Marcou, Thierry Mora, and Aleksandra M. Walczak. High-throughput immune repertoire analysis with IGoR. Nat Commun. 2018; 9: 561.
 
-(3) Bolotin D et al. MiXCR: software for comprehensive adaptive immunity profiling. Nature Methods 12, no. 5 (2015): 380-381.
+(3) [卢锐《Alpha多样性指数之Chao1指数 》](http://blog.sciencenet.cn/blog-2970729-1074963.html)
 
-(4) Shugay M, Britanova OV, Merzlyak EM, et al. Towards error-free profiling of immune repertoires. Nat Methods.2014 May 4
+(4) Bolotin D et al. MiXCR: software for comprehensive adaptive immunity profiling. Nature Methods 12, no. 5 (2015): 380-381.
 
-(5) Chao, A. 1984. Non-parametric estimation of the number of classes in a population. Scandinavian Journal of Statistics 11, 265-270.
+(5) Shugay M, Britanova OV, Merzlyak EM, et al. Towards error-free profiling of immune repertoires. Nat Methods.2014 May 4
 
-(6) Harlan Robins, Cindy Desmarais, Jessica Matthis, et al. Ultra-sensitive detection of rare T cell clones[J]. Journal of Immunological Methods, 2012, 375(1-2):14-19.
+(6) Chao, A. 1984. Non-parametric estimation of the number of classes in a population. Scandinavian Journal of Statistics 11, 265-270.
 
-(7) Woodsworth DJ, Castellarin M, Holt RA. Sequence analysis of T-cell repertoires in health and disease. Genome Med. 2013;5(10):98. Published 2013 Oct 30. doi:10.1186/gm502
+(7) Harlan Robins, Cindy Desmarais, Jessica Matthis, et al. Ultra-sensitive detection of rare T cell clones[J]. Journal of Immunological Methods, 2012, 375(1-2):14-19.
 
-(8) Robins, H.S. et al. Overlap and effective size of the human CD8 + T cell receptor repertoire. Sci. Transl. Med. 2, 47ra64 (2010).
+(8) Woodsworth DJ, Castellarin M, Holt RA. Sequence analysis of T-cell repertoires in health and disease. Genome Med. 2013;5(10):98. Published 2013 Oct 30. doi:10.1186/gm502
 
-(9)  Emerson R O , Dewitt W S , Vignali M , et al. Immunosequencing identifies signatures of cytomegalovirus exposure history and HLA-mediated effects on the T cell repertoire[J]. Nature Genetics, 2017, 49(5):659-665.
+(9) Robins, H.S. et al. Overlap and effective size of the human CD8 + T cell receptor repertoire. Sci. Transl. Med. 2, 47ra64 (2010).
+
+(10)  Emerson R O , Dewitt W S , Vignali M , et al. Immunosequencing identifies signatures of cytomegalovirus exposure history and HLA-mediated effects on the T cell repertoire[J]. Nature Genetics, 2017, 49(5):659-665.
+
+(11) Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11)
