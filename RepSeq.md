@@ -15,6 +15,15 @@
     - [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
     - [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-clones)
 - [考虑CDR3区域和恒定区域](#analysis-CDR3-and-constant-region)
+- [TCR/BCR的基础分析及分析工具](#basic-analysis-and-analysis-tools)
+    - [VDJtools](#vdjtools)
+        - [功能](#functions-of-vdjtools)
+            - [简要概览](#simple-outline-of-functions)
+            - [详细举例](#details-for-individual-function)
+                - [Basic analysis](#basic-analysis)
+                - []
+        - [使用](#usage-of-vdjtools)
+        - [典型示例](#typical-examples)
 
 
 <h1 name="title">免疫组库入门</h1>
@@ -392,7 +401,146 @@ Wei Zhang等提出了一种进行PCR bias修正的方法：
 
 <a name="analysis-CDR3-and-constant-region"><h2>考虑CDR3区域和恒定区域 [<sup>目录</sup>](#content)</h2></a>
 
+<a name="basic-analysis-and-analysis-tools"><h2>TCR/BCR的基础分析及分析工具 [<sup>目录</sup>](#content)</h2></a>
 
+免疫组库数据分析领域的现状和存在的问题：
+
+- 能对单个样本逐一进行详尽的分析，但是多个样本间的比较分析，需要在单样本分析结果基础上作进一步的处理，例如标准化；
+
+- TCR/BCR多样性极端高，可类比于16s分析，但是其注释程度远没有16s领域详尽；
+
+- 目前免疫组库分析主要切入点有：
+
+    - 跟踪个体的克隆型变化；
+    - 比较V、D、J基因片段的使用偏好情况；
+    - 比较个体间免疫组多样性的差异，或者同一个体某一过程中免疫组库多样性的变化；
+
+    但是目前这些常规分析大都使用的是内部的自建脚本，标准不统一，难以比较和重复
+
+<a name="vdjtools"><h3>VDJtools [<sup>目录</sup>](#content)</h3></a>
+
+<a name="functions-of-vdjtools"><h4>功能 [<sup>目录</sup>](#content)</h4></a>
+
+<a name="simple-outline-of-functions"><h5>简要概览 [<sup>目录</sup>](#content)</h5></a>
+
+![](./picture/immuSeq-paper-survey-VDJtools.png)
+
+包含6个功能模块：
+
+Basic analysis
+
+> - `CalcBasicStats` Computes summary statistics for samples: read counts, mean clonotype sizes, number of non-functional clonotypes, etc
+>
+> 
+> - `CalcSegmentUsage` Computes Variable (V) and Joining (J) segment usage profiles
+>
+> - `CalcSpectratype` Computes spectratype, the distribution of clonotype abundance by CDR3 sequence length
+>
+> - `PlotFancySpectratype` Plots spectratype explicitly showing top N clonotypes
+>
+> - `PlotFancyVJUsage` Plots the frequency of different V-J pairings
+>
+> - `PlotSpectratypeV` Plots distribution of V segment abundance by resulting CDR3 sequence length
+
+<a name="details-for-individual-function"><h5>详细举例 [<sup>目录</sup>](#content)</h5></a>
+
+<a name="basic-analysis"><h6>Basic analysis [<sup>目录</sup>](#content)</h6></a>
+
+**(1) CalcBasicStats**
+
+This routine computes a set of basic sample statistics, such as read counts, number of clonotypes, etc
+
+|	Column	|	Description	|
+|:---|:---|
+|	sample_id	|	Sample unique identifier	|
+|	…	|	Metadata columns. See Metadata section	|
+|	count	|	Number of reads in a given sample	|
+|	diversity	|	Number of clonotypes in a given sample	|
+|	mean_frequency	|	Mean clonotype frequency	|
+|	geomean_frequency	|	Geometric mean of clonotype frequency	|
+|	nc_diversity	|	Number of non-coding clonotypes	|
+|	nc_frequency	|	Frequency of reads that belong to non-coding clonotypes	|
+|	mean_cdr3nt_length	|	Mean length of CDR3 nucleotide sequence. Weighted by clonotype frequency	|
+|	mean_insert_size	|	Mean number of inserted random nucleotides in CDR3 sequence. Characterizes V-J insert for receptor chains without D segment, or a sum of V-D and D-J insert sizes	|
+|	mean_ndn_size	|	Mean number of nucleotides that lie between V and J segment sequences in CDR3	|
+|	convergence	|	Mean number of unique CDR3 nucleotide sequences that code for the same CDR3 amino acid sequence	|
+
+**(2) CalcSegmentUsage**
+
+This routine computes Variable (V) and Joining (J) segment usage vectors, i.e. the frequency of associated reads for each of V/J segments present in sample(s). If plotting is on, will also perform clustering for V/J usage vectors
+
+|	Column	|	Description	|
+|:---|:---|
+|	sample_id	|	Sample unique identifier	|
+|	…	|	Metadata columns. See Metadata section	|
+|	Segment name, e.g. TRBJ1-1	|	Segment frequency in a given sample	|
+|	Next segment name, e.g. TRBJ1-2	|	…	|
+|	…	|	…	|
+
+![](./picture/immuSeq-paper-survey-basic-segmentusage.png)
+
+**(3) CalcSpectratype**
+
+Calculates spectratype, that is, histogram of read counts by CDR3 nucleotide length. The spectratype is useful to detect pathological and highly clonal repertoires, as the spectratype of non-expanded T- and B-cells has a symmetric gaussian-like distribution.
+
+|	Column	|	Description	|
+|:---|:---|
+|	sample_id	|	Sample unique identifier	|
+|	…	|	Metadata columns. See Metadata section	|
+|	CDR3 length, e.g. 22	|	Frequency of reads with a given CDR3 length in a given sample	|
+|	Next CDR3 length, 23	|	…	|
+|	…	|	…	|
+
+**(4) PlotFancySpectratype**
+
+Plots a spectratype that also displays CDR3 lengths for top N clonotypes in a given sample. This plot allows to detect the highly-expanded clonotypes.
+
+|	Column	|	Description	|
+|:---|:---|
+|	Len	|	Length of CDR3 nucleotide sequence	|
+|	Other	|	Frequency of clonotypes with a given CDR3 length, other than top N	|
+|	Clonotype#N, e.g. CASRLLRAGSTEAFF	|	Clonotype frequency, at the corresponding CDR3 length	|
+|	Clonotype#N-1	|	…	|
+|	…	|	…	|
+
+![](./picture/immuSeq-paper-survey-basic-fancyspectra.png)
+
+**(5) PlotFancyVJUsage**
+
+Plots a circos-style V-J usage plot displaying the frequency of various V-J junctions
+
+![](./picture/immuSeq-paper-survey-basic-fancyvj.png)
+
+<a name="usage-of-vdjtools"><h4>使用 [<sup>目录</sup>](#content)</h4></a>
+
+基本命令：
+
+```
+$ java -Xmx16G -jar vdjtools.jar RoutineName [arguments] -m metadata.txt output/prefix
+```
+
+在使用VDJtools进行分析之前，需要将上游分析工具的输出结果转换成VDJtools可接受的数据格式：
+
+```
+$ java -Xmx16G -jar vdjtools.jar Convert -S software -m metadata.txt ... output_dir/
+```
+
+VDJtools文件格式为：
+
+|	column1	|	column2	|	column3	|	column4	|	column5	|	column6	|	column7	|	column8	|	column9	|	column10	|	column11 |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+|	count	|	frequency	|	CDR3nt	|	CDR3aa	|	V	|	D	|	J	|	Vend	|	Dstart	|	Dend	|	Jstart |
+|	1176	|	9.90E-02	|	TGTGCCAGC…AAGCTTTCTTT	|	CAST…EAFF	|	TRBV12-4	|	TRBD1	|	TRBJ1-1	|	11	|	14	|	16	|	23 |
+
+VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来指定多个样本的metadata，格式如下：
+
+|	# file.name	|	sample.id	|	col.name	|	…	|
+|:---|:---|:---|:---|
+|	sample_1.txt	|	sample_1	|	A	|	…	|
+|	sample_2.txt	|	sample_2	|	A	|	…	|
+|	sample_3.txt	|	sample_3	|	B	|	…	|
+|	sample_4.txt	|	sample_4	|	C	|	…	|
+|	…	|	…	|	…	|	…	|
 
 
 
