@@ -82,6 +82,15 @@
 
 <a name="the-technology-of-immune-repertoires-sequencing"><h3>免疫组库测序技术 [<sup>目录</sup>](#content)</h3></a>
 
+<p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-overview.png width=400 /></p>
+
+<p align="center">免疫组库测序的技术流程</p>
+
+
+<p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-PCR-methods.png width=400 /></p>
+
+<p align="center">免疫组库测序的建库过程中采用的不同的PCR方法</p>
+
 TCR与BCR的结构：
 
 <table>
@@ -549,6 +558,8 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 ---
 
 参考资料：
+
+(1) Benichou J, Ben-Hamo R, Louzoun Y, Efroni S. Rep-Seq: uncovering the immunological repertoire through next-generation sequencing. Immunology. 2012 Mar;135(3):183-91.
 
 (1)  Zhang W , Du Y , Su Z , et al. IMonitor: A Robust Pipeline for TCR and BCR Repertoire Analysis[J]. Genetics, 2015, 201.
 
