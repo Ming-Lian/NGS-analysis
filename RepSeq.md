@@ -5,13 +5,17 @@
     - [适应性免疫应答过程](#the-process-of-adaptive-immune-response)
         - [免疫细胞的发生与成熟过程](#the-development-of-lymphocyte)
     - [免疫组库测序技术](#the-technology-of-immune-repertoires-sequencing)
-- [仅考虑CDR3区域](#analysis-CDR3-region)
-   - [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
+- [基本数据质控](#QC-for-RepSeq-data)
+    - [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
         - [标准结构鉴定方法](#standar-methods-for-structure-identification)
         - [标准结构鉴定方法存在的问题及解决策略](#error-in-struture-identification-and-methods-to-overcome)
     - [一些描述样本免疫组库的指标](#index-for-characterize-individual-immune-repertoire)
     - [PCR与测序错误的校正](#pcr-and-sequencing-error-correction)
     - [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
+- [分析切入点](#key-points-for-data-analysis)
+    - [多样性分析](#diversity-analysis)
+    - [克隆融合度（convergence）或者称为简并性](#clone-convergence)
+    - [Repertoire Bias](#repertoire-bias)
     - [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
     - [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-clones)
 - [考虑CDR3区域和恒定区域](#analysis-CDR3-and-constant-region)
@@ -21,9 +25,13 @@
             - [简要概览](#simple-outline-of-functions)
             - [详细举例](#details-for-individual-function)
                 - [Basic analysis](#basic-analysis)
-                - []
+                - [Diversity estimation](#diversity-estimation)
         - [使用](#usage-of-vdjtools)
         - [典型示例](#typical-examples)
+
+
+
+
 
 
 <h1 name="title">免疫组库入门</h1>
@@ -62,6 +70,7 @@
 
     B细胞在骨髓微环境诱导下发育成初始B细胞，离开骨髓，到达外周免疫器官的B细胞区定值，在那里接受外来抗原的刺激而活化、增值，进一步分化为成熟的浆细胞和记忆B细胞
 
+
 - T细胞
 
     TCR异二聚体的α和β链由可变区（V）和恒定区（C）组成，它们在胸腺发育过程中被拼接在一起，从而产生由每种T表达的单一类型的功能性TCRαβ复合物细胞
@@ -79,6 +88,7 @@
     - TRAV：43
     - TRAJ：58
 
+    ![Nat Rev Immunol. 2006 Dec; 6(12):883-94](./picture/immuSeq-paper-survey-VDJ-recombination.png)
 
 <a name="the-technology-of-immune-repertoires-sequencing"><h3>免疫组库测序技术 [<sup>目录</sup>](#content)</h3></a>
 
@@ -89,7 +99,7 @@
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-PCR-methods.png width=400 /></p>
 
-<p align="center">免疫组库测序的建库过程中采用的不同的PCR方法</p>
+<p align="center">免疫组库测序的建库过程中采用的不同的PCR方法。（a）多个引物–设计两个引物来互补V和J片段内的区域。（b）5'RACE –仅设计一种引物来互补cDNA的恒定区。在第一轮扩增之后，将均聚物合成地添加到3'中。再次用第一特异性引物和另一种靶向均聚物的引物扩增cDNA</p>
 
 TCR与BCR的结构：
 
@@ -106,9 +116,19 @@ TCR与APC的互作：
 
 <p align="center">(a)(b) TCR与APC的互作; (c)T细胞中的VDJ基因重排</p>
 
-CDR3区域：
+CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
->  互补决定区域（complementarity determining region 3 (CDR3) domain），一般长度为45nt，有VJ junction形式（TCR-α）和VDJ junction形式（TCR-β）
+> <p align="center"><img src=./picture/Immunology-knownledge-antibody-1.png width=400 ></p>
+>
+> TCR与BCR的可变区域的重组和生成方式相似，所以可以一并进行讨论，可变区域中有3个高频可变的子片段，包括CDR1、CDR2和CDR3
+>
+> ![](./picture/immuSeq-paper-survey-CDR123-region.png)
+>
+> 其中CDR1与CDR2落在V基因片段，CDR3落在V-D-J的连接区域，包括V基因3'端（可能存在末端的缺失）、V-J基因间区的随机插入片段、D基因（两端都可能存在末端缺失）、D-J基因间区的随机插入片段、J基因的5'端（可能存在末端的缺失），结构示例图如下：
+>
+> ![](./picture/immuSeq-paper-survey-CDR3-struture-identification.png)
+
+整个V（D）J区的长度约为300个核苷酸
 
 材料选择：用αβ还是γδ？
 
@@ -126,6 +146,10 @@ CDR3区域：
 > - 优点：只使用一套PCR引物，极大地降低了PCR bias
 > - 缺点：TCR表达水平的变异很大，不能准确地反映T细胞的数量
 
+当我们尝试达到免疫库的最佳覆盖范围时，我们实际上旨在在整个库中对尽可能多的免疫球蛋白序列进行测序。也就是说，我们的目标是使生物体中已测序的免疫球蛋白（SI）与免疫球蛋白（TI）总数之间的比率最大化。我们的目标是使SI/TI比率达到1
+
+较小的模型生物为达到该比例提供了更好的起点。较小的生物体包含的细胞总数明显减少，显然免疫细胞也较少。斑马鱼是研究适应性免疫系统的理想模型系统，其原因有两个：首先，它们具有可识别的最早的适应性免疫系统，其特征与人体必需元素相匹配；其次，斑马鱼免疫系统仅具有约30万种产生抗体的B细胞，使其比老鼠简单三个数量级，比人类简单五个数量级
+
 详尽彻底的测序不是T细胞库分析的目标（也不现实，因为目前免疫组库基本都是从外周血取样，而要想实现彻底的测序，即意味着将这个个体外周血中的免疫细胞克隆型几乎全部取样到，除非将这个人的血几乎抽干，才可能实现），对于旨在阐明样本间差异的比较研究，极端深的TCR-seq也是没有必要的。对应TCR-seq来说，人们主要关心的是：**当取样不完整，测序深度差异比较大时，怎么鉴定一个给定的样本它的TCR组成与其他的样本不同？**
 
 可以计算一个**置信度（confidence)**，来表示一个克隆在给定样本中差异于另一个样本是偶然产生的概率，概率越低则说明越不可能是由于偶然因素导致的，也就是说是真实的差异的可能性比较大
@@ -141,13 +165,15 @@ CDR3区域：
 - **Simpson diversity index**：样本间的多样性的比较
 - **Morisita-Horn similarity index**：样本间相似度的比较
 
-<a name="analysis-CDR3-region"><h2>仅考虑CDR3区域 [<sup>目录</sup>](#content)</h2></a>
+<a name="QC-for-RepSeq-data"><h2>基本数据质控 [<sup>目录</sup>](#content)</h2></a>
 
 <a name="structure-identification-of-cdr3-region"><h3>CDR3区域结构鉴定 [<sup>目录</sup>](#content)</h3></a>
 
 <a name="standar-methods-for-structure-identification"><h4>标准结构鉴定方法 [<sup>目录</sup>](#content)</h4></a>
 
 基本上就是基于与germline的V、D、J基因片段进行比对来鉴定，比对方法有基于Smith-Waterman算法的，有基于seed-and-vote方法的，也有基于BLAST的
+
+与V和J基因相反，由于序列长度短，D段的鉴定更为复杂
 
 鉴定出的CDR3区域的解构如下图：
 
@@ -349,14 +375,86 @@ Wei Zhang等提出了一种进行PCR bias修正的方法：
 
 	$$f_{norm}(i,j)=f(i,j)l_j^*$$
 
-
-
-
-
-
 	下图是整个多重PCR bias校正的总流程图
 
 	<p align="center"><img src=./picture/immuSeq-paper-survey-minimize-PCR-bias-2.png width=800/></p>
+
+<a name="key-points-for-data-analysis"><h2>分析切入点 [<sup>目录</sup>](#content)</h2></a>
+
+获得个体或多个个体组成的群体的免疫组库数据后，就可以从以下的这些角度来分析免疫组库的特点：
+
+- 库的大小 (the size of the repertoire)；
+
+- 库之间的相似性 (similarities between repertoires)；
+
+- V（D）J段使用 (V(D)J segment use)；
+
+- 核苷酸插入和缺失 (nucleotide insertions and deletions)；
+
+- CDR长度 (CDR lengths)；
+
+- 沿着CDR的氨基酸分布 (amino acid distributions along the CDRs)；
+
+<a name="diversity-analysis"><h3>多样性分析 [<sup>目录</sup>](#content)</h3></a>
+
+Robins HS1, Campregher PV, Srivastava SK at al. Comprehensive assessment of T-cell receptor beta-chain diversity in alphabeta T cells. Blood. 2009 Nov 5;114(19):4099-107.
+
+> 理论上估计会有10<sup>16</sup>种$\text{TCR}\beta$，但并没有人通过足够高通量的测序对免疫组库的多样性进行过直接的研究，研究人员在这项研究中通过改进测序方法，实现了在当时来说已经算是高通量的测序，第一次对免疫组库的多样性水平进行了评估：
+> - total TCRbeta receptor diversity is at least 4-fold higher than previous estimates;
+> - the diversity in the subset of CD45RO(+) antigen-experienced alphabeta T cells is at least 10-fold higher than previous estimates;
+
+<a name="clone-convergence"><h3>克隆融合度（convergence）或者称为简并性 [<sup>目录</sup>](#content)</h3></a>
+
+融合度：从多个核苷酸序列翻译出相同的氨基酸序列
+
+Freeman JD, Warren RL, Webb JR at al. Profiling the T-cell receptor beta-chain repertoire by massively parallel sequencing. Genome Res. 2009 Oct; 19(10):1817-24.
+
+<a name="repertoire-bias"><h3>Repertoire Bias [<sup>目录</sup>](#content)</h3></a>
+
+![](./picture/immuSeq-paper-survey-Repertoire-Bias-1.png)
+
+responding T cells in an individual use the same TCR α-chain variable (Vα) region or β-chain variable (Vβ) region, but have little or no similarity in the complementarity-determining region 3 (CDR3)- or junctional (J)-region sequences
+
+![](./picture/immuSeq-paper-survey-Repertoire-Bias-2.png)
+
+responding T cells in an individual use the same TCR Vα or Vβ region, and also share amino acids at the same position in the CDR3 region (a CDR3 motif). The motif can be as small as one amino acid, or as large as four amino acids
+
+The example shown here comprises a two amino-acid motif, WG
+
+![](./picture/immuSeq-paper-survey-Repertoire-Bias-3.png)
+
+responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and J-region sequence. It can refer to a single TCR α- or β-chain, or both
+
+那么Repertoire Bias对个体免疫力来说，是好是坏？
+
+> C57BL / 6J小鼠的野生型 H2-K<sup>b</sup> 和突变型 H2-K<sup>bm8</sup> 对单纯疱疹病毒糖蛋白B（HSV gB）提呈相同的抗原肽SL8（HSV gB氨基酸序列的495-502位，SSIEFARL，表示为SL8）
+>
+> 对这两种小鼠施加HSV gB刺激，H2-K<sup>b</sup> 型表现出较强的易感性，而突变型H2-K<sup>bm8</sup>具有抗性，分析它们的免疫组库的组成发现：
+>
+> - 表现出较强易感性的 H2-K<sup>b</sup> 型小鼠，其被 SL8-H2-K<sup>b</sup> 特异性选择出来的TCR克隆型具有TRBV4 bias，且在CDR3β有保守WG基序（符合上述的Type2 TCR bias）；
+>
+> - 具有抗性的 H2-K<sup>bm8</sup> 型小鼠，其被 SL8-H2-K<sup>bm8</sup> 特异性选择出来的TCR克隆型具有更高的多样性，且有更强的亲和力；
+>
+> 结构分析表明，SL8肽在 H2-K<sup>b</sup> 和 H2-K<sup>bm8</sup> 分子凹槽中的结合形态看起来几乎相同。然而，H2-K<sup>bm8</sup> 的肽结合槽中的多态性残基使其构象发生改变，导致MHC分子α1-螺旋表面62位上的精氨酸残基的侧链获得更稳定的构象，在不存在TCR连接的情况下，这种稳定作用是显而易见的。因此，在SL8–H2-K bm8复合物中Arg62的迁移性降低，使得从幼稚的TCR库中选择的一系列特定TCR（更多样化）可以实现更大的TCR接触（更高的亲和力）
+>
+> 鉴于一般认为TCR亲和力与功能能力正相关，因此，更多样化，更高亲和力 SL8–H2-K<sup>bm8</sup> 特异性T细胞库比更严格，“质量”较低的 SL8–H2-K<sup>b</sup> 特异性T细胞反应在控制HSV感染方面更好
+
+由此，我们可以从这个示例中得出一个结论：Repertoire Bias不利于个体免疫力
+
+另外一个例子：
+
+> 对于MHC I型基因型为Mamu-A*01的猴子，面对SIV（猿猴免疫缺陷病毒）的侵染，会对两个病毒蛋白Tat和Gag，分别提呈抗原肽TL8和CM9，对TL8-MHCI和CM9-MHCI响应的CD8+T细胞分别存在TRBV6-5和TRBV27的选择偏好性
+>
+> TL8-MHCI -> TRBV6-5 : Type 2 TCR bias
+>
+> CM9-MHCI -> TRBV27 : Type 1 TCR bias
+>
+> 不同的TCR bias导致它们在面对病毒突变逃逸时，表现出不同的灵活性：
+>
+> - TL8–Mamu-A*01特异性TCR谱系更为有限，缺乏灵活性来应对TL8表位的细微结构变异
+>
+> - 更多样化的CM9–Mamu-A*01特异性TCR可能保留识别表位变异的能力，从而阻止了突变病毒的选择
+
 
 <a name="properties-of-a-healthy-repertoire"><h3>健康个体的免疫组库 [<sup>目录</sup>](#content)</h3></a>
 
@@ -409,6 +507,8 @@ Wei Zhang等提出了一种进行PCR bias修正的方法：
 <p align="center"><img src=./picture/immuSeq-paper-survey-02.jpg width=600 /></p>
 
 <a name="analysis-CDR3-and-constant-region"><h2>考虑CDR3区域和恒定区域 [<sup>目录</sup>](#content)</h2></a>
+
+
 
 <a name="basic-analysis-and-analysis-tools"><h2>TCR/BCR的基础分析及分析工具 [<sup>目录</sup>](#content)</h2></a>
 
@@ -520,6 +620,59 @@ Plots a circos-style V-J usage plot displaying the frequency of various V-J junc
 
 ![](./picture/immuSeq-paper-survey-basic-fancyvj.png)
 
+**(6) PlotSpectratypeV**
+
+Plots a detailed spectratype containing additional info displays CDR3 length distribution for clonotypes from top N Variable segment families. This plot is useful to detect type 1 and type 2 repertoire biases, that could arise under pathological conditions.
+
+![](./picture/immuSeq-paper-survey-basic-spectrav.png)
+
+<a name="diversity-estimation"><h6>Diversity estimation [<sup>目录</sup>](#content)</h6></a>
+
+**(1) PlotQuantileStats**
+
+画出的是一个像下面这样的圆环图：
+
+![](./picture/immuSeq-paper-survey-diversity-qstat.png)
+
+每一层的含义：
+
+> - 第一层：singleton 、doubleton 和更高频的clonetype的频率分布。singleton 和 doubleton对多样性评估影响比较大，例如chao1，在【J Immunol. 2014 Mar 15;192(6):2689-98】这篇文章中发现singleton与naive T细胞的数量呈正相关，它们是免疫组库多样性的基础；
+>
+> - 第二层：“3+” set中丰度递减的克隆5个5等分部分克隆的各自丰度总会；
+>
+> - 第三层：丰度最高的N个克隆的各自丰度；
+
+**(2) RarefactionPlot**
+
+同时对多个样本进行稀疏曲线饱和度分析，从0到sample size进行抽样，得到实测的稀疏曲线，然后再以sample size最大的样本为基准，对sample size较小的样本进行稀疏曲线的外推补全
+
+![](./picture/immuSeq-paper-survey-rarefactionPlot.png)
+
+注：实线为实测稀疏曲线部分，虚线为推测部分
+
+**(3) CalcDiversityStats**
+
+它会计算多项多样性相关的统计量，包括：
+
+> - Observed diversity, the total number of clonotypes in a sample
+> - Lower bound total diversity (LBTD) estimates
+>    - Chao estimate (denoted chao1)
+>    - Efron-Thisted estimate
+> - Diversity indices
+>    - Shannon-Wiener index. The exponent of clonotype frequency distribution entropy is returned.
+>    - Normalized Shannon-Wiener index. Normalized (divided by log[number of clonotypes]) entropy of clonotype frequency distribution. Note that plain entropy is returned, not its exponent.
+>    - Inverse Simpson index
+> - Extrapolated Chao diversity estimate, denoted chaoE here.
+> - The d50 index, a recently developed immune diversity estimate
+
+有两种计算模式：
+
+- 基于原始数据的计算，这种多样性计算模式容易引入因为测序深度导致的bias，在这种模式下经过适当标准化之后的chaoE才能进行样本之间的比较——该模式下的计算结果将输出到；
+
+- 基于重采样数据的计算，一般是在原始数据基础上的下采样，到最小的sample size
+
+
+
 <a name="usage-of-vdjtools"><h4>使用 [<sup>目录</sup>](#content)</h4></a>
 
 基本命令：
@@ -550,8 +703,6 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 |	sample_3.txt	|	sample_3	|	B	|	…	|
 |	sample_4.txt	|	sample_4	|	C	|	…	|
 |	…	|	…	|	…	|	…	|
-
-
 
 
 
