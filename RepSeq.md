@@ -15,6 +15,7 @@
 - [分析切入点](#key-points-for-data-analysis)
     - [多样性分析](#diversity-analysis)
     - [克隆融合度（convergence）或者称为简并性](#clone-convergence)
+    - [免疫组库多样性产生的非随机性](#not-random-for-repertoires)
     - [Repertoire Bias](#repertoire-bias)
     - [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
     - [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-clones)
@@ -94,11 +95,12 @@
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-overview.png width=400 /></p>
 
-<p align="center">免疫组库测序的技术流程 <sup><a href='#ref1'>1</a></sup></p>
+<p align="center">免疫组库测序的技术流程 <sup><a href='#ref1'>[1]</a></sup></p>
+
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-PCR-methods.png width=400 /></p>
 
-<p align="center">免疫组库测序的建库过程中采用的不同的PCR方法 <sup><a href='#ref1'>1</a></sup>。（a）多个引物–设计两个引物来互补V和J<br>片段内的区域。（b）5'RACE –仅设计一种引物来互补cDNA的恒定区。在第一轮扩增之后，<br>将均聚物合成地添加到3'中。再次用第一特异性引物和另一种靶向均聚物的引物扩增cDNA</p>
+<p align="center">免疫组库测序的建库过程中采用的不同的PCR方法 <sup><a href='#ref1'>[1]</a></sup>。（a）多个引物–设计两个引物来互补V和J<br>片段内的区域。（b）5'RACE –仅设计一种引物来互补cDNA的恒定区。在第一轮扩增之后，<br>将均聚物合成地添加到3'中。再次用第一特异性引物和另一种靶向均聚物的引物扩增cDNA</p>
 
 TCR与BCR的结构：
 
@@ -192,7 +194,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 > 某一个检测到的CDR3序列，可能由多种重组方式得到，而基于序列比对方法的结构鉴定倾向于选择尽可能长匹配 germline 基因片段，来作为最优重组来源的片段，但是最长的匹配并不意味着一定是最可能的重组方式
 
-最好的方式是将所有可能的潜在重组形式列出来，然后计算出每种重组形式的似然，而似然的计算可以基于从测序数据中学习得到的概率模型算出
+最好的方式是将所有可能的潜在重组形式列出来，然后计算出每种重组形式的似然，而似然的计算可以基于从测序数据中学习得到的概率模型算出 <sup><a href='#ref2'>[2]</a></sup>
 
 ![](./picture/immuSeq-paper-survey-advanced-CDR3-struture-identification.png)
 
@@ -250,7 +252,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 - 基于计算方法的校正
 
-（1）Wei Zhang等提出了一种进行错误校正的方法
+（1）Wei Zhang等提出了一种进行错误校正的方法 <sup><a href='#ref3'>[3]</a></sup>
 
 可分为三步进行，前两步进行测序错误的校正，最后一步进行PCR错误校正：
 
@@ -264,7 +266,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 >
 > （3）最后，为了消除PCR过程中引入的错误，将低丰度的reads比对高丰度reads，对于某一个低丰度reads，若能找到一条高丰度reads使得它们之间的mismatch低于3个碱基，则将它合并到对应高丰度reads中；
 
-（2）Bolotin D等开发的MiXCR的错误矫正方法也同时考虑了PCR错误与测序错误：
+（2）Bolotin D等开发的MiXCR的错误矫正方法也同时考虑了PCR错误与测序错误 <sup><a href='#ref4'>[4]</a></sup>：
 
 ![](./picture/immuSeq-paper-survey-error-correction-mixcr.png)
 
@@ -284,7 +286,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 基于这样的现象，如果我们能基于测序的reads构建出一系列这样的变异发生树，则我们就可以得到进行PCR扩增之前的原始read以及其真实的丰度（原始read以及各种变异衍生reads丰度的累计丰度）
 
-- 基于实验技术的方法
+- 基于实验技术的方法 <sup><a href='#ref5'>[5]</a></sup>
 
 ![](./picture/immuSeq-paper-survey-error-correction-UMI.png)
 
@@ -295,7 +297,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 在免疫组库建库的过程中一般都采用针对V和J基因的多套引物进行PCR扩增，即使用的是多重PCR方法，与普通PCT相比，多重PCR明显会带来更大程度的PCR bias，所以为了保证下游分析的可靠性，进行PCR bias的修正是非常有必要的
 
-Wei Zhang等提出了一种进行PCR bias修正的方法：
+Wei Zhang等提出了一种进行PCR bias修正的方法 <sup><a href='#ref3'>[3]</a></sup>：
 
 该方法基于这样一个前提假设：multiplex PCR过程中，克隆的扩增效率仅受到以下两个因素的影响——**模板的浓度**和**多重引物的效率**
 
@@ -402,27 +404,61 @@ Robins HS1, Campregher PV, Srivastava SK at al. Comprehensive assessment of T-ce
 > - total TCRbeta receptor diversity is at least 4-fold higher than previous estimates;
 > - the diversity in the subset of CD45RO(+) antigen-experienced alphabeta T cells is at least 10-fold higher than previous estimates;
 
+Rep-Seq的一项重要任务是估算唯一受体的数量，即在任何给定时刻个体中表达的库大小，称为 repertoires diversity estimation，而这是一个 **unseen species problem**
+
+![](./picture/immuSeq-paper-survey-diversity-unseen-speices-problem.png)
+
+在大约60年前，统计学家费舍尔（Fisher）确定了类似问题的解决方案，主要是基于capture–recapture方法上的泊松分布估计 <sup><a href='#ref6'>[6]</a></sup>：
+
+目前repertoires diversity 的估计存在不准确性的原因：
+
+> - 免疫组库多样性估计的一种常用方式便是估计唯一V（D）J组合的数量，然而由于受体多样性的产生除了VDJ重组之外，也包括核苷酸插入和缺失（indels）和体细胞超突变产生的，因此这些估计仅是可能组合实际数目的下限；
+>
+> - 大多数研究集中在免疫受体的单链上，因此仅描述了通过构建异二聚体的两条链的组合获得的总多样性的一部分；
+
+
+
+
+
 <a name="clone-convergence"><h3>克隆融合度（convergence）或者称为简并性 [<sup>目录</sup>](#content)</h3></a>
 
 融合度：从多个核苷酸序列翻译出相同的氨基酸序列
 
 Freeman JD, Warren RL, Webb JR at al. Profiling the T-cell receptor beta-chain repertoire by massively parallel sequencing. Genome Res. 2009 Oct; 19(10):1817-24.
 
+<a name="not-random-for-repertoires"><h3>免疫组库多样性产生的非随机性 [<sup>目录</sup>](#content)</h3></a>
+
+Vβ -Jβ组合的频率在naive T细胞和记忆T细胞之间存在着明显的差异 (Blood. 2009 Nov 5;114(19):4099-107)；
+
+基于对V-D-J基因片段之间的组合形式的分析发现：Vβ-Dβ重组倾向于随机，而Dβ-Jβ的组合的随机性不够明显 (Robins et al. Blood. 2009 Nov 5;114(19):4099-107)；
+
+CDR3序列的频率和在Vβ-Dβ或Dβ-Jβ之间的插入量之间有很强的负相关性，即高频CDR3通常在那些结中包含较少的插入事件；
+
+
+
+
+
 <a name="repertoire-bias"><h3>Repertoire Bias [<sup>目录</sup>](#content)</h3></a>
+
+
 
 ![](./picture/immuSeq-paper-survey-Repertoire-Bias-1.png)
 
-responding T cells in an individual use the same TCR α-chain variable (Vα) region or β-chain variable (Vβ) region, but have little or no similarity in the complementarity-determining region 3 (CDR3)- or junctional (J)-region sequences
+responding T cells in an individual use **the same TCR α-chain variable (Vα) region or β-chain variable (Vβ) region**, but have little or no similarity in the complementarity-determining region 3 (CDR3)- or junctional (J)-region sequences
+
+即仅在VJ片段的重组来源上一致
 
 ![](./picture/immuSeq-paper-survey-Repertoire-Bias-2.png)
 
-responding T cells in an individual use the same TCR Vα or Vβ region, and also share amino acids at the same position in the CDR3 region (a CDR3 motif). The motif can be as small as one amino acid, or as large as four amino acids
+responding T cells in an individual use the **same TCR Vα or Vβ region**, and also share amino acids at the same position in the CDR3 region (**a CDR3 motif**). The motif can be as small as one amino acid, or as large as four amino acids
 
 The example shown here comprises a two amino-acid motif, WG
 
 ![](./picture/immuSeq-paper-survey-Repertoire-Bias-3.png)
 
 responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and J-region sequence. It can refer to a single TCR α- or β-chain, or both
+
+即完全相同
 
 那么Repertoire Bias对个体免疫力来说，是好是坏？
 
@@ -526,6 +562,8 @@ responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and
     但是目前这些常规分析大都使用的是内部的自建脚本，标准不统一，难以比较和重复
 
 <a name="vdjtools"><h3>VDJtools [<sup>目录</sup>](#content)</h3></a>
+
+工具文章  <sup><a href='#ref7'>[7]</a></sup>：
 
 <a name="functions-of-vdjtools"><h4>功能 [<sup>目录</sup>](#content)</h4></a>
 
@@ -711,15 +749,17 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 
 (1) <a name='ref1'>Benichou J, Ben-Hamo R, Louzoun Y, Efroni S. Rep-Seq: uncovering the immunological repertoire through next-generation sequencing. Immunology. 2012 Mar;135(3):183-91. </a>
 
-(1)  Zhang W , Du Y , Su Z , et al. IMonitor: A Robust Pipeline for TCR and BCR Repertoire Analysis[J]. Genetics, 2015, 201.
+(2) <a name='ref2'>Quentin Marcou, Thierry Mora, and Aleksandra M. Walczak. High-throughput immune repertoire analysis with IGoR. Nat Commun. 2018; 9: 561. </a>
 
-(2) Quentin Marcou, Thierry Mora, and Aleksandra M. Walczak. High-throughput immune repertoire analysis with IGoR. Nat Commun. 2018; 9: 561.
+(3) <a name='ref3'>Zhang W , Du Y , Su Z , et al. IMonitor: A Robust Pipeline for TCR and BCR Repertoire Analysis[J]. Genetics, 2015, 201.  </a>
 
-(3) [卢锐《Alpha多样性指数之Chao1指数 》](http://blog.sciencenet.cn/blog-2970729-1074963.html)
+(4) [卢锐《Alpha多样性指数之Chao1指数 》](http://blog.sciencenet.cn/blog-2970729-1074963.html)
 
-(4) Bolotin D et al. MiXCR: software for comprehensive adaptive immunity profiling. Nature Methods 12, no. 5 (2015): 380-381.
+(5) <a name='ref4'>Bolotin D et al. MiXCR: software for comprehensive adaptive immunity profiling. Nature Methods 12, no. 5 (2015): 380-381. </a>
 
-(5) Shugay M, Britanova OV, Merzlyak EM, et al. Towards error-free profiling of immune repertoires. Nat Methods.2014 May 4
+(6) <a name='ref5'>Shugay M, Britanova OV, Merzlyak EM, et al. Towards error-free profiling of immune repertoires. Nat Methods. 2014 May 4 </a>
+
+(7) <a name='ref6'>Fisher RA, Corbet AS, Williams C. The relation between the number of species and the number of individuals in a random sample of an animal population. J Anim Ecol. 1943;12:42–58. </a>
 
 (6) Chao, A. 1984. Non-parametric estimation of the number of classes in a population. Scandinavian Journal of Statistics 11, 265-270.
 
@@ -731,4 +771,4 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 
 (10)  Emerson R O , Dewitt W S , Vignali M , et al. Immunosequencing identifies signatures of cytomegalovirus exposure history and HLA-mediated effects on the T cell repertoire[J]. Nature Genetics, 2017, 49(5):659-665.
 
-(11) Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11)
+(11) <a name='ref7'>Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11) </a>
