@@ -99,7 +99,7 @@
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-PCR-methods.png width=400 /></p>
 
-<p align="center">免疫组库测序的建库过程中采用的不同的PCR方法。（a）多个引物–设计两个引物来互补V和J片段内的区域。（b）5'RACE –仅设计一种引物来互补cDNA的恒定区。在第一轮扩增之后，将均聚物合成地添加到3'中。再次用第一特异性引物和另一种靶向均聚物的引物扩增cDNA</p>
+<p align="center"  width=600>免疫组库测序的建库过程中采用的不同的PCR方法。（a）多个引物–设计两个引物来互补V和J片段内的区域。（b）5'RACE –仅设计一种引物来互补cDNA的恒定区。在第一轮扩增之后，将均聚物合成地添加到3'中。再次用第一特异性引物和另一种靶向均聚物的引物扩增cDNA</p>
 
 TCR与BCR的结构：
 
