@@ -1,3 +1,6 @@
+![GitHub stars](https://img.shields.io/github/stars/Ming-Lian/NGS-analysis.svg?style=social&label=Star&?maxAge=2592000)
+
+
 # NGS-analysis
 二代测序数据分析
 
