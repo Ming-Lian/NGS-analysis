@@ -369,7 +369,7 @@ Reliable clonal detection cutoffs
 
 <a name="advice-on-data-analysis"><h3>数据分析 [<sup>目录</sup>](#content)</h3></a>
 
-<p aling='center'><img src=./picture/immuSeq-paper-best-practice-outline-for-data-analysis.png width=600/></p>
+<p align='center'><img src=./picture/immuSeq-paper-best-practice-outline-for-data-analysis.png width=600/></p>
 
 For bioinformaticians and others used to dealing with different types of HTS experimental data (such as DNA-seq and RNA-seq data), approaching Rep-seq data requires a change of mindset
 
