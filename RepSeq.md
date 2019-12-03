@@ -2,20 +2,31 @@
 
 [免疫组库入门](#title)
 - [背景介绍](#introduction)
-    - [适应性免疫应答过程](#the-process-of-adaptive-immune-response)
-        - [免疫细胞的发生与成熟过程](#the-development-of-lymphocyte)
-    - [免疫组库测序技术](#the-technology-of-immune-repertoires-sequencing)
+	- [适应性免疫应答过程](#the-process-of-adaptive-immune-response)
+		- [免疫细胞的发生与成熟过程](#the-development-of-lymphocyte)
+	- [免疫组库测序技术](#the-technology-of-immune-repertoires-sequencing)
+    - [技术标准](#standar-of-technology)
+        - [挑战与 AIRR 社区目标](#challenge-and-community)
+        - [Data Generation](#standar-data-generation)
+        - [Data Sharing](#standar-data-sharing)
+- [实验设计的几点建议](#advice-for-study-design)
+	- [取样](#advice-on-sampling)
+	- [数据质量：error correction](#advice-on-quality-control-for-dataset)
+	- [数据分析](#advice-on-data-analysis)
+        - [Pre-processing](#advice-on-data-analysis-pre-processing)
 - [基本数据质控](#QC-for-RepSeq-data)
-    - [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
-        - [标准结构鉴定方法](#standar-methods-for-structure-identification)
-        - [标准结构鉴定方法存在的问题及解决策略](#error-in-struture-identification-and-methods-to-overcome)
-    - [一些描述样本免疫组库的指标](#index-for-characterize-individual-immune-repertoire)
-    - [PCR与测序错误的校正](#pcr-and-sequencing-error-correction)
-    - [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
+	- [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
+        - [Gene features and anchor points](#Gene-features-and-anchor-points)
+		- [标准结构鉴定方法](#standar-methods-for-structure-identification)
+		- [标准结构鉴定方法存在的问题及解决策略](#error-in-struture-identification-and-methods-to-overcome)
+		- [基于HMM概率统计模型的方法](#method-based-on-statistic-model)
+	- [一些描述样本免疫组库的指标](#index-for-characterize-individual-immune-repertoire)
+	- [PCR与测序错误的校正](#pcr-and-sequencing-error-correction)
+	- [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
 - [分析切入点](#key-points-for-data-analysis)
-    - [多样性分析](#diversity-analysis)
-    - [克隆融合度（convergence）或者称为简并性](#clone-convergence)
-    - [免疫组库多样性产生的非随机性](#not-random-for-repertoires)
+	- [多样性分析](#diversity-analysis)
+	- [克隆融合度（convergence）或者称为简并性](#clone-convergence)
+	- [免疫组库多样性产生的非随机性](#not-random-for-repertoires)
     - [Repertoire Bias](#repertoire-bias)
     - [基于网络的分析方法](#analysis-based-on-network-construction)
     - [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
@@ -30,7 +41,11 @@
                 - [Diversity estimation](#diversity-estimation)
         - [使用](#usage-of-vdjtools)
         - [典型示例](#typical-examples)
-
+- [附加信息](#addition-informatics)
+    - [* 数据库信息资源](#database-resource)
+    - [* 冠心病与免疫](#immune-and-cad)
+	- [* 多样性评估指标](#diversity-metrics)
+    - [* 文章收藏](#collection-of-enligtning-papers)
 
 
 
@@ -39,6 +54,14 @@
 <h1 name="title">免疫组库入门</h1>
 
 <a name="introduction"><h2>背景介绍 [<sup>目录</sup>](#content)</h2></a>
+
+免疫组库研究的意义：
+
+- In addition to probing the fundamental processes underlying the immune system in healthy individuals, Repseq has the potential to reveal the mechanisms underlying **autoimmune diseases, allergy,
+cancer and aging**
+
+- shed new light on **antibody discovery**
+
 
 <a name="the-process-of-adaptive-immune-response"><h3>适应性免疫应答过程 [<sup>目录</sup>](#content)</h3></a>
 
@@ -53,6 +76,10 @@
     基因重排过程：
 
     ![](./picture/Immunology-knownledge-B-cell-2.png)
+
+    <p align="center"><img src=./picture/immuSeq-paper-orgin-of-CDR3.png width=400 /></p>
+
+    <p align="center">从CDR3角度观察VDJ重组过程</p>
 
     一个B细胞克隆只表达一种BCR，只分泌一种抗体，原因：
 
@@ -94,14 +121,36 @@
 
 <a name="the-technology-of-immune-repertoires-sequencing"><h3>免疫组库测序技术 [<sup>目录</sup>](#content)</h3></a>
 
+免疫组库测序技术开山第一篇：Genome Res. 2009 Oct;19(10):1817-24. doi: 10.1101/gr.092924.109. Epub 2009 Jun 18.
+
+<p align="center"><img src=./picture/immuSeq-paper-survey-outline-of-RepSeq.png width=600 /></p>
+
+There are approximately **10^10–10^11** B cells in a human
+adult
+
+These cells are critical components of adaptive immunity, and directly bind to pathogens through BCRs expressed on the cell surface. Each B cell expresses a different BCR that allows it to recognize a particular set of molecular patterns. For example, some B cells will bind to epitopes expressed by influenza A viruses, and others to smallpox viruses
+
+Individual B cells gain this specificity during their development in the bone marrow, where they undergo **a somatic rearrangement process**: combines multiple germline-encoded gene segments to produce the BCR
+
+- the large number of possible V(D)J segments
+- additional (junctional) diversity
+
+lead to a theoretical diversity of **>10^14**
+
+further increased during adaptive immune responses,
+when activated B cells undergo a process of s**omatic
+hypermutation (SHM)**
+
 <p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-overview.png width=400 /></p>
 
 <p align="center">免疫组库测序的技术流程 <sup><a href='#ref1'>[1]</a></sup></p>
 
+Rep-seq studies involve large-scale sequencing of DNA libraries, which are prepared by amplifying the genomic DNA (gDNA) or mRNA coding for the BCR using PCR 
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-PCR-methods.png width=400 /></p>
 
 <p align="center">免疫组库测序的建库过程中采用的不同的PCR方法 <sup><a href='#ref1'>[1]</a></sup>。（a）多个引物–设计两个引物来互补V和J<br>片段内的区域。（b）5'RACE –仅设计一种引物来互补cDNA的恒定区。在第一轮扩增之后，<br>将均聚物合成地添加到3'中。再次用第一特异性引物和另一种靶向均聚物的引物扩增cDNA</p>
+
 
 TCR与BCR的结构：
 
@@ -167,9 +216,401 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 - **Simpson diversity index**：样本间的多样性的比较
 - **Morisita-Horn similarity index**：样本间相似度的比较
 
+<a name="standar-of-technology"><h3>技术标准 [<sup>目录</sup>](#content)</h3></a>
+
+<a name="challenge-and-community"><h4>挑战与 AIRR 社区目标 [<sup>目录</sup>](#content)</h4></a>
+
+New technology often spreads rapidly, sometimes more rapidly than the understanding of how to make the products of that technology reliable, reproducible, or usable by others. As complex technologies have developed, scientific communities have come together to adopt common standards, protocols, and policies for generating and sharing data sets, such as the MIAME protocols developed for microarray experiments. 
+
+The Adaptive Immune Receptor Repertoire (AIRR) Community formed in 2015 to address similar issues for HTS data of immune repertoires.
+
+AIRR社区官网：https://www.antibodysociety.org/the-airr-community/
+
+芯片数据的标准化组织：MIAME（2001, DOI: 10.1038/ng1201-365）
+
+NGS数据的标准化组织：DATA ACCESS （2015, DOI: 10.1126/science.aaa7485）
+
+挑战：
+
+> - the storage and transport of such large datasets
+>
+> - deposition into public archives is not uniformly required by journals or funding agencies
+>
+>    As of September 4, 2017, a Wiki page on the [B-T.CR forum](https://b-t.cr/) lists 82 AIRR-seq studies that report full HTS data to a public archive,2 while 42 (34%) do not
+>
+> -  the information required to ensure appropriate use of such data by secondary users requires delineation
+>
+> - the processing pipeline between the experiment and the ultimate analysis of the data is lengthy and specialized
+>
+>   - Yaari G, Kleinstein SH. **Practical guidelines for B-cell receptor repertoire sequencing analysis**. Genome Med. 2015 Nov 20; 7():121.
+>   - Victor Greiff, Enkelejda Miho, Ulrike Menzel, Sai T.Reddy. **Bioinformatic and Statistical Analysis of Adaptive Immune Repertoires**. Trend in Immunology. 2015 Nov;36(11):738-749. doi: 10.1016/j.it.2015.09.006.
+>
+>   其他的流程与分析工具：https://b-t.cr/t/b-t-cr-wiki-home/321
+>
+> - the **annotation** required of AIRR-seq data is unique to these genes and subject to substantial uncertainty
+>
+>   - randomly chosen gene segments
+>   - non-templated nucleotides added to the junctions
+>   - nucleotides nibbled away from the gene segments
+>
+>   In B cells, somatic hypermutation during affinity maturation results in further diversification of immunoglobulin genes
+
+AIRR Community的发展历史：
+
+- 2015 established, at a meeting organized by Felix Breden, Jamie Scott, and Thomas Kepler in Vancouver, BC, USA to address these data sharing challenges.
+
+    Membership includes:
+    
+    - researchers expert in the generation of AIRR data;
+    - statisticians and bioinformaticians versed in their analysis;
+    - informaticians and data security experts experienced in their management;
+    -  basic scientists and physicians who turn to such data for critical insights;
+    - experts in the ethical, legal, and policy implications of sharing AIRR data
+
+    分成了3个小组，其对应任务：
+
+    - **The Minimal Standards Working Group**: the development of a set of metadata standards for the publication and sharing of AIRR-seq datasets
+    - **The Tools and Resources Working Group**: focused on the development of standardized resources to facilitate the comparison of AIRR-seq datasets and analysis tools, including collection, validation, and nomenclature of germline alleles
+    - **The Common Repository Working Group**: establish requirements for repositories that will store AIRR data
+
+<a name="standar-data-generation"><h4>Data Generation [<sup>目录</sup>](#content)</h4></a>
+
+- standard operating procedures for cell isolation and purification, including panels and gating strategies for flow cytometry
+
+- primers and protocols for amplification and sequencing of BCR or TCR rearrangements
+
+- a clear description of library preparation and sequencing
+
+<a name="standar-data-sharing"><h4>Data Sharing [<sup>目录</sup>](#content)</h4></a>
+
+For transparency and reliable reuse, experiments need to be sufficiently well annotated to allow evaluation of the quality of individual datasets and comparability of different datasets
+
+experimental metadata standards
+
+区分两个概念：
+
+> - data: consist of the raw sequences and the processed sequences
+>
+> - metadata: include
+>
+>    - clinical and demographic data on study subjects
+>    
+>    - protocols for cell phenotyping, nucleic acid purification, AIRR amplicon production, HTS library preparation and sequencing
+>    
+>    - documentation of the computational pipelines used to process the data
+
+
+
+<a name="advice-for-study-design"><h2>实验设计的几点建议 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="advice-on-sampling"><h3>取样 [<sup>目录</sup>](#content)</h3></a>
+
+不充分的生物学取样的影响：
+
+R.L. Warren, et al.
+Exhaustive T-cell repertoire sequencing of human peripheral blood samples reveals signatures of antigen selection and a directly measured repertoire size of at least 1 million clonotypes
+Genome Res., 21 (2011), pp. 790-797
+
+> distinct 20 ml blood samples from the same individual captured only a portion of the TCR peripheral blood repertoire (biological undersampling)
+
+足够高的测序深度能保证public clones的准确检测：
+
+> technological undersampling has been shown to compromise the detection of ‘public’ clones (clones shared across individuals), which are a common target in immune repertoire studies
+>
+> In fact, several studies indicated that there was a positive correlation between sequencing depth and the number of public clones detected
+
+两点建议：
+
+> - the number of sequencing reads should at least exceed the clonal diversity of the sample if complete read coverage is unattainable
+>
+> - the lower the frequency of a clone, the higher the sequencing depth must be for its accurate capture
+
+While knowing the exact clonal diversity of a lymphocyte population before HTS is not possible, basic knowledge of cell numbers and clonal frequency distributions, as well as **mathematical modeling**, facilitate the estimation of the required sequencing depth
+
+For example, antigen-specific or clonally expanded populations (e.g., memory B and T cells, plasma cells) will have a clone-to-cell ratio that is well below 1, and thus less sequencing reads would be required to obtain a good snapshot of the clonal diversity
+
+By contrast, clonal frequency distributions of naïve B and T cells have been shown to be more uniform (i.e., higher clone-to-cell ratios than clonally expanded populations)
+
+<a name="dvice-on-quality-control-for-dataset"><h3>数据质量：error correction [<sup>目录</sup>](#content)</h3></a>
+
+Regardless of the sequencing platform, HTS has not yet reached the level of accuracy of Sanger sequencing because it suffers from errors introduced during library amplification (experimental) or sequencing (HTS, bridge amplification, platform-specific) 
+
+Therefore, both experimental and computational strategies have been devised to attenuate the impact of errors on biological conclusions
+
+a well-known statistical principle: **a given entity converges to its true (‘expected’) value (law of large numbers) if sampled sufficiently often**
+
+UMI methods
+
+> UMI methods in immune repertoire sequencing have been shown to achieve up to a 100-fold error reduction, thus considerably reducing artificial repertoire diversity
+>
+> However, a study by Shugay and colleagues indicated that increased RNA input (increasing from ng to μg) required a considerable increase in sequencing depth (10^6 to 10^7 sequencing reads) and a switch in sequencing platform (Illumina MiSeq to HiSeq) to ensure consensus read construction (presence of multiple sequencing reads with identical UMIs) 
+>
+> Therefore, to effectively use UMI approaches for error correction, technological oversampling is needed
+
+Reliable clonal detection cutoffs
+
+> While these cutoffs exploit the multiplicity of reads per clone as detection confidence, it has been indicated that hotspot PCR or sequencing errors are reproducible across technical replicates
+
+其他的error correction方法：
+
+> - The simplest
+>
+>   filtering HTS datasets (before any V(D)J annotation) for low-quality reads (e.g., Phred score) using
+>
+> - heuristic clonal abundance cutoffs
+>
+>   removal of clones with only 1–5 reads to decrease artificial diversity
+>
+> Warren and colleagues showed that abundance filtering is superior to strict quality filtering in decreasing artificial diversity
+>
+> Bolotin and colleagues demonstrated that aggressive quality filtering can even lead to loss of a significant portion of the data
+>
+> In fact, lower-quality reads may be recovered from **paired-end sequencing** (the inherently lower-quality 3′ ends of sequencing reads gain in confidence via an overlapping region in both forward and reverse reads) or by **merging lower-quality reads with reads of higher quality and identical** or **very similar clonal identifiers**
+
+<a name="advice-on-data-analysis"><h3>数据分析 [<sup>目录</sup>](#content)</h3></a>
+
+<p aling='center'><img src=./picture/immuSeq-paper-best-practice-outline-for-data-analysis.png width=600/></p>
+
+For bioinformaticians and others used to dealing with different types of HTS experimental data (such as DNA-seq and RNA-seq data), approaching Rep-seq data requires a change of mindset
+
+> - BCR sequences are not encoded directly in the genome
+>
+>    While parts of the BCR can be traced back to segments encoded in the germline (that is, the V, D and J segments), the set of segments used by each receptor is something that needs to be inferred, as it is coded in a highly repetitive region of the genome and currently cannot be sequenced directly
+>
+> - these segments can be significantly modified during the rearrangement process and through SHM, whichleads to >5 % of bases being mutated in many B-cell subsets
+>
+> - there are no pre-existing full-length templates to align the sequencing reads
+
+<a name="advice-on-data-analysis-pre-processing"><h4>Pre-processing [<sup>目录</sup>](#content)</h4></a>
+
+goal: transform the raw reads that are produced by HTS into error-corrected BCR sequences
+
+需要考虑的影响因素：
+
+> - sequencing depth
+>
+> - read length
+>
+> - paired-end versus single-end reads
+>
+> - inclusion of unique molecular identifiers (UMIs; sometimes referred to as UIDs)
+
+if the data are very large (several million reads per sample are common), it is advisable to sample a random subset (say 10,000 reads) and carry out the steps below to make sure quality is reasonable and the read conforms to the experimental design
+
+It is useful to keep track of how many sequences pass each step successfully so that outliers can be detected. The outliers may reflect steps for which the parameters need further tuning or may indicate issues related to the experiments
+
+可以讲数据预处理操作分成以下三部分
+
+- **Quality control and read annotation**
+
+    If samples are multiplexed, the sequencing facility will normally de-multiplex the data into one FASTQ file for each sample
+
+    If the data are pairedend, each sample will produce two FASTQ files (one for each read-end)
+
+    - de-multiplex
+    
+        If the data have not been de-multiplexed by the sequencing facility, the first step in the analysis is to identify the sample identification tags to as multiplex identifiers (MIDs) or sample identifiers (SIDs)) to determine which reads belong to which samples
+
+        These MID tags typically consist of a short number of base pairs (commonly 6–16) that are located near the end(s) of the amplicon
+
+        If multiple MIDs are designed to be in each sequence(named UMI), these should be checked for consistency in order to reduce the probability of misclassification of reads due to PCR and sequencing errors
+
+    -  handling low-quality reads and bases
+
+        It is desirable to have a Phred-like score >30 for a long stretch at the beginning of each read. Quality will typically drop near the end of each read
+
+        If the library is designed to have a lot of overlap in the paired reads, then low-quality positions at the ends of the reads can be cut at this stage to allow better assembly of the paired reads
+
+        The appropriate quality thresholds to employ are dataset dependent, and insight may be gained by plotting the distribution of quality scores as a function of position in the sequence
+
+    - identify, annotate, and mask the primers
+
+        The location of the primer sequences depends on the library preparation protocol
+
+        A typical setup includes a collection of V segment primers at the 5′ end and a set of J (or constant region) primers at the 3′ end of the amplicon
+
+        In library preparation protocols in which 5′ rapid amplification of cDNA ends (5′ RACE) is used, there will not be a V segment primer
+
+        In this step, it is crucial to know where on the read (and on which read of a pair) each primer is located
+
+        注意一种特殊情况：primer设在恒定区域
+
+        > each constant region primer may be associated with a specific isotype (immunoglobulin (Ig)M, IgG, and so on)
+        >
+        > The part of the sequence that matches the primer should then be cut or masked (bases changed to N)
+        >
+        > This is because the region bound by the primer may not accurately reflect the state of the mRNA/DNA molecule being amplified. For example, a primer designed to match a germline V segment sequence may bind to sequences with somatic mutations, thus leading to inaccuracy in mutation identification in downstream analysis
+
+- **Unique molecular identifiers**
+
+    UMIs are highly diverse nucleotide tags appended to the mRNA, usually at the reverse transcription step. UMIs are usually located at a specific position(s) in a read (for example, a 12 base pair (bp) UMI at one end of the read or split as two 6 bp identifiers at opposite ends of the amplicon). The length of the UMI depends on protocol, but is typically around 15 bases. The random nature of the UMI enables each sequence to be associated with a single mRNA molecule. They are designed to reduce PCR amplification biases and sequencing error rates through the generation of consensus sequences from all amplicons with the same UMI
+
+    步骤：
+
+    > -  identified in each read, and then it is removed from the read and the read is annotated with the UMI sequence
+    >
+    > - checked that the UMIs conform to the experimental protocol by plotting the distribution of bases at each position in the UMI and the distribution of reads per UMI to make sure that there are no unexpected biases
+    >
+    > - sequences with “similar” UMIs should be clustered together
+    >
+    >   Clustering approaches can be used for recognizing UMIs that are expected to correspond to the same pre-amplified mRNA molecule (for example, single linkage hierarchical clustering)
+    >
+    >   However, it is possible that each of these UMI clusters corresponds to multiple mRNA molecules. This may be due to incorrect merging, insufficient UMI diversity (that is, UMI sequences that are too short, or bad quality such as GC content biases), or bad luck
+    >
+    > - build a consensus sequence from each cluster of reads
+
+    可用的工具：MiGEC 和 pRESTO
+
+- **Assembly of paired-end reads**
+
+    In most cases, experiments using paired-end sequencing are designed so that the two reads are expected to overlap each other
+
+    Assembly of the two reads into a single BCR sequence can be done de novo by scoring different possible overlaps and choosing the most significant. Discarding reads that fail to assemble may bias the data towards shorter BCR sequences, which will have a longer overlapping region
+
+    （这句话的理解有待进一步研究）When the overlap region is expected to be in the V segment, it is also possible to determine the relative positions of the reads by aligning them to the same germline V segment. This is especially useful when not all read pairs are expected to overlap, and Ns can be added between the reads to indicate positions that have not been sequenced
+
+    Since each read of a pair may be associated with different annotations (for example, which primers were identified), it is critical to merge these annotations so that they are all associated with the single assembled read, such as the base quality in the overlap region can be recomputed and propagated
+
+    it is also useful to identify sequences that are identical at the nucleotide level, referred to as “duplicate” sequences, and group them to create a set of “unique” sequences —— 这部操作存在一个问题：扩增的克隆可能带来“duplicate” sequences，此时如果以PCR重复来过滤就可能丢掉了克隆扩增的信息
+
+
+
+
+
+
+<p align="center"><img src=./picture/immuSeq-paper-advice-on-statistic-analysis.jpg width=700/></p>
+
+Statistical analyses rely predominantly on clonotyped data and are therefore preceded by a workflow composed of raw data preprocessing (read filtering, error correction), germline annotation, and clonotyping
+
+Sequence-dependent approaches:
+
+> - visualize convergence of repertoires by quantifying clonal overlap [Venn diagrams; overlap indices such as Morisita–Horn]
+>
+> - display the clonal architecture of repertoires (networks)
+>
+>	highlighting denser (clonal expansion) or sparser regions of the repertoire
+>
+>	each vertex is a clone, the size of each vertex is proportional to its abundance, red color highlights selected clones
+>
+> -  reveal dynamics of clones (Circos graphs) shared across samples (sections) by visualizing their change in frequency (bars)
+>
+> - retrace clonal evolution (phylogenetic trees) helping for instance the visualization of the phylogenetic relation of different clonal lineages (color-coded)
+
+选择合适的clontype的定义及其对数据解读的影响：
+
+> While the definition of clonality in a biological sense is widely accepted (all lymphocytes having the same BCR or TCR belong to the same clone, see above), its translation to HTS data is challenging owing to the influence of PCR and sequencing errors, and of SHM
+>
+> 可以选择的合适的序列同源性来聚类相似克隆
+>
+> clustering by CDR3 homology at the nucleotide level has been performed in the following ways: 
+>
+> - inferring unmutated common ancestors
+>
+> - absolute edit distance cutoffs in hierarchical clustering linkage trees, allowing a range of mismatches (one, three, or five) in sequences within one clonotype
+>
+> - clustering by using relative thresholds (90%, 95%, 97.25%, 100%)
+>
+> Clonotyping reduces the influence of PCR and sequencing errors on clonal diversity estimations but also, in the case of B cells, serves to group clones that belong to the same clonal lineage
+>
+> A robust clonotype definition is, therefore, a defining step in every immune repertoire HTS study because it has a large impact on biological conclusions drawn (especially in diversity analyses
+>
+> Tipton et al. recently defined clonotypes by experimental validation as sequences with CDR3 (hamming) nucleotide identity of >85% using replicate sequencing
+
+常用的免疫组库数据注释（或VDJ mapping）工具及其功能和优缺点比较：
+
+|	` `	|	IMGT/High-V-Quest	|	IgBlast	|	iHMMune-align	|	MIGEC	|	MIXCR	|
+|:---|:---|:---|:---|:---|:---|
+|	Analysis of TCR and BCR data	|	TCR and BCR	|	BCR	|	BCR	|	TCR and BCR	|	TCR and BCR	|
+|	Prediction of germline sequences	|	Yes	|	Yes	|	Yes	|	No	|	Yes	|
+|	Extraction of FR/CDR/constant region (CR)	|	FR, CDR	|	For V region only (until V-part of CDR3)	|	No	|	CDR3	|	FR/CDR/CR	|
+|	SHM extraction	|	Yes (but V region only)	|	Yes (entire V(D)J region)	|	Yes (entire V(D)J region)	|	No	|	Yes (entire V(D)J region)	|
+|	Reference numbering scheme	|	IMGT	|	IMGT/Kabat/NCBI	|	UNSWIg	|	IMGT	|	IMGT	|
+|	Max number of sequences per analysis	|	≤500 000	|	∼1000 (online) Unrestricted (standalone)	|	∼2 Mb (Online), Unrestricted (standalone)	|	Unrestricted	|	Unrestricted	|
+|	Processing of unique molecular identifiers	|	No	|	No	|	No	|	Yes	|	No	|
+|	Consideration of sequencing quality information (Phred scores)	|	No	|	No	|	No	|	Yes	|	Yes	|
+|	Speed (standard dataset of 1 × 106 reads)	|	Days	|	Hours	|	Hours	|	Minutes	|	Minutes	|
+|	Supported input format	|	FASTA	|	FASTA	|	FASTA	|	FASTQ	|	FASTA, FASTQ	|
+|	Platform	|	Online	|	Online/stand-alone	|	Online/stand-alone	|	Stand-alone	|	Stand-alone	|
+
+
+
 <a name="QC-for-RepSeq-data"><h2>基本数据质控 [<sup>目录</sup>](#content)</h2></a>
 
 <a name="structure-identification-of-cdr3-region"><h3>CDR3区域结构鉴定 [<sup>目录</sup>](#content)</h3></a>
+
+
+
+CDR3结构鉴定（VDJ mapping）是免疫组库数据分析中的关键性的也是基础性的一步：
+
+> A fundamental step in the analysis of such a sequencing data set is to reconstruct the origin of each nucleotide in each sequence: whether it came from an N-addition or from a germline V, D, or J gene, and if so, which one and where
+
+VDJ mapping存在的困难和挑战：
+
+> - 片段连接末端的随机丢失的存在：
+>
+>   Even if a complete collection of alleles (gene variants between individuals) for the germline V, D, and J genes were available, this problem would be challenging because **exonuclease deletion** obscures the boundaries between N-regions and germline V, D, and J gene sequences
+>
+> - BCR的结构鉴定更困难：体细胞高频突变（somatic hypermutation）的存在
+>
+>   若邻接N-region的片段无法找到完全匹配的germline V，D，J片段，则它有困难是germline V，D，J片段发生了点突变，也有可能是N-addtion
+
+这本质上可以看做是序列中碱基来源的注释问题（“annotation problem”）
+
+目前采用的解决方法有：
+
+> - 基于BLAST的序列搜索和Smith-Waterman的局部序列比对
+>
+>   代表工具：NCBI-IgBLAST、IMGT的在线工具
+>
+>   缺点：对BCR的SHM引入的不确定性，区分度较差
+>
+> - 基于HMM
+>
+>   代表工具：SoDA
+>
+>   隐含状态： (gene, nucleotide position) pairs 或 N-region nucleotides
+>
+>   发射状态：碱基 或 氨基酸残基
+>
+>   对于BCR的分析场景，发射概率中包含突变的概率
+
+<a name="Gene-features-and-anchor-points"><h4>Gene features and anchor points [<sup>目录</sup>](#content)</h4></a>
+
+There are several immunologically important parts of TCR/BCR gene (gene features). For example, such regions are three complementarity determining regions (`CDR1`, `CDR2` and `CDR3`), four framework regions (`FR1`, `FR2`, `FR3` and `FR4`) etc
+
+- **Germline features**
+
+    **V Gene structure**
+
+    <p align='center'><img src=./picture/immuSeq-paper-survey-VDJ-mapping-GeneFeature-VStructure.png /></p>
+
+    Additionally to core gene features in V region (like `FR3`) we introduce `VGene`, `VTranscript` and `VRegion` for convenience
+
+    **D Gene structure**
+
+    <p align='center'><img src=./picture/immuSeq-paper-survey-VDJ-mapping-GeneFeature-DStructure.png /></p>
+
+    J Gene structure
+
+    <p align='center'><img src=./picture/immuSeq-paper-survey-VDJ-mapping-GeneFeature-JStructure.png /></p>
+
+- **Mature TCR/BCR gene features**
+
+    Important difference between rearranged TCR/BCR sequence and germline sequence of its segments lies in the fact that during V(D)J recombination exact cleavage positions at the end of V gene, begin and end of D gene and begin of J gene varies
+
+    As a result in most cases actual `VEnd`, `DBegin`, `DEnd` and `JBegin` anchor positions are not covered by alignment:
+
+    <p align='center'><img src=./picture/immuSeq-paper-survey-VDJ-mapping-GeneFeature-VDJAlignmentStructure.png /></p>
+
+    In order to use actual V, D, J gene boundaries we introduce four additional anchor positions: `VEndTrimmed`, `DBeginTrimmed`, `DEndTrimmed` and `JBeginTrimmed` and several named gene features: `VDJunction`, `DJJunction` and `VJJunction`
+
+    On the following picture one can see the structure of V(D)J junction:
+
+    <p align='center'><img src=./picture/immuSeq-paper-survey-VDJ-mapping-GeneFeature-VDJJunctionStructure.png /></p>
+
+    If D gene is not found in the sequence or is not present in target locus (e.g. TRA), `DBeginTrimmed` and `DEndTrimmed` anchor points as well as `VDJunction` and `DJJunction` gene features are not defined
+
+
 
 <a name="standar-methods-for-structure-identification"><h4>标准结构鉴定方法 [<sup>目录</sup>](#content)</h4></a>
 
@@ -211,7 +652,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 - **个体免疫组库采样的饱和度**
 
-	采用了生态学中常用的 Chao1 指数，它常被用作种群丰富度的一个描述指标
+	采用了生态学中常用的 Chao1 指数 <sup><a href='#ref3'>[3]</a></sup>，它常被用作种群丰富度的一个描述指标
 
 	想象一下这样一个场景：
 
@@ -245,6 +686,8 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 <a name="pcr-and-sequencing-error-correction"><h3>PCR与测序错误的校正 [<sup>目录</sup>](#content)</h3></a>
 
+Nguyen P  <sup><a href='#ref10'>[10]</a></sup> 等试图直接评估这些错误率，并提出了通过分析这些错误并实施质量过滤器来减少库中错误序列数量的新方法。为此，他们分析了从RAG缺陷型(Rag-/-)小鼠中获得的特定转基因TCR，使它们能够表达单个种系重排的TCR，因此可以将测序的受体与原始DNA进行比较。他们的研究表明，错误序列的总发生率为1–6％，在过滤过程之后，这些错误被大大减少了，但并没有完全减少
+
 测序错误的影响及处理方法：
 
 > TCR-seq对测序错误十分敏感，因为只要有一个碱基不同，一条TCR β链就能区别于其他的克隆，一个碱基的测序错误可能在后续的分析中会被错误地鉴定出一个低丰度的新克隆，因此
@@ -253,7 +696,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 - 基于计算方法的校正
 
-（1）Wei Zhang等提出了一种进行错误校正的方法 <sup><a href='#ref3'>[3]</a></sup>
+（1）Wei Zhang等提出了一种进行错误校正的方法 <sup><a href='#ref4'>[4]</a></sup>
 
 可分为三步进行，前两步进行测序错误的校正，最后一步进行PCR错误校正：
 
@@ -267,7 +710,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 >
 > （3）最后，为了消除PCR过程中引入的错误，将低丰度的reads比对高丰度reads，对于某一个低丰度reads，若能找到一条高丰度reads使得它们之间的mismatch低于3个碱基，则将它合并到对应高丰度reads中；
 
-（2）Bolotin D等开发的MiXCR的错误矫正方法也同时考虑了PCR错误与测序错误 <sup><a href='#ref4'>[4]</a></sup>：
+（2）Bolotin D等开发的MiXCR的错误矫正方法也同时考虑了PCR错误与测序错误 <sup><a href='#ref5'>[5]</a></sup>：
 
 ![](./picture/immuSeq-paper-survey-error-correction-mixcr.png)
 
@@ -287,7 +730,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 基于这样的现象，如果我们能基于测序的reads构建出一系列这样的变异发生树，则我们就可以得到进行PCR扩增之前的原始read以及其真实的丰度（原始read以及各种变异衍生reads丰度的累计丰度）
 
-- 基于实验技术的方法 <sup><a href='#ref5'>[5]</a></sup>
+- 基于实验技术的方法 <sup><a href='#ref6'>[6]</a></sup>
 
 ![](./picture/immuSeq-paper-survey-error-correction-UMI.png)
 
@@ -298,7 +741,7 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 在免疫组库建库的过程中一般都采用针对V和J基因的多套引物进行PCR扩增，即使用的是多重PCR方法，与普通PCT相比，多重PCR明显会带来更大程度的PCR bias，所以为了保证下游分析的可靠性，进行PCR bias的修正是非常有必要的
 
-Wei Zhang等提出了一种进行PCR bias修正的方法 <sup><a href='#ref3'>[3]</a></sup>：
+Wei Zhang等提出了一种进行PCR bias修正的方法 <sup><a href='#ref4'>[4]</a></sup>：
 
 该方法基于这样一个前提假设：multiplex PCR过程中，克隆的扩增效率仅受到以下两个因素的影响——**模板的浓度**和**多重引物的效率**
 
@@ -409,13 +852,15 @@ Rep-Seq的一项重要任务是估算唯一受体的数量，即在任何给定�
 
 ![](./picture/immuSeq-paper-survey-diversity-unseen-speices-problem.png)
 
-在大约60年前，统计学家费舍尔（Fisher）确定了类似问题的解决方案，主要是基于capture–recapture方法上的泊松分布估计 <sup><a href='#ref6'>[6]</a></sup>：
+在大约60年前，统计学家费舍尔（Fisher）确定了类似问题的解决方案，主要是基于capture–recapture方法上的泊松分布估计 <sup><a href='#ref7'>[7]</a></sup>：
 
 目前repertoires diversity 的估计存在不准确性的原因：
 
 > - 免疫组库多样性估计的一种常用方式便是估计唯一V（D）J组合的数量，然而由于受体多样性的产生除了VDJ重组之外，也包括核苷酸插入和缺失（indels）和体细胞超突变产生的，因此这些估计仅是可能组合实际数目的下限；
 >
 > - 大多数研究集中在免疫受体的单链上，因此仅描述了通过构建异二聚体的两条链的组合获得的总多样性的一部分；
+
+免疫组库网络的构建：节点——免疫组库中的一条序列，边——潜在的变异或插入缺失。这种网络结构有助于识别：唯一序列 vs. 序列组，以及它们在网络中的中心度
 
 
 
@@ -440,7 +885,6 @@ Freeman JD, Warren RL, Webb JR at al. Profiling the T-cell receptor beta-chain r
 以上的种种都表明 IgH/TCRB 存在序列选择的非随机性，在某种程度上有一定收敛规律，这种现象可以被克隆融合度或简并性部分解释：
 
 > 多个重组事件可能产生相同的核苷酸序列，而多核苷酸序列可以翻译为相同的氨基酸序列
-
 
 
 
@@ -532,6 +976,36 @@ responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and
 >
 > - 顶点间度（Betweenness ）：该顶点所处的最短路径的数量，或者说是经过该节点的所有可达节点对中最短路径的比例，某一点的顶点间度越高表示该顶点是许多最短路径的必经入路，正所谓“咽喉要道”“一夫当关万夫莫开”，则它的全局网络结构中的中心度越高；
 
+待看的文章：
+
+[BMC Syst Biol. doi: 10.1186/1752-0509-5-27](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3047437/)
+
+[Nat Com. doi: 10.1038/s41467-019-09278-8](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6428871/)
+
+可以将免疫组库中（单个样本或多个样本）的克隆用图的形式组织起来：
+
+<p align="center"><img src=./picture/immuSeq-paper-survey-network-analysis.png width=600/></p>
+
+图中的每个节点表示一种TCR克隆（用氨基酸序列的唯一性来定义克隆），边表示所连接的两个克隆的氨基酸替换差异小于某一个固定阈值(上图设置的阈值为3个氨基酸差异)
+
+> 上图的额外说明：
+>
+> 上图的节点表示的克隆根据其抗原表位特异性，填充不同的颜色：
+>
+> - 红：FRDYVDRFYKTLRAEQASQE (HIV-1/Gag)
+> - 蓝：GLCTLVAML (EBV/BMLF1)
+> - 绿：KRWIILGLNK (HIV-1/Gag)
+> - 紫：NLVPMVATV (CMV/pp65)
+> - 灰：其他
+>
+> 从图中可以看出：相同抗原特异性的不同克隆之间倾向于有更多的连接，即它们之间的氨基酸序列相似更高，在图中基本聚到了一起
+>
+> 对抗原特异性是否相同的边，分别统计它们的汉明距离：
+>
+> <p align="center"><img src=./picture/immuSeq-paper-survey-network-analysis-2.png width=400/></p>
+>
+> 发现相同抗原特异性的不同克隆之间倾向于有更近的汉明距离
+
 
 <a name="properties-of-a-healthy-repertoire"><h3>健康个体的免疫组库 [<sup>目录</sup>](#content)</h3></a>
 
@@ -605,7 +1079,7 @@ responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and
 
 <a name="vdjtools"><h3>VDJtools [<sup>目录</sup>](#content)</h3></a>
 
-工具文章  <sup><a href='#ref7'>[7]</a></sup>：
+工具文章  <sup><a href='#ref9'>[9]</a></sup>：
 
 <a name="functions-of-vdjtools"><h4>功能 [<sup>目录</sup>](#content)</h4></a>
 
@@ -783,6 +1257,90 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 |	sample_4.txt	|	sample_4	|	C	|	…	|
 |	…	|	…	|	…	|	…	|
 
+<a name="addition-informatics"><h2>附加信息 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="database-resource"><h3>* 数据库信息资源 [<sup>目录</sup>](#content)</h3></a>
+
+- IMGT：http://www.imgt.org/
+
+    只保存germline IG 和 TCR的序列和结构相关信息
+
+- iEDB：http://www.iedb.org/
+
+    专注于抗原肽表位的信息整理
+
+- McPAS-TCR：http://friedmanlab.weizmann.ac.il/McPAS-TCR/
+
+    搜集与病理相关的TCR序列，其中用NGS方法测出的免疫组库，将其中丰度最高的50种克隆认为它们与疾病状态相关
+
+    <p align='center'><img src=./picture/immuSeq-paper-addition-info-database-resource-McPAS-TCR.png width=600/></p>
+
+- VDJdb：https://vdjdb.cdr3.net/
+
+    整合了目前多个公开数据库和文献发表的TCR抗原特异性的信息，
+
+    <p align='center'><img src=./picture/immuSeq-paper-addition-info-database-resource-VDJdb.png width=600/></p>
+
+    该数据库还提供了一个基于VDJtools的在线注释工具[VDJmatch](https://github.com/antigenomics/vdjmatch)：对样本中的每种TCR克隆预测其抗原特异性
+
+    VDJmatch也提供了本地化运行版本，不过它需要通过一个API与VDJdb进行交互查询，需要用户申请账号才能发起查询的申请
+
+<a name="immune-and-cad"><h3>* 冠心病与免疫 [<sup>目录</sup>](#content)</h3></a>
+
+研究表明几乎所有危险因素导致冠状动脉粥样硬化的过程中均与免疫学机制紧密相连
+
+- 血脂代谢异常
+
+    血脂代谢异常被认为是动脉粥样硬化发生的必要条件。当血浆**低密度脂蛋白浓度**升高时， 可通过穿胞作用滞留于血管内皮层，并经过**氧化修饰**形成脂过氧化物、磷脂化合物及羰基脂化合物。 这些脂类分子可以诱导巨噬细胞及血管壁细胞产生细胞黏附分子、化学因子及炎症介质，同时损伤血管内皮激活损伤—应答过程。
+
+    此外**脂蛋白脱辅基蛋白部分也可以被修饰后产生自身抗原性**， 激活 T 细胞及抗原特异性免疫反应从而促进炎性细胞在粥样斑块原位聚集， 加剧脂类聚集、内皮功能异常及平滑肌增生， 加速粥样硬化的形成
+
+    其他脂蛋白颗粒如:极低密度脂蛋白、中等密度脂蛋白同样可以被氧化修饰并激活免疫反应促进粥样斑块形成
+
+- 炎症反应
+
+    在高血压患者血管紧张素Ⅱ的升高非常普遍，它不但可以增加动脉内皮细胞及平滑肌细胞超氧化物阴离子的生成量，从而增加脂类物质的氧化修饰；还可以增加内皮细胞表面白细胞黏附分子的表达, 及血管平滑肌细胞间炎性细胞因子的表达
+
+- 糖尿病所致的高血糖状态
+
+    在糖尿病所致的高血糖状态下， 大分子物质可被修饰形成高级糖基化终产物。这些经修饰的大分子物质通过与内皮细胞表面的相应受体结合, 可增强内皮细胞在受到损伤后免疫应答过程中释放炎性细胞因子的能力，加之高血糖状态可以增强反应性氧及羰基基团的氧化损伤作用，在损伤— 应答两个方面加剧了粥样斑块形成
+
+- 感染
+
+    其机制可能是**病原体含有与宿主蛋白肽同源序列**，侵入的病原感染( 血管内或血管外) 诱发免疫反应，免疫产物不但针对病原体本身，同时也攻击含有交叉反应肽序列的宿主组织，血管内皮细胞即为攻击对象之一，从而引发了随后的粥样斑块形成。
+
+<a name="diversity-metrics"><h3>* 多样性评估指标 [<sup>目录</sup>](#content)</h3></a>
+
+$$D^{(\alpha)} = \left(\sum^S_{i=1}f_i^\alpha\right)^{\frac{1}{1-\alpha}} \tag{Hill diversity}$$
+
+ where fi is the frequency of the ith clone weighted by the parameter α.
+
+ Special cases of this Diversity function correspond to popular diversity indices in the immune repertoire field: 
+
+ - species richness ($\alpha=0$)
+
+- the exponential Shannon–Weiner ($\alpha\to 1$)
+
+- the inverse of the Simpson index ($\alpha\to 2$)
+
+- the Berger–Parker index ($\alpha\to \infin$)
+
+The higher the value of α, the higher becomes the influence of the higher-abundance clones on the diversity
+
+Owing to the mathematical properties of the diversity function (Schur concavity), two repertoires may yield qualitatively different αD values depending on the diversity index used
+
+**Diversity profiles**, which are vectors of several diversity indices, have, therefore, been suggested to be superior to single diversity indices and are increasingly used in repertoire analyses
+
+<p align='center'><img src=./picture/immuSeq-paper-addition-info-diversity-metrics.png/></p>
+
+To quantify clonal expansion, diversity can be divided into evenness($D^α/D^0$) and species richness ($D^0$). Evenness ranges between 1 (uniform clonal population, every clone occurring in the frequency of $1/D^0$) and ≈ $1/D^0$, in which case one clone completely dominates the immune repertoire.
+
+<a name="collection-of-enligtning-papers"><h3>* 文章收藏 [<sup>目录</sup>](#content)</h3></a>
+
+最佳分析实战：
+
+G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire sequencing analysis. Genome medicine, Nov 2015 20 
+
 
 
 ---
@@ -797,13 +1355,15 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 
 (4) [卢锐《Alpha多样性指数之Chao1指数 》](http://blog.sciencenet.cn/blog-2970729-1074963.html)
 
-(5) <a name='ref4'>Bolotin D et al. MiXCR: software for comprehensive adaptive immunity profiling. Nature Methods 12, no. 5 (2015): 380-381. </a>
+(5) <a name='ref4'>Chao, A. 1984. Non-parametric estimation of the number of classes in a population. Scandinavian Journal of Statistics 11, 265-270. </a>
 
-(6) <a name='ref5'>Shugay M, Britanova OV, Merzlyak EM, et al. Towards error-free profiling of immune repertoires. Nat Methods. 2014 May 4 </a>
+(6) <a name='ref5'>Bolotin D et al. MiXCR: software for comprehensive adaptive immunity profiling. Nature Methods 12, no. 5 (2015): 380-381. </a>
 
-(7) <a name='ref6'>Fisher RA, Corbet AS, Williams C. The relation between the number of species and the number of individuals in a random sample of an animal population. J Anim Ecol. 1943;12:42–58. </a>
+(7) <a name='ref6'>Shugay M, Britanova OV, Merzlyak EM, et al. Towards error-free profiling of immune repertoires. Nat Methods. 2014 May 4 </a>
 
-(6) Chao, A. 1984. Non-parametric estimation of the number of classes in a population. Scandinavian Journal of Statistics 11, 265-270.
+(8) <a name='ref7'>Fisher RA, Corbet AS, Williams C. The relation between the number of species and the number of individuals in a random sample of an animal population. J Anim Ecol. 1943;12:42–58. </a>
+
+(9) <a name='ref8'>Robins HS, Campregher PV, Srivastava SK et al. Comprehensive assessment of T-cell receptor beta-chain diversity in alphabeta T cells. Blood. 2009 Nov 5; 114(19):4099-107. </a>
 
 (7) Harlan Robins, Cindy Desmarais, Jessica Matthis, et al. Ultra-sensitive detection of rare T cell clones[J]. Journal of Immunological Methods, 2012, 375(1-2):14-19.
 
@@ -813,6 +1373,6 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 
 (10)  Emerson R O , Dewitt W S , Vignali M , et al. Immunosequencing identifies signatures of cytomegalovirus exposure history and HLA-mediated effects on the T cell repertoire[J]. Nature Genetics, 2017, 49(5):659-665.
 
-(11) <a name='ref7'>Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11) </a>
+(11) <a name='ref9'>Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11). </a>
 
 (12) <a name='ref10'>Nguyen P1, Ma J, Pei D, Obert C et al. Identification of errors introduced during high throughput sequencing of the T cell receptor repertoire. BMC Genomics. 2011 Feb 11;12:106. doi: 10.1186/1471-2164-12-106. </a>
