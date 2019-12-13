@@ -14,6 +14,7 @@
 	- [数据质量：error correction](#advice-on-quality-control-for-dataset)
 	- [数据分析](#advice-on-data-analysis)
         - [Pre-processing](#advice-on-data-analysis-pre-processing)
+        - [V(D)J germline segment assignment](#advice-on-data-analysis-VDJ-germline-segment-assignment)
 - [基本数据质控](#QC-for-RepSeq-data)
 	- [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
         - [Gene features and anchor points](#Gene-features-and-anchor-points)
@@ -25,6 +26,8 @@
 	- [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
 - [分析切入点](#key-points-for-data-analysis)
 	- [多样性分析](#diversity-analysis)
+        - [多样性分析的难点](#difficulty-in-diversity-analysis)
+        - [疾病状态下的多样性缺失](#loss-diversity-in-sick-status)
 	- [克隆融合度（convergence）或者称为简并性](#clone-convergence)
 	- [免疫组库多样性产生的非随机性](#not-random-for-repertoires)
     - [Repertoire Bias](#repertoire-bias)
@@ -121,25 +124,59 @@ cancer and aging**
 
 <a name="the-technology-of-immune-repertoires-sequencing"><h3>免疫组库测序技术 [<sup>目录</sup>](#content)</h3></a>
 
-免疫组库测序技术开山第一篇：Genome Res. 2009 Oct;19(10):1817-24. doi: 10.1101/gr.092924.109. Epub 2009 Jun 18.
+免疫组库测序技术开山第一篇：
+
+> Profiling the T-cell receptor beta-chain repertoire by massively parallel sequencing. Genome Res. 2009 Oct;19(10):1817-24. doi: 10.1101/gr.092924.109. Epub 2009 Jun 18.
+
+国内韩健的几乎同时发表的免疫组库技术文章：
+
+> High throughput sequencing reveals a complex pattern of dynamic interrelationships among human T cell subsets. Proc Natl Acad Sci U S A. 2010 Jan 26;107(4):1518-23. doi: 10.1073/pnas.0913939107. Epub 2010 Jan 4.
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-outline-of-RepSeq.png width=600 /></p>
 
-There are approximately **10^10–10^11** B cells in a human
+免疫组库的多样性以及产生原因：
+
+> There are approximately **10^10–10^11** B cells in a human
 adult
-
-These cells are critical components of adaptive immunity, and directly bind to pathogens through BCRs expressed on the cell surface. Each B cell expresses a different BCR that allows it to recognize a particular set of molecular patterns. For example, some B cells will bind to epitopes expressed by influenza A viruses, and others to smallpox viruses
-
-Individual B cells gain this specificity during their development in the bone marrow, where they undergo **a somatic rearrangement process**: combines multiple germline-encoded gene segments to produce the BCR
-
-- the large number of possible V(D)J segments
-- additional (junctional) diversity
-
-lead to a theoretical diversity of **>10^14**
-
-further increased during adaptive immune responses,
+>
+> These cells are critical components of adaptive immunity, and directly bind to pathogens through BCRs expressed on the cell surface. Each B cell expresses a different BCR that allows it to recognize a particular set of molecular patterns. For example, some B cells will bind to epitopes expressed by influenza A viruses, and others to smallpox viruses
+>
+> Individual B cells gain this specificity during their development in the bone marrow, where they undergo **a somatic rearrangement process**: combines multiple germline-encoded gene segments to produce the BCR
+>
+> - the large number of possible V(D)J segments
+> - additional (junctional) diversity
+>
+> lead to a theoretical diversity of **>10^14**
+>
+> further increased during adaptive immune responses,
 when activated B cells undergo a process of s**omatic
 hypermutation (SHM)**
+
+研究人的免疫组库有几大难关（[韩健blog](http://blog.sina.com.cn/s/blog_52cb75b90100d2xm.html)）：
+
+> （1）人的免疫细胞来源有限。外周血里十毫升血含有大约五百万B细胞，两千万个T细胞。考虑到免疫细胞的多样性，十毫升血里面可能每个独特的B或T细胞可能仅有几个。因此不扩增就没有办法研究。
+>
+> （2）一般的扩增办法不能同时多成千上万个靶点进行扩增，而且扩增会偏向与几个克隆而忽略其他。所以研究免疫组库的扩增方法需要覆盖面非常广，敏感性格外强。
+>
+> （3）扩增过程不能引入偏向性。不能有些CDR3得到更多的扩增。就是说扩增需要半定量。
+
+总结上述难点，就是说研究免疫组库一定需要PCR扩增，扩增需要包容性（敏感性和特异性）而且需要半定量。除了arm-PCR以外，能够达到这些要求的扩增技术还没有听说过
+
+arm-PCR引物的设计过程：
+
+> <p align="center"><img src=./picture/immuSeq-paper-armPCR-primer-design.jpg width=400 /></p>
+>
+> A 20 feet long table still not enough to hold the entire sequence alignment. Each row is an allele, and the entire locus is put together by scotch tape.
+>
+> Designing primers like this make one feels like a general facing a map planning battles.
+>
+> What we are doing is to align hundreds of sequences and design primers from the conserved regions from the same locus. Usually, design PCR require us to have detailed knowledge of biological function of the sequences. Computer software do not have that knowledge, and TM based primer design do not help, if at all.
+
+B细胞高频突变对PCR引物设计的挑战：
+
+> 在B细胞的发育过程中，有一个非常奇特的阶段：重组好的 VDJ 基因区（而且就在那个区）有高频率的突变，突变的结果是产生出与抗原结合效价更高的抗体。
+>
+> 在这个区域的突变率可以达到每个碱基有近10%的机会会发生突变。这就给设计PCR引物带来困难，因为引物的设计依据是没有发生突变以前的基因组序列，如果发生了突变，那引物很可能就会失效，尤其是引物的3'端，对突变就更敏感，如果3'端的最后三个碱基发生突变，那引物就会“翘”起来，导致扩增失败
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-RepSeq-technology-overview.png width=400 /></p>
 
@@ -305,6 +342,10 @@ experimental metadata standards
 
 <a name="advice-on-sampling"><h3>取样 [<sup>目录</sup>](#content)</h3></a>
 
+10毫升血里面可能有五百万B细胞，两千万T细胞，考虑到免疫细胞的多样性，这10毫升血里面可能每个特定的淋巴细胞仅有几个。所以扩增的方法需要敏感性极强（包容性好，最大限度地覆盖不同的免疫细胞），而且扩增过程和测序过程不破坏细胞间的比例（半定量），不是高表达的得到更多的扩增，而数目较少的克隆细胞就被掩盖了
+
+<a align='right'>—— [韩健blog](http://blog.sina.com.cn/s/blog_52cb75b90100fstw.html)</a>
+
 不充分的生物学取样的影响：
 
 R.L. Warren, et al.
@@ -467,16 +508,39 @@ It is useful to keep track of how many sequences pass each step successfully so 
 
     Assembly of the two reads into a single BCR sequence can be done de novo by scoring different possible overlaps and choosing the most significant. Discarding reads that fail to assemble may bias the data towards shorter BCR sequences, which will have a longer overlapping region
 
-    （这句话的理解有待进一步研究）When the overlap region is expected to be in the V segment, it is also possible to determine the relative positions of the reads by aligning them to the same germline V segment. This is especially useful when not all read pairs are expected to overlap, and Ns can be added between the reads to indicate positions that have not been sequenced
+    **Alignment-aided overlaps** : When the overlap region is expected to be in the V segment, it is also possible to determine the relative positions of the reads by aligning them to the same germline V segment. This is especially useful when not all read pairs are expected to overlap, and Ns can be added between the reads to indicate positions that have not been sequenced
+
+    > 上面这一段可能有些难以理解，下面附上来自MiXCR工具的 [document](https://mixcr.readthedocs.io/en/latest/align.html#paired-end-reads-overlap) 中的信息，以帮助理解：
+    >
+    > If two reads were aligned against the same V gene (which is the most common case; while the same algorithm is applied to J alignments), and MiXCR detects that the same nucleotides (positions in the reference sequence) were aligned in both mates - this is a strong evidence that paired-end reads actually overlap. In this case MiXCR merges them into a single sequence using this new information
 
     Since each read of a pair may be associated with different annotations (for example, which primers were identified), it is critical to merge these annotations so that they are all associated with the single assembled read, such as the base quality in the overlap region can be recomputed and propagated
 
-    it is also useful to identify sequences that are identical at the nucleotide level, referred to as “duplicate” sequences, and group them to create a set of “unique” sequences —— 这部操作存在一个问题：扩增的克隆可能带来“duplicate” sequences，此时如果以PCR重复来过滤就可能丢掉了克隆扩增的信息
+    it is also useful to identify sequences that are identical at the nucleotide level, referred to as “duplicate” sequences, and group them to create a set of “unique” sequences —— 这部操作存在一个问题：扩增的克隆可能带来“duplicate” sequences，此时如果以PCR重复来过滤就可能丢掉了克隆扩增的信息，不过这种操作在mRNA文库有益，而对DNA文库不合适
 
+<a name="advice-on-data-analysis-VDJ-germline-segment-assignment"><h4>V(D)J germline segment assignment [<sup>目录</sup>](#content)</h4></a>
 
+In order to identify somatic mutations, it is necessary to infer the germline (pre-mutation) state for each observed sequence. This involves identifying the V(D)J segments that were rearranged to generate the BCR and determining the boundaries between each segment
 
+Most commonly this is done by applying an algorithm to choose among a set of potential germline segments from a database of known segment alleles
 
+那怎样从中选出合适的基因片段呢？
 
+Since the observed BCR sequences may be mutated, the identification is valid only **in a statistical sense**
+
+As such, multiple potential germline segment combinations may be equally likely. In these cases, many tools for V(D)J assignment report multiple possible segments for each BCR sequence
+
+**In practice, it is common to use one of the matching segments and ignore the rest**
+
+但是这么做会引入误差：
+
+> This has the potential to introduce artificial mutations at positions where the possible segments differ from each other
+
+可采取的缓解措施：
+
+> Genotyping and clonal grouping, which are described below, can help reduce the number of sequences that have multiple segment assignments
+
+The performance of V(D)J assignment methods crucially depends on the set of germline V(D)J segments. If the segment allele used by a BCR does not appear in the database, then the polymorphic position(s) will be identified as somatic mutation(s)
 
 <p align="center"><img src=./picture/immuSeq-paper-advice-on-statistic-analysis.jpg width=700/></p>
 
@@ -610,7 +674,21 @@ There are several immunologically important parts of TCR/BCR gene (gene features
 
     If D gene is not found in the sequence or is not present in target locus (e.g. TRA), `DBeginTrimmed` and `DEndTrimmed` anchor points as well as `VDJunction` and `DJJunction` gene features are not defined
 
+- **Gene feature syntax**
 
+    Syntax for gene features is the same everywhere. The best way to explain it is by example:
+
+    - to enter any gene feature mentioned above or listed in the next section just use its name: `VTranscript`, `CDR2`, `V5UTR` etc
+
+    - to define a gene feature consisting of several concatenated features use `+`: `V5UTR+L1+L2+VRegion` is equivalent to `VTranscript`
+
+    - to create gene feature starting at anchor point `X` and ending at anchor point `Y` use `{X:Y}` syntax: `{CDR3Begin:CDR3End}` for `CDR3`
+
+    - one can add or subtract offset from original position of anchor point using positive or negative integer value in brackets after anchor point name `AnchorPoint(offset)`: `{CDR3Begin(+3):CDR3End}` for CDR3 without first three nucleotides (coding conserved cysteine), `{CDR3Begin(-6):CDR3End(+6)}` for CDR3 with 6 nucleotides downstream its left bound and 6 nucleotides upstream its right bound
+
+    - one can specify offsets for predefined gene feature boundaries using GeneFeatureName(leftOffset, rightOffset) syntax: `CDR3(3,0)`, `CDR3(-6,6)` - equivalents of two examples from previous item
+
+    - all syntax constructs can be combined: `{L1Begin(-12):L1End}+L2+VRegion(0,+10)}`
 
 <a name="standar-methods-for-structure-identification"><h4>标准结构鉴定方法 [<sup>目录</sup>](#content)</h4></a>
 
@@ -842,6 +920,8 @@ Wei Zhang等提出了一种进行PCR bias修正的方法 <sup><a href='#ref4'>[4
 
 <a name="diversity-analysis"><h3>多样性分析 [<sup>目录</sup>](#content)</h3></a>
 
+<a name="difficulty-in-diversity-analysis"><h4>多样性分析的难点 [<sup>目录</sup>](#content)</h4></a>
+
 Robins HS1, Campregher PV, Srivastava SK at al. Comprehensive assessment of T-cell receptor beta-chain diversity in alphabeta T cells. Blood. 2009 Nov 5;114(19):4099-107.
 
 > 理论上估计会有10<sup>16</sup>种$\text{TCR}\beta$，但并没有人通过足够高通量的测序对免疫组库的多样性进行过直接的研究，研究人员在这项研究中通过改进测序方法，实现了在当时来说已经算是高通量的测序，第一次对免疫组库的多样性水平进行了评估：
@@ -862,7 +942,13 @@ Rep-Seq的一项重要任务是估算唯一受体的数量，即在任何给定�
 
 免疫组库网络的构建：节点——免疫组库中的一条序列，边——潜在的变异或插入缺失。这种网络结构有助于识别：唯一序列 vs. 序列组，以及它们在网络中的中心度
 
+<a name="loss-diversity-in-sick-status"><h4>疾病状态下的多样性缺失 [<sup>目录</sup>](#content)</h4></a>
 
+韩健在09年西雅图免疫年会上，报告了免疫组库在肿瘤病人中有明显的多样性缺失的现象：
+
+<p align='center'><img src=./picture/immuSeq-paper-loss-diversity-in-sick-status.jpg width=600 /></p>
+
+如上面的幻灯片所示，正常人的免疫组库（T细胞beta受体）多样性很好，在三维图像上看起来丛林密布；而结肠癌病人或系统性红斑狼疮病人的免疫组库则多 样性缺失，三维图像看上去就是几棵树。这些病人T细胞总数是正常的，可是他们的T细胞功能太专一，缺乏健康人应有的多样性
 
 
 
@@ -970,7 +1056,7 @@ responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and
 
 网络分析中的中心度分析（centrality analysis）：
 
-一个网络的中心指数（centrality indices）包括：网络中每个节点（vertex）的连接度（Degree）和顶点间度（Betweenness ）
+一�������网络的中心指数（centrality indices）包括：网络中每个节点（vertex）的连接度（Degree）和顶点间度（Betweenness ）
 
 > - 顶点连接度（Degree）：与该顶点产生物理连接的边的数量
 >
@@ -1376,3 +1462,7 @@ G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire s
 (11) <a name='ref9'>Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11). </a>
 
 (12) <a name='ref10'>Nguyen P1, Ma J, Pei D, Obert C et al. Identification of errors introduced during high throughput sequencing of the T cell receptor repertoire. BMC Genomics. 2011 Feb 11;12:106. doi: 10.1186/1471-2164-12-106. </a>
+
+$$
+(\alpha_i^*,\beta_i^*)=arg \, \max\limits_{\alpha_i,\,\beta_i} \log P()
+$$
