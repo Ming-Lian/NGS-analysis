@@ -11,6 +11,8 @@
         - [Data Sharing](#standar-data-sharing)
 - [实验设计的几点建议](#advice-for-study-design)
 	- [取样](#advice-on-sampling)
+        - [从哪里取样](#the-source-of-TB-cells)
+        - [gDNA or mRNA](#what-kind-of-molecular)
 	- [数据质量：error correction](#advice-on-quality-control-for-dataset)
 	- [数据分析](#advice-on-data-analysis)
         - [Pre-processing](#advice-on-data-analysis-pre-processing)
@@ -28,7 +30,9 @@
 	- [多样性分析](#diversity-analysis)
         - [多样性分析的难点](#difficulty-in-diversity-analysis)
         - [疾病状态下的多样性缺失](#loss-diversity-in-sick-status)
-	- [克隆融合度（convergence）或者称为简并性](#clone-convergence)
+        - [常用的多样性指标](#common-used-diversity-statistics)
+	- [VDJ重组差异](#differece-in-vdj-reconbination)
+    - [克隆融合度（convergence）或者称为简并性](#clone-convergence)
 	- [免疫组库多样性产生的非随机性](#not-random-for-repertoires)
     - [Repertoire Bias](#repertoire-bias)
     - [基于网络的分析方法](#analysis-based-on-network-construction)
@@ -342,9 +346,23 @@ experimental metadata standards
 
 <a name="advice-on-sampling"><h3>取样 [<sup>目录</sup>](#content)</h3></a>
 
-10毫升血里面可能有五百万B细胞，两千万T细胞，考虑到免疫细胞的多样性，这10毫升血里面可能每个特定的淋巴细胞仅有几个。所以扩增的方法需要敏感性极强（包容性好，最大限度地覆盖不同的免疫细胞），而且扩增过程和测序过程不破坏细胞间的比例（半定量），不是高表达的得到更多的扩增，而数目较少的克隆细胞就被掩盖了
+<a name="the-source-of-TB-cells"><h4>从哪里取样 [<sup>目录</sup>](#content)</h4></a>
 
-<a align='right'>—— [韩健blog](http://blog.sina.com.cn/s/blog_52cb75b90100fstw.html)</a>
+取样来源：
+
+> Most human antibody sequencing studies have used B cells from **peripheral blood** because the blood is one of the few readily accessible sources of B cells in humans (tonsils is the other one). 
+>
+> However, it is estimated that only **2%** of the 1–2 × 10^11 B cells in the human body are present in peripheral blood, compared with almost 28% in lymph nodes, 23% in the spleen and on mucosal surfaces, and 17% in the red bone marrow
+>
+> Thus, **the antibody repertoire in peripheral B cells provides a narrow view of the humoral response to antigen challenge**
+>
+> <p align='right'>—— <a href='https://www.ncbi.nlm.nih.gov/pubmed/24441474'>Nat Biotechnol. 2014 Feb;32(2):158-68.</a></p>
+
+可即使是这不充分取样的2%不到的淋巴细胞，对应目前的测序技术来说也是一个不小的挑战：
+
+> 10毫升血里面可能有五百万B细胞，两千万T细胞，考虑到免疫细胞的多样性，这10毫升血里面可能每个特定的淋巴细胞仅有几个。所以扩增的方法需要敏感性极强（包容性好，最大限度地覆盖不同的免疫细胞），而且扩增过程和测序过程不破坏细胞间的比例（半定量），不是高表达的得到更多的扩增，而数目较少的克隆细胞就被掩盖了
+>
+> <p align='right'>—— <a href='http://blog.sina.com.cn/s/blog_52cb75b90100fstw.html'>韩健blog</a></p>
 
 不充分的生物学取样的影响：
 
@@ -372,9 +390,56 @@ For example, antigen-specific or clonally expanded populations (e.g., memory B a
 
 By contrast, clonal frequency distributions of naïve B and T cells have been shown to be more uniform (i.e., higher clone-to-cell ratios than clonally expanded populations)
 
+<a name="what-kind-of-molecular"><h4>gDNA or mRNA [<sup>目录</sup>](#content)</h4></a>
+
+Whether or not one should use gDNA or mRNA depends on what question is being asked
+
+- gDNA
+
+    优点：
+
+    Sequencing gDNA facilitates estimation of the clonality of a given Ig sequence (in other words, the number of B cells expressing that antibody) because the number of sequence reads will, in general, be proportional to the number of gDNA template molecules (assuming no primer biases, as discussed below)
+
+    缺点：
+
+    - amplification of VDJ segments from gDNA necessitates the use of primer sets that anneal to all the individual germline V-gene segments
+
+    - they contain productive and nonproductive VDJ rearrangements
+
+    - the lower concentration of template in gDNA necessitates a greater number of PCR cycles; this increases error frequencies and further confounds quantification
+
+
+- mRNA
+
+    On the other hand, using mRNA as a template can provide an estimate of the relative expression level of various immunoglobulin sequences in the repertoire. 
+    
+    优点：
+
+    enables amplification with reverse transcription and 5′RACE (5′ rapid amplification of cDNA ends) with 3′ primers that anneal to the constant region of IgH or IgL, thus circumventing the need for complex V-gene-specific primer sets
+
+    缺点：
+
+    However, because immunoglobulin transcription varies dramatically (up to 100-fold) between naive B cells and plasma cells, using unsorted bulk B cells from peripheral blood as the source of mRNA makes it challenging to deduce cellular clonal frequencies
+
+<p align='right'>—— <a href='https://www.ncbi.nlm.nih.gov/pubmed/24441474'>Nat Biotechnol. 2014 Feb;32(2):158-68.</a></p>
+
 <a name="dvice-on-quality-control-for-dataset"><h3>数据质量：error correction [<sup>目录</sup>](#content)</h3></a>
 
-Regardless of the sequencing platform, HTS has not yet reached the level of accuracy of Sanger sequencing because it suffers from errors introduced during library amplification (experimental) or sequencing (HTS, bridge amplification, platform-specific) 
+Regardless of the sequencing platform, HTS has not yet reached the level of accuracy of Sanger sequencing because it suffers from errors introduced during **library amplification** (experimental) or **sequencing** (HTS, bridge amplification, platform-specific) 
+
+PCR过程中产生的错误类型有：
+
+> - differential amplification of some DNA templates over others (even in 5′RACE)
+>
+> - base misincorporation
+>
+>	Nucleotide misincorporation by PCR cannot generally be distinguished from most types of base-calling errors introduced during sequencing, but the latter generally occur at higher frequency and hence they are a greater concern
+>
+> - template switching
+>
+>	results in chimeras from the joining of fragments encoded by two or more template DNAs
+>
+>	Chimeras resulting from template switching generate sequences that either cannot be assigned to a germline V-gene segment by standard VDJ identification algorithms
 
 Therefore, both experimental and computational strategies have been devised to attenuate the impact of errors on biological conclusions
 
@@ -409,6 +474,8 @@ Reliable clonal detection cutoffs
 > In fact, lower-quality reads may be recovered from **paired-end sequencing** (the inherently lower-quality 3′ ends of sequencing reads gain in confidence via an overlapping region in both forward and reverse reads) or by **merging lower-quality reads with reads of higher quality and identical** or **very similar clonal identifiers**
 
 <a name="advice-on-data-analysis"><h3>数据分析 [<sup>目录</sup>](#content)</h3></a>
+
+[Genome Med. 2015 Nov 20;7:121.](https://www.ncbi.nlm.nih.gov/pubmed/26589402)
 
 <p align='center'><img src=./picture/immuSeq-paper-best-practice-outline-for-data-analysis.png width=600/></p>
 
@@ -950,6 +1017,56 @@ Rep-Seq的一项重要任务是估算唯一受体的数量，即在任何给定�
 
 如上面的幻灯片所示，正常人的免疫组库（T细胞beta受体）多样性很好，在三维图像上看起来丛林密布；而结肠癌病人或系统性红斑狼疮病人的免疫组库则多 样性缺失，三维图像看上去就是几棵树。这些病人T细胞总数是正常的，可是他们的T细胞功能太专一，缺乏健康人应有的多样性
 
+<a name="common-used-diversity-statistics"><h4>常用的多样性指标 [<sup>目录</sup>](#content)</h4></a>
+
+VDJtools中提供的多样性指标：
+
+> - Observed diversity, the total number of clonotypes in a sample
+Lower bound total diversity (LBTD) estimates
+>
+>    - Chao estimate (denoted chao1)
+>    - Efron-Thisted estimate
+> - Diversity indices
+>
+>    - Shannon-Wiener index. The exponent of clonotype frequency distribution entropy is returned.
+>
+>    - Normalized Shannon-Wiener index. Normalized (divided by log[number of clonotypes]) entropy of clonotype frequency distribution. Note that plain entropy is returned, not its exponent.
+>
+>	- Inverse Simpson index
+>
+> - Extrapolated Chao diversity estimate, denoted chaoE here.
+>
+> - The d50 index, a recently developed immune diversity estimate
+>
+>	有韩健等提出的多样性指标
+>
+>	“所谓D50，就是通过arm-PCR技术扩增免疫组库然后测序。把半定量扩增出的免疫组库和测序结果做sorting, 表达量最高到表达量最低排列，然后从高到低地相加。加到50%（reads)的时候看看一共包括多少个克隆，克隆数占总数的百分比就是D50值。
+>		
+>	一个健康 人，因为免疫组库多样性好，免疫细胞总数的50%就会由许多不同的细胞组成，D50值就会偏高；相反，病人常常会有克隆性扩增，免疫多样性差，所以几个克 隆就占据了免疫细胞的50%了，因此D50值就偏低。”
+>
+>	<p align='right'><a href='http://blog.sciencenet.cn/blog-290052-405367.html'>——韩健blog</a></p>
+
+Diversity estimates are computed in **two modes**: using original data and via several re-sampling steps (usually down-sampling to the size of smallest dataset).
+
+The estimates computed on original data could be biased by uneven sampling depth (sample size), of those only chaoE is properly normalized to be compared between samples. While not good for between-sample comparison, the LBTD estimates provided for original data are most useful for studying the fundamental properties of repertoires under study, i.e. to answer the question how large the repertoire diversity of an entire organism could be.
+Estimates computed using re-sampling are useful for between-sample comparison, e.g. we have successfully used the re-sampled (normalized) observed diversity to measure the repertoire aging trends (see this paper).
+
+<a name="differece-in-vdj-reconbination"><h3>VDJ重组差异 [<sup>目录</sup>](#content)</h3></a>
+
+Analysis by our laboratory and by others of germline VH, Vκ and Vλ segment usage and frequencies of recombination between particular V-D and D-J segments in the naive BCR repertoire revealed a marked skewing that in turn then shapes the repertoire in mature, antigen-experienced B cells
+
+> Ippolito, G.C. et al. Forced usage of positively charged amino acids in immunoglobulin CDR-H3 impairs B cell development and antibody production. J. Exp. Med. 203, 1567–1578 (2006).
+>
+> Boyd, S.D. et al. Individual variation in the germline Ig gene repertoire inferred from variable region gene rearrangements. J. Immunol. 184, 6986–6992 (2010).
+>
+> Boyd, S.D. et al. Measurement and clinical monitoring of human lymphocyte clonality by massively parallel VDJ pyrosequencing. Sci. Transl. Med. 1, 12ra23 (2009).
+>
+> Larimore, K., McCormick, M.W., Robins, H.S. & Greenberg, P.D. Shaping of human germline IgH repertoires revealed by deep sequencing. J. Immunol. 189, 3221–3230 (2012).
+
+我们也和其它科学家一样，试图通过多做一些病人标本找到更特异性的免疫组库变化：某个特定的VDJ重组总是和某个肿瘤相关。可是，免疫系统潜在的多样性（人可以有10的20次方那么多不同的T细胞）实在太大，找到病人之间共有的特异性VDJ (或者CDR3)可能性很小
+
+<p align='right'><a href='http://blog.sciencenet.cn/blog-290052-405367.html'>——韩健blog</a></p>
+
 
 
 <a name="clone-convergence"><h3>克隆融合度（convergence）或者称为简并性 [<sup>目录</sup>](#content)</h3></a>
@@ -1462,7 +1579,3 @@ G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire s
 (11) <a name='ref9'>Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11). </a>
 
 (12) <a name='ref10'>Nguyen P1, Ma J, Pei D, Obert C et al. Identification of errors introduced during high throughput sequencing of the T cell receptor repertoire. BMC Genomics. 2011 Feb 11;12:106. doi: 10.1186/1471-2164-12-106. </a>
-
-$$
-(\alpha_i^*,\beta_i^*)=arg \, \max\limits_{\alpha_i,\,\beta_i} \log P()
-$$
