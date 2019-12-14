@@ -423,7 +423,7 @@ Whether or not one should use gDNA or mRNA depends on what question is being ask
 
 <p align='right'>—— <a href='https://www.ncbi.nlm.nih.gov/pubmed/24441474'>Nat Biotechnol. 2014 Feb;32(2):158-68.</a></p>
 
-<a name="dvice-on-quality-control-for-dataset"><h3>数据质量：error correction [<sup>目录</sup>](#content)</h3></a>
+<a name="advice-on-quality-control-for-dataset"><h3>数据质量：error correction [<sup>目录</sup>](#content)</h3></a>
 
 Regardless of the sequencing platform, HTS has not yet reached the level of accuracy of Sanger sequencing because it suffers from errors introduced during **library amplification** (experimental) or **sequencing** (HTS, bridge amplification, platform-specific) 
 
