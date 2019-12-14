@@ -32,13 +32,14 @@
         - [疾病状态下的多样性缺失](#loss-diversity-in-sick-status)
         - [常用的多样性指标](#common-used-diversity-statistics)
 	- [VDJ重组差异](#differece-in-vdj-reconbination)
+	- [Public or private T cells](#public-or-private-T-cells)
     - [克隆融合度（convergence）或者称为简并性](#clone-convergence)
 	- [免疫组库多样性产生的非随机性](#not-random-for-repertoires)
     - [Repertoire Bias](#repertoire-bias)
     - [基于网络的分析方法](#analysis-based-on-network-construction)
     - [健康个体的免疫组库](#properties-of-a-healthy-repertoire)
     - [对低丰度的T细胞克隆具有极高的灵敏度](#ultra-sensitive-detection-of-rare-T-cell-clones)
-- [考虑CDR3区域和恒定区域](#analysis-CDR3-and-constant-region)
+- [免疫组库机器学习方法](#machine-learning-application-in-immune-repertoire)
 - [TCR/BCR的基础分析及分析工具](#basic-analysis-and-analysis-tools)
     - [VDJtools](#vdjtools)
         - [功能](#functions-of-vdjtools)
@@ -973,17 +974,40 @@ Wei Zhang等提出了一种进行PCR bias修正的方法 <sup><a href='#ref4'>[4
 
 获得个体或多个个体组成的群体的免疫组库数据后，就可以从以下的这些角度来分析免疫组库的特点：
 
-- 库的大小 (the size of the repertoire)；
+> - 库的大小 (the size of the repertoire)；
+>
+> - 库之间的相似性 (similarities between repertoires)；
+>
+> - V（D）J段使用 (V(D)J segment use)；
+>
+> - 核苷酸插入和缺失 (nucleotide insertions and deletions)；
+>
+> - CDR长度 (CDR lengths)；
+>
+> - 沿着CDR的氨基酸分布 (amino acid distributions along the CDRs)；
 
-- 库之间的相似性 (similarities between repertoires)；
+然而免疫组库后续的数据分析仍然困难重重，且目前的分析很局限：
 
-- V（D）J段使用 (V(D)J segment use)；
+> The enormous diversity of the TCR repertoire results in individual experiments capturing thousands or even millions of different sequences from a single sample. Furthermore, two different samples, even if taken from the same individual, often only have a small degree of overlap. It is not obvious how to extract information from data of such diversity and heterogeneity. 
+>
+> A major focus of much of the TCR repertoire analysis to date has therefore been **the analysis of summary statistics**, which can capture some of the essential information about a repertoire in a small number of parameters.
+>
+> 包括：
+>
+> - comparative V and J region usage
+>
+>	which provides an expanded version of older antibody- or PCR-based techniques
+>
+>	Unexpectedly, V and J gene usage turn out to be **highly non-uniform**, following an underlying pattern that is **remarkably conserved across different individuals** and may reflect transcriptional regulation encoded at the level of chromatin remodeling or biases in the DNA recombination process
+>
+> - CDR3 length distribution
+>
+> - diversity
+>
+> - overlap between repertoires
+>
+> <p align='right'>——<a href='https://www.ncbi.nlm.nih.gov/pubmed/28077404'>Brief Bioinform. 2018 Jul 20;19(4):554-565.</a></p>
 
-- 核苷酸插入和缺失 (nucleotide insertions and deletions)；
-
-- CDR长度 (CDR lengths)；
-
-- 沿着CDR的氨基酸分布 (amino acid distributions along the CDRs)；
 
 <a name="diversity-analysis"><h3>多样性分析 [<sup>目录</sup>](#content)</h3></a>
 
@@ -1006,8 +1030,6 @@ Rep-Seq的一项重要任务是估算唯一受体的数量，即在任何给定�
 > - 免疫组库多样性估计的一种常用方式便是估计唯一V（D）J组合的数量，然而由于受体多样性的产生除了VDJ重组之外，也包括核苷酸插入和缺失（indels）和体细胞超突变产生的，因此这些估计仅是可能组合实际数目的下限；
 >
 > - 大多数研究集中在免疫受体的单链上，因此仅描述了通过构建异二聚体的两条链的组合获得的总多样性的一部分；
-
-免疫组库网络的构建：节点——免疫组库中的一条序列，边——潜在的变异或插入缺失。这种网络结构有助于识别：唯一序列 vs. 序列组，以及它们在网络中的中心度
 
 <a name="loss-diversity-in-sick-status"><h4>疾病状态下的多样性缺失 [<sup>目录</sup>](#content)</h4></a>
 
@@ -1048,8 +1070,17 @@ Lower bound total diversity (LBTD) estimates
 
 Diversity estimates are computed in **two modes**: using original data and via several re-sampling steps (usually down-sampling to the size of smallest dataset).
 
-The estimates computed on original data could be biased by uneven sampling depth (sample size), of those only chaoE is properly normalized to be compared between samples. While not good for between-sample comparison, the LBTD estimates provided for original data are most useful for studying the fundamental properties of repertoires under study, i.e. to answer the question how large the repertoire diversity of an entire organism could be.
-Estimates computed using re-sampling are useful for between-sample comparison, e.g. we have successfully used the re-sampled (normalized) observed diversity to measure the repertoire aging trends (see this paper).
+> - The estimates computed on original data could be biased by uneven sampling depth (sample size), of those only chaoE is properly normalized to be compared between samples. While not good for between-sample comparison, the LBTD estimates provided for original data are most useful for studying the fundamental properties of repertoires under study, i.e. to answer the question how large the repertoire diversity of an entire organism could be.
+>
+> - Estimates computed using re-sampling are useful for between-sample comparison, e.g. we have successfully used the re-sampled (normalized) observed diversity to measure the repertoire aging trends (see this paper).
+
+An additional complication in interpreting measurements of diversity is that the measures are **strongly influenced by the large numbers of rare species** (often present only once) that are typically observed in a repertoire sample, and which are themselves dependent on sequencing error and the accuracy of the algorithms used to correct this
+
+尽管多样性分析由于取样代表性问题以及低丰度克隆带来的评估的准确性问题，但是它仍然对疾病状态的研究提供了许多有用的信息：
+
+> [J Allergy Clin Immunol. 2014 Apr; 133(4):1109-15.](https://www.ncbi.nlm.nih.gov/pubmed/24406074/)
+>
+> [Genome Med. 2015; 7(1):49.](https://www.ncbi.nlm.nih.gov/pubmed/26140055/)
 
 <a name="differece-in-vdj-reconbination"><h3>VDJ重组差异 [<sup>目录</sup>](#content)</h3></a>
 
@@ -1066,6 +1097,17 @@ Analysis by our laboratory and by others of germline VH, Vκ and Vλ segment usa
 我们也和其它科学家一样，试图通过多做一些病人标本找到更特异性的免疫组库变化：某个特定的VDJ重组总是和某个肿瘤相关。可是，免疫系统潜在的多样性（人可以有10的20次方那么多不同的T细胞）实在太大，找到病人之间共有的特异性VDJ (或者CDR3)可能性很小
 
 <p align='right'><a href='http://blog.sciencenet.cn/blog-290052-405367.html'>——韩健blog</a></p>
+
+<a name="public-or-private-T-cells"><h3>Public or private T cells [<sup>目录</sup>](#content)</h3></a>
+
+Public T cells, which are identical T-cell clonotypes shared among individuals, have been a curiosity for some time given the incredibly low likelihood of identical TCRs being generated in separate individuals by chance.
+
+TCR-seq studies have revealed that public T cells are actually commonplace ([1](https://www.ncbi.nlm.nih.gov/pubmed/21349924/), [2](https://www.ncbi.nlm.nih.gov/pubmed/20811043/), [3](https://www.ncbi.nlm.nih.gov/pubmed/21383244/), [4](https://www.ncbi.nlm.nih.gov/pubmed/17130450/)) and result from the increased generation probability of these shared TCR specificities across individuals [29], as well as the fact that different TCR nucleotide sequences can code for the same TCR amino acid sequence, because of the degeneracy of the genetic code
+
+<p align='right'>——<a href='https://www.ncbi.nlm.nih.gov/pubmed/24172704'>Genome Med. 2013 Oct 30;5(10):98.</a></p>
+
+
+
 
 
 
@@ -1173,7 +1215,7 @@ responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and
 
 网络分析中的中心度分析（centrality analysis）：
 
-一�������网络的中心指数（centrality indices）包括：网络中每个节点（vertex）的连接度（Degree）和顶点间度（Betweenness ）
+一网络的中心指数（centrality indices）包括：网络中每个节点（vertex）的连接度（Degree）和顶点间度（Betweenness ）
 
 > - 顶点连接度（Degree）：与该顶点产生物理连接的边的数量
 >
@@ -1260,9 +1302,17 @@ responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-02.jpg width=600 /></p>
 
-<a name="analysis-CDR3-and-constant-region"><h2>考虑CDR3区域和恒定区域 [<sup>目录</sup>](#content)</h2></a>
+<a name="machine-learning-application-in-immune-repertoire"><h2>免疫组库机器学习方法 [<sup>目录</sup>](#content)</h2></a>
 
+- [BMC Bioinformatics. 2017; 18: 401.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5588725/)
 
+use the biochemical features encoded by the complementarity determining region 3 of each B cell receptor heavy chain in every patient repertoire as input to a detector function, which is fit to give the correct diagnosis for each patient using maximum likelihood optimization methods. The resulting statistical classifier assigns patients to one of two diagnosis categories, RRMS or other neurological disease, with 87% accuracy by leave-one-out cross-validation on training data (N = 23) and 72% accuracy on unused data from a separate study (N = 102)
+
+<p align='center'><img src=./picture/immuSeq-paper-machine-learning-application-in-immune-repertoire.jpg width=400 /></p>
+
+<p align='center'><img src=./picture/immuSeq-paper-machine-learning-application-in-immune-repertoire-case1-2.png width=800 /></p>
+
+<p align='center'><img src=./picture/immuSeq-paper-machine-learning-application-in-immune-repertoire-case1-3.png width=800 /></p>
 
 <a name="basic-analysis-and-analysis-tools"><h2>TCR/BCR的基础分析及分析工具 [<sup>目录</sup>](#content)</h2></a>
 
@@ -1579,3 +1629,7 @@ G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire s
 (11) <a name='ref9'>Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11). </a>
 
 (12) <a name='ref10'>Nguyen P1, Ma J, Pei D, Obert C et al. Identification of errors introduced during high throughput sequencing of the T cell receptor repertoire. BMC Genomics. 2011 Feb 11;12:106. doi: 10.1186/1471-2164-12-106. </a>
+
+$$
+(\alpha_i^*,\beta_i^*)=arg \, \max\limits_{\alpha_i,\,\beta_i} \log P()
+$$
