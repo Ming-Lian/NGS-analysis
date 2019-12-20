@@ -5,6 +5,8 @@
 	- [适应性免疫应答过程](#the-process-of-adaptive-immune-response)
 		- [免疫细胞的发生与成熟过程](#the-development-of-lymphocyte)
 	- [免疫组库测序技术](#the-technology-of-immune-repertoires-sequencing)
+    - [RepSeq的几大重要应用](#important-applications-of-repseq)
+    - [几个基础性的问题](#some-basic-problems)
     - [技术标准](#standar-of-technology)
         - [挑战与 AIRR 社区目标](#challenge-and-community)
         - [Data Generation](#standar-data-generation)
@@ -17,12 +19,14 @@
 	- [数据分析](#advice-on-data-analysis)
         - [Pre-processing](#advice-on-data-analysis-pre-processing)
         - [V(D)J germline segment assignment](#advice-on-data-analysis-VDJ-germline-segment-assignment)
+- [现有通用工具集](#common-used-toolkits)
+    - [pRESTO](#common-used-toolkits-pRESTO)
+    - [Change-O](#common-used-toolkits-ChangeO)
 - [基本数据质控](#QC-for-RepSeq-data)
 	- [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
         - [Gene features and anchor points](#Gene-features-and-anchor-points)
 		- [标准结构鉴定方法](#standar-methods-for-structure-identification)
 		- [标准结构鉴定方法存在的问题及解决策略](#error-in-struture-identification-and-methods-to-overcome)
-		- [基于HMM概率统计模型的方法](#method-based-on-statistic-model)
 	- [一些描述样本免疫组库的指标](#index-for-characterize-individual-immune-repertoire)
 	- [PCR与测序错误的校正](#pcr-and-sequencing-error-correction)
 	- [缩小多重PCR引入的PCR bias](#multiplex-pcr-bias-minimization)
@@ -136,6 +140,8 @@ cancer and aging**
 国内韩健的几乎同时发表的免疫组库技术文章：
 
 > High throughput sequencing reveals a complex pattern of dynamic interrelationships among human T cell subsets. Proc Natl Acad Sci U S A. 2010 Jan 26;107(4):1518-23. doi: 10.1073/pnas.0913939107. Epub 2010 Jan 4.
+
+
 
 <p align="center"><img src=./picture/immuSeq-paper-survey-outline-of-RepSeq.png width=600 /></p>
 
@@ -257,6 +263,64 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 - **Simpson diversity index**：样本间的多样性的比较
 - **Morisita-Horn similarity index**：样本间相似度的比较
+
+<a name="important-applications-of-repseq"><h3>RepSeq的几大重要应用 [<sup>目录</sup>](#content)</h3></a>
+
+autoimmune diseases（目前主要针对多multiple sclerosis）:
+
+>  - [J Neuroimmunol. 2009;213(1–2):123–30](https://www.ncbi.nlm.nih.gov/pubmed/19631394)
+> - [J Autoimmun. 2010;35(4):325–35.](https://www.ncbi.nlm.nih.gov/pubmed/20727711)
+> - [J Clin Invest. 2012;122(12):4533–43.](https://www.ncbi.nlm.nih.gov/pubmed/23160197)
+> - [Ther Adv Neurol Disord. 2013;6(3):161–73.](https://www.ncbi.nlm.nih.gov/pubmed/23634189)
+> - [Sci Transl Med. 2014;6(248):248ra107. ](https://www.ncbi.nlm.nih.gov/pubmed/25100741)
+> - [Sci Transl Med. 2014;6(248):248ra106. ](https://www.ncbi.nlm.nih.gov/pubmed/25100740)
+
+以下补充多发性硬化的知识：
+
+> 中枢神经系统白质炎性脱髓鞘病变为主要特点的自身免疫病
+>
+> 多发性硬化患者不仅麻疹病毒抗体效价增高，其他多种病毒抗体效价也增高。感染的病毒可能与中枢神经系统（CNS）髓鞘蛋白或少突胶质细胞存在共同抗原，即病毒氨基酸序列与MBP等神经髓鞘组分的某段多肽氨基酸序列相同或极为相近，推测病毒感染后体内T细胞激活并生成病毒抗体，可与神经髓鞘多肽片段发生交叉反应，导致脱髓鞘病变
+
+allergy :
+
+> - [Wu Y-CB, James LK, Vander Heiden JA, Uduman M, Durham SR, Kleinstein SH, et al. Influence of seasonal exposure to grass pollen on local and peripheral blood IgE repertoires in patients with allergic rhinitis. J Allergy Clin Immunol. 2014;134(3):604–12.](https://www.ncbi.nlm.nih.gov/pubmed/25171866)
+> - [Patil SU, Ogunniyi AO, Calatroni A, Tadigotla VR, Ruiter B, Ma A, et al. Peanut oral immunotherapy transiently expands circulating Ara h 2–specific B cells with a homologous repertoire in unrelated subjects. J Allergy Clin Immunol. 2015;136(1):125–34.](https://www.ncbi.nlm.nih.gov/pubmed/25985925)
+> - [Hoh RA, Joshi SA, Liu Y, Wang C, Roskin KM, Lee J-Y, et al. Single B-cell deconvolution of peanut-specific antibody responses in allergic patients. J Allergy Clin Immunol. 2015.](https://www.ncbi.nlm.nih.gov/pubmed/26152318)
+
+cancer :
+
+> - [Lossos IS, Okada CY, Tibshirani R, Warnke R, Vose JM, Greiner TC, et al. Molecular analysis of immunoglobulin genes in diffuse large B-cell lymphomas. Blood. 2000;95(5):1797–803. ](https://www.ncbi.nlm.nih.gov/pubmed/10688840)
+> - [ Glanville J, Kuo TC, Budingen H-C, Guey L, Berka J, Sundar PD, et al. Naive antibody gene-segment frequencies are heritable and unaltered by chronic lymphocyte ablation. Proc Natl Acad Sci U S A. 2011;108(50):20066–71.](https://www.ncbi.nlm.nih.gov/pubmed/22123975)
+> - [ Kurtz DM, Green MR, Bratman SV, Scherer F, Liu CL, Kunder CA, et al. Non-invasive monitoring of diffuse large B-cell lymphoma by immunoglobulin high-throughput sequencing. Blood. 2015;125(24):3679–87.](https://www.ncbi.nlm.nih.gov/pubmed/25887775)
+
+aging :
+
+> - [Dunn-Walters DK, Banerjee M, Mehr R. Effects of age on antibody affinity maturation. Biochem Soc Trans. 2003;31(2):447–8.](https://www.ncbi.nlm.nih.gov/pubmed/12653658)
+> - [ Dunn-Walters DK, Ademokun AA. B cell repertoire and ageing. Curr Opin Immunol. 2010;22(4):514–20.](https://www.ncbi.nlm.nih.gov/pubmed/20537880)
+> - [Ademokun A, Wu Y-C, Martin V, Mitra R, Sack U, Baxendale H, et al. Vaccination-induced changes in human B-cell repertoire and pneumococcal IgM and IgA antibody at different ages. Aging Cell. 2011;10(6):922–30.](https://www.ncbi.nlm.nih.gov/pubmed/21726404)
+> - [Martin V, Wu Y-CB, Kipling D, Dunn-Walters D. Ageing of the B-cell repertoire. Phil Trans R Soc B Biol Sci. 2015;370(1676).](https://www.ncbi.nlm.nih.gov/pubmed/26194751)
+
+antibody discovery :
+
+> - [Reddy ST, Ge X, Miklos AE, Hughes RA, Kang SH, Hoi KH, et al. Monoclonal antibodies isolated without screening by analyzing the variable-gene repertoire of plasma cells. Nat Biotechnol. 2010;28(9):965–9.](https://www.ncbi.nlm.nih.gov/pubmed/20802495)
+> - [Cheung WC, Beausoleil SA, Zhang X, Sato S, Schieferl SM, Wieler JS, et al. A proteomics approach for the identification and cloning of monoclonal antibodies from serum. Nat Biotechnol. 2012;30(5):447–52.](https://www.ncbi.nlm.nih.gov/pubmed/22446692)
+> - [Zhu J, Wu X, Zhang B, McKee K, O’Dell S, Soto C, et al. De novo identification of VRC01 class HIV-1 neutralizing antibodies by next-generation sequencing of B-cell transcripts. Proc Natl Acad Sci U S A. 2013;110(43):E4088–97.](https://www.ncbi.nlm.nih.gov/pubmed/24106303)
+> - [Georgiou G, Ippolito GC, Beausang J, Busse CE, Wardemann H, Quake SR. The promise and challenge of high-throughput sequencing of the antibody repertoire. Nat Biotechnol. 2014;32(2):158–68.](https://www.ncbi.nlm.nih.gov/pubmed/24441474)
+
+<a name="some-basic-problems"><h3>几个基础性的问题 [<sup>目录</sup>](#content)</h3></a>
+
+（1）一个个体的免疫组库有多大？免疫组库的理论多样性有多高？
+
+10^10–10^11 B cells in a human adult ([Ganusov VV, De Boer RJ. Do most lymphocytes in humans really reside in the gut? Trends Immunol. 2007;28(12):514–8.](https://www.ncbi.nlm.nih.gov/pubmed/17964854))
+
+a theoretical diversity of > 10^14, which is further increased during adaptive immune responses, when activated B cells undergo a process of somatic hypermutation (SHM)
+
+（2）免疫组库在不同的组织器官中的分布比例大概是多少？
+
+it is estimated that only 2% of the 1–2 × 10^11 B cells in the human body are present in peripheral blood, compared with almost 28% in lymph nodes, 23% in the spleen and on mucosal surfaces, and 17% in the red bone marrow([Georgiou G, Ippolito GC, Beausang J et al. The promise and challenge of high-throughput sequencing of the antibody repertoire.Nat Biotechnol. 2014 Feb;32(2):158-68.](https://www.ncbi.nlm.nih.gov/pubmed/24441474))
+
+（3）10ml外周血有多少免疫细胞？
+
 
 <a name="standar-of-technology"><h3>技术标准 [<sup>目录</sup>](#content)</h3></a>
 
@@ -664,6 +728,91 @@ Sequence-dependent approaches:
 |	Supported input format	|	FASTA	|	FASTA	|	FASTA	|	FASTQ	|	FASTA, FASTQ	|
 |	Platform	|	Online	|	Online/stand-alone	|	Online/stand-alone	|	Stand-alone	|	Stand-alone	|
 
+<a name="common-used-toolkits"><h2>现有通用工具集 [<sup>目录</sup>](#content)</h2></a>
+
+<table>
+<tr>
+    <td><img src=./picture/immuSeq-paper-survey-common-used-toolkits-pRESTO-logo.png></td>
+    <td><strong>pRESTO</strong><br>- Quality control<br>- Read assembly<br>- UMI processing<br></td>
+</tr>
+<tr>
+    <td><img src=./picture/immuSeq-paper-survey-common-used-toolkits-ChangeO-logo.png></td>
+    <td><strong>Change-O</strong><br>- V(D)J reference alignment standardization<br>- Clonal clustering<br>- Germline reconstruction<br>-Conversion and annotation </td>
+</tr>
+</table>
+
+<a name="common-used-toolkits-pRESTO"><h3>pRESTO [<sup>目录</sup>](#content)</h3></a>
+
+composed of a suite of utilities to handle all stages of sequence processing prior to germline segment assignment
+
+pRESTO is designed to handle either single reads or paired-end reads. It includes features for 
+
+- quality control
+- primer masking
+- annotation of reads with sequence embedded barcodes
+- generation of unique molecular identifier (UMI) consensus sequences
+- assembly of paired-end reads and identification of duplicate sequences
+
+Numerous options for sequence sorting, sampling and conversion operations are also included.
+
+<p align='center'><img src=./picture/immuSeq-paper-survey-VDJ-annotation-toolkits-pRESTO-1.png width=400/></p>
+
+The workflow is divided into four high-level tasks:
+
+> - Paired-end assembly
+>
+>   Depending on the amplicon length in your data, not all mate-pairs may overlap. For the sake of simplicity, we have excluded a demonstration of assembly in such cases. pRESTO provides a couple approaches to deal with such reads. 
+>
+>   The reference subcommand of `AssemblePairs` can use the ungapped V-segment reference sequences to properly space non-overlapping reads. Or, if all else fails, the `join` subcommand can be used to simply stick mate-pairs together end-to-end with some intervening gap.
+>
+> - Quality control and primer annotation
+>
+>    - Removal of low quality reads, use subcommand  `FilterSeq`
+>    - Read annotation and masking of primer regions
+>
+>       primer mask的必要性：
+>
+>        When dealing with Ig sequences, it is important to cut or mask the primers, as B cell receptors are subject to somatic hypermutation (the accumulation of point mutations in the DNA) and degenerate primer matches can look like mutations in downstream applications
+>
+>       注意：对于双端reads与由原始PE合并后的一条长reads，它们的primer mask/cut的操作时不同的，而且它们的两端的称号也不同，PE：Forward-end与Reverse-end，Assembled：head与tail：
+>
+>        ```
+>        PE read:
+>        |------------------------->
+>        >>>>>
+>                                        <<<<
+>                <==========================|
+>
+>        Assembled long read:
+>        |------------------------->====================|
+>        >>>>>                                     <<<<<
+>        ```
+>
+>       对于Assembled long read，其head端的primer mask/cut的操作正常，而对于tail端的，它时其原始reads的反向互补序列，此时要么将tail端反向互补回来再与Reverse-end的primer进行比较，要么将Reverse-end的primer进行反向互补回来再与tail端比较，pRESTO就采用了两步操作来完成Assembled long read的head与tail端primer mask/cut
+>
+>        ```bash
+>        MaskPrimers.py score -s M1_quality-pass.fastq -p Greiff2014_VPrimers.fasta \
+>            --start 4 --mode mask --pf VPRIMER --outname M1-FWD --log MPV.log
+>        MaskPrimers.py score -s M1-FWD_primers-pass.fastq -p Greiff2014_CPrimers.fasta \
+>            --start 4 --mode cut --revpr --pf CPRIMER --outname M1-REV --log MPC.log
+>        ```
+>
+> - Deduplication and filtering
+>
+>   - Identify duplicate sequences
+>
+>       First, the set of unique sequences is identified using the CollapseSeq tool, allowing for up to 20 interior N-valued positions (-n 20 and --inner), and requiring that all reads considered duplicates share the same C-region primer annotation (--uf CPRIMER). Additionally, the V-segment primer annotations of the set of duplicate reads are propagated into the annotation of each retained unique sequence (--cf VPRIMER and --act set)
+>
+>   - Filtering to repeated sequences
+>
+>   - Creating an annotation table
+>
+>       Finally, the annotations, including duplicate read count (`DUPCOUNT`), isotype (`CPRIMER`) and V-segment primer (`VPRIMER`), of the final repertoire are then extracted from the SplitSeq output into a tab-delimited file using the table subcommand of `ParseHeaders`
+
+<a name="common-used-toolkits-ChangeO"><h3>Change-O [<sup>目录</sup>](#content)</h3></a>
+
+
+
 
 
 <a name="QC-for-RepSeq-data"><h2>基本数据质控 [<sup>目录</sup>](#content)</h2></a>
@@ -785,6 +934,9 @@ There are several immunologically important parts of TCR/BCR gene (gene features
 最好的方式是将所有可能的潜在重组形式列出来，然后计算出每种重组形式的似然，而似然的计算可以基于从测序数据中学习得到的概率模型算出 <sup><a href='#ref2'>[2]</a></sup>
 
 ![](./picture/immuSeq-paper-survey-advanced-CDR3-struture-identification.png)
+
+
+
 
 <a name="index-for-characterize-individual-immune-repertoire"><h3>一些描述样本免疫组库的指标 [<sup>目录</sup>](#content)</h3></a>
 
@@ -1562,6 +1714,19 @@ VDJtools运行对多个样本进行批量操作，此时需要用`-m`参数来�
 
     其机制可能是**病原体含有与宿主蛋白肽同源序列**，侵入的病原感染( 血管内或血管外) 诱发免疫反应，免疫产物不但针对病原体本身，同时也攻击含有交叉反应肽序列的宿主组织，血管内皮细胞即为攻击对象之一，从而引发了随后的粥样斑块形成。
 
+
+直到几年前，动脉粥样硬化还被认为是“脂质存储疾病”，人们期望积极的药理治疗高胆固醇血症可以从根本上消除冠状动脉病变。然而，尽管针对经典危险因素进行了激烈的运动，但是心血管疾病仍然是全世界范围内的第一大死亡原因，在发展中国家的患病率正在上升。
+
+该冠状动脉疾病可以被认为是炎症性紊乱的概念在90年代末。炎症在所有动脉粥样硬化形成步骤中起着关键作用：从泡沫细胞积累到脂肪条纹组织和纤维斑形成，直至急性斑裂，破裂和血栓形成
+
+动脉粥样硬化过程的所有阶段可被视为到血管损伤（一种炎性应答）。包括常见的心血管危险因素（例如高血压，高血脂症，高血糖症和吸烟）在内的病理状况可以引发免疫反应，从而促进白细胞粘附分子和趋化因子的分泌，诱导单核细胞粘附于内皮细胞并迁移进入内膜下腔
+
+<p align='center'><img src=./picture/immuSeq-paper-relation-between-CAD-and-immune.jpg width=600 /></p>
+
+最初的动脉粥样硬化病变始于单核细胞分化为巨噬细胞，巨噬细胞吞噬富含胆固醇的氧化低密度脂蛋白（LDL-ox），成为泡沫细胞，并组织成脂肪条纹
+
+促炎性和氧化性动脉粥样硬化刺激的永存导致募集更多的巨噬细胞，肥大细胞以及活化的T细胞和B细胞，从而增加血管病变
+
 <a name="diversity-metrics"><h3>* 多样性评估指标 [<sup>目录</sup>](#content)</h3></a>
 
 $$D^{(\alpha)} = \left(\sum^S_{i=1}f_i^\alpha\right)^{\frac{1}{1-\alpha}} \tag{Hill diversity}$$
@@ -1592,7 +1757,12 @@ To quantify clonal expansion, diversity can be divided into evenness($D^α/D^0$)
 
 最佳分析实战：
 
-G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire sequencing analysis. Genome medicine, Nov 2015 20 
+[G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire sequencing analysis. Genome medicine, Nov 2015 20](https://www.ncbi.nlm.nih.gov/pubmed/26589402)
+
+免疫组库测序技术的review：
+
+> - [Boyd SD, Joshi SA. High-throughput DNA sequencing analysis of antibody repertoires. Microbiol Spectr. 2014;2.](https://www.ncbi.nlm.nih.gov/pubmed/26104353)
+> - [Benichou J, Ben-Hamo R, Louzoun Y, Efroni S. Rep-seq: uncovering the immunological repertoire through next-generation sequencing. Immunology. 2012;135(3):183–91.](https://www.ncbi.nlm.nih.gov/pubmed/22043864)
 
 
 
@@ -1629,7 +1799,3 @@ G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire s
 (11) <a name='ref9'>Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires. PLoS Comp Biol 2015; 11(11). </a>
 
 (12) <a name='ref10'>Nguyen P1, Ma J, Pei D, Obert C et al. Identification of errors introduced during high throughput sequencing of the T cell receptor repertoire. BMC Genomics. 2011 Feb 11;12:106. doi: 10.1186/1471-2164-12-106. </a>
-
-$$
-(\alpha_i^*,\beta_i^*)=arg \, \max\limits_{\alpha_i,\,\beta_i} \log P()
-$$
