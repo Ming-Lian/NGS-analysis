@@ -22,6 +22,8 @@
 - [现有通用工具集](#common-used-toolkits)
     - [pRESTO](#common-used-toolkits-pRESTO)
     - [Change-O](#common-used-toolkits-ChangeO)
+        - [功能与原理](#common-used-toolkits-ChangeO-functions-and-corresponding-methodes)
+        - [简单使用](#common-used-toolkits-ChangeO-how-to-use)
 - [基本数据质控](#QC-for-RepSeq-data)
 	- [CDR3区域结构鉴定](#structure-identification-of-cdr3-region)
         - [Gene features and anchor points](#Gene-features-and-anchor-points)
@@ -811,9 +813,152 @@ The workflow is divided into four high-level tasks:
 
 <a name="common-used-toolkits-ChangeO"><h3>Change-O [<sup>目录</sup>](#content)</h3></a>
 
+<a name="common-used-toolkits-ChangeO-functions-and-corresponding-methodes"><h4>功能与原理 [<sup>目录</sup>](#content)</h4></a>
 
+和pRESTO的开发者是一样的
 
+Change-O is a collection of tools for 
 
+- processing the output of V(D)J alignment tools
+- assigning clonal clusters to immunoglobulin (Ig) sequences
+- reconstructing germline sequences.
+
+The Change-O suite is composed of four software packages: a collection of Python commandline tools (`changeo-ctl`) and three separate R  packages (`alakazam`, `shm`, and `tigger`)
+
+|	Package	|	Analysis tasks	|
+|:---|:---|
+|	changeo-clt	|	Parsing of V(D)J assignment output	|
+|		|	Basic database manipulation	|
+|		|	Multiple alignment of sequence records	|
+|		|	Assignment of sequences into clonal groups	|
+|		|	Calculation of CDR3 physiochemical properties	|
+|	alakazam	|	Clonal diversity analysis	|
+|		|	Lineage reconstruction	|
+|	shm	|	SHM hot/cold-spot modeling	|
+|		|	Quantification of selection pressure	|
+|	tigger	|	Inference of novel germline alleles	|
+|		|	Construction of personalized germline genotype	|
+
+- Inference of novel alleles and individual genotype
+
+    常规的直接基于序列比对的方法在genotype鉴定上存在的问题：
+
+    > Germline segment assignment tools, such as IMGT/HighV-QUEST, work by aligning each sequence against a database of known alleles. However, this process is inaccurate for sequences that utilize previously undetected alleles
+    >
+    > In this case, the sequence will be assigned to the closest known allele and any polymorphisms will be incorrectly identified as somatic mutations
+
+    为了解决这个问题，使用了Immunoglobulin Genotype Elucidation (TIgGER)这个R包
+
+    > TIgGER determines the complete set of variable region gene segments carried by an individual and identifies novel alleles, yielding a set of germline alleles personalized to an individual
+    >
+    > The germline variable region allele assignments are then adjusted based on this individual Ig genotype
+
+- Partitioning sequences into clonally related groups
+
+    Identifying sequences that are descended from the same B cell (clonal groups) is important to virtually all Ig repertoire analyses
+
+    Clonal group sizes and lineage structures provide information on the underlying response, and clonally related sequences cannot be treated independently in statistical analyses and models
+
+    Change-O provides several methods for partitioning sequences into clones:
+
+    > - based on hierarchical clustering
+    > - everal published somatic hypermutation (SHM) hot/cold-spot targeting models as distance metrics in the clustering methods
+
+- Quantification of repertoire diversity
+
+     Change-O provides an implementation of the general diversity index (qD) proposed by Hill (1973), which encompasses a range of diversity measures as a smooth curve over a single varying parameter q
+
+     Special cases of this general index of diversity correspond to the most popular diversity measures: 
+
+     species richness (q = 0), the exponential Shannon-Weiner index (as q → 1), the inverse of the Simpson index (q = 2), and the reciprocal abundance of the largest clone (as q → ∞)
+
+- Generation of B cell lineage trees
+
+    Lineage trees provide a means to trace the ancestral relationships of cells within a clone. This information has been used to estimate mutation rates, infer B cell trafficking patterns and trace the accumulation of mutations that drive affinity maturation
+
+    Change-O provides a tool for generating lineage trees using PHYLIP’s maximum parsimony algorithm, with modifications to meet the requirements of an Ig lineage tree. Trees may be viewed and exported into different file formats using the `igraph` R package.
+
+- Somatic hypermutation hot/cold-spot motifs
+
+    SHM is a process that operates in activated B cells and introduces point mutations into the DNA coding for the Ig receptor at a very high rate ( ≈ 10^−3 per base-pair per division)
+
+    Accurate background models of SHM are critical, since SHM displays **intrinsic hot/cold-spot biases**
+
+    Change-O provides utilities for estimating the mutability and substitution rates of DNA motifs from large-scale Ig sequencing data to construct hot/cold-spot motif models
+
+- Analysis of selection pressure
+
+    For quantifying selection pressure in Ig sequences, Change-O includes the `BASELINe` method, which has been implemented as an R package for inclusion in the suite. BASELINe quantifies deviations in the frequency of replacement mutations compared with a background model of SHM. Users may choose between published background models or infer the background from their own data using the SHM model building tools described above
+
+<a name="common-used-toolkits-ChangeO-how-to-use"><h4>简单使用 [<sup>目录</sup>](#content)</h4></a>
+
+**（1）先用IgBlast完成V(D)J assignment**
+
+从 [这里](https://bitbucket.org/kleinstein/immcantation/src/tip/scripts) 获取构建IgBLAST database的相关命令
+
+```bash
+# Download reference databases
+$ fetch_igblastdb.sh -o ~/share/igblast
+$ fetch_imgtdb.sh -o ~/share/germlines/imgt
+# Build IgBLAST database from IMGT reference sequences
+$ imgt2igblast.sh -i ~/share/germlines/imgt -o ~/share/igblast
+```
+
+用Change-O中提供的`AssignGenes`通过调用IgBlast来完成V(D)J assignment
+
+```bash
+$ AssignGenes.py igblast -s S43_atleast-2.fasta -b ~/share/igblast \
+    --organism human --loci ig --format blast
+```
+
+由于`AssignGenes`的调用实现方式有比较多的限制，可以自己直接执行IgBlast
+
+```bash
+$ exprt IGDATA=~/share/igblast
+$ igblastn \
+    -germline_db_V ~/share/igblast/database/imgt_human_ig_v\
+    -germline_db_D ~/share/igblast/database/imgt_human_ig_d \
+    -germline_db_J ~/share/igblast/database/imgt_human_ig_v \
+    -auxiliary_data ~/share/igblast/optional_file/human_gl.aux \
+    -domain_system imgt -ig_seqtype Ig -organism human \
+    -outfmt '7 std qseq sseq btop' \
+    -query S43_atleast-2.fasta \
+    -out S43_atleast-2.fmt7
+```
+
+**（2）将IgBlast的结果进行预处理，使其文件格式满足Change-O的后续处理**
+
+```bash
+$ MakeDb.py igblast \
+    -i S43_atleast-2.fmt7 \
+    -s S43_atleast-2.fasta \
+    -r IMGT_Human_IGHV.fasta IMGT_Human_IGHD.fasta IMGT_Human_IGHJ.fasta \
+    --regions --scores
+```
+
+**（3）Filtering records**
+
+Removing non-functional sequences
+
+```bash
+# 选择FUNCTIONAL列取值为T的行输出到一个文件中
+$ ParseDb.py select -d S43_atleast-2_db-pass.tab -f FUNCTIONAL -u T
+# 将FUNCTIONAL列取不同值的行拆分到对应的文件中
+$ ParseDb.py split -d S43_atleast-2_db-pass.tab -f FUNCTIONAL
+```
+
+Removing disagreements between the C-region primers and the reference alignment
+
+```bash
+$ ParseDb.py select -d db.tab -f V_CALL J_CALL CPRIMER -u "IGH" \
+    --logic all --regex --outname heavy
+$ ParseDb.py select -d db.tab -f V_CALL J_CALL CPRIMER -u "IG[LK]" \
+    --logic all --regex --outname light
+```
+
+**（4）Clustering sequences into clonal groups**
+
+Before running, it is important to determine an appropriate threshold for trimming the hierarchical clustering into B cell clones
 
 <a name="QC-for-RepSeq-data"><h2>基本数据质控 [<sup>目录</sup>](#content)</h2></a>
 
