@@ -651,6 +651,59 @@ It is useful to keep track of how many sequences pass each step successfully so 
     Since each read of a pair may be associated with different annotations (for example, which primers were identified), it is critical to merge these annotations so that they are all associated with the single assembled read, such as the base quality in the overlap region can be recomputed and propagated
 
     it is also useful to identify sequences that are identical at the nucleotide level, referred to as “duplicate” sequences, and group them to create a set of “unique” sequences —— 这部操作存在一个问题：扩增的克隆可能带来“duplicate” sequences，此时如果以PCR重复来过滤就可能丢掉了克隆扩增的信息，不过这种操作在mRNA文库有益，而对DNA文库不合适
+    
+在[Eur Heart J. 2019](https://doi.org/10.1093/eurheartj/ehz516) 给出的质量统计：
+
+|	Sample ID	|	Total reads	|	Productive DNA sequences	|		Unique amino acid sequences	|	Total/unique clonotype	|
+|:---|:---|:---|:---|:---|
+|	IHF-blood 01	|	10278457	|	8104563	<br> 0.788499966	|	80594	|	100.5604	|
+|	IHF-blood 02	|	12637817	|	9824639	<br> 0.777400005	|	110107	|	89.2281	|
+|	IHF-blood 03	|	10045144	|	7809095	<br> 0.777400005	|	92345	|	84.5644	|
+|	IHF-blood 04	|	9696271	|	7514610	<br> 0.774999997	|	92835	|	80.9459	|
+|	IHF-blood 05	|	8404009	|	6594626	<br> 0.784700016	|	65268	|	101.0392	|
+|	IHF-blood 06	|	8806811	|	6867551	<br> 0.779799975	|	104356	|	65.8089	|
+|	IHF-blood 07	|	8788469	|	6881371	<br> 0.782999974	|	71189	|	96.6634	|
+|	IHF-blood 08	|	7326838	|	5858540	<br> 0.799600046	|	75479	|	77.6181	|
+|	IHF-blood 09	|	8270081	|	6416756	<br> 0.775900018	|	87656	|	73.2038	|
+|	IHF-blood 10	|	9439353	|	7508061	<br> 0.79539996	|	75261	|	99.7603	|
+|	IHF-blood 11	|	9570510	|	7358765	<br> 0.768899985	|	138902	|	52.9781	|
+|	IHF-blood 12	|	10002601	|	7736012	<br> 0.773400039	|	99737	|	77.5641	|
+|	IHF-blood 13	|	8031627	|	6142588	<br> 0.764799959	|	56417	|	108.8783	|
+|	IHF-blood 14	|	26391574	|	18782883	<br> 0.711699992	|	62233	|	301.8155	|
+|	Con-blood 01	|	10216847	|	8065179	<br> 0.789399998	|	118354	|	68.1445	|
+|	Con-blood 02	|	9361056	|	7315665	<br> 0.781499972	|	113278	|	64.5815	|
+|	Con-blood 03	|	9206992	|	7269841	<br> 0.789600013	|	114613	|	63.4295	|
+|	Con-blood 04	|	7543676	|	5921786	<br> 0.785000045	|	96163	|	61.5807	|
+|	Con-blood 05	|	8916064	|	6914408	<br> 0.775500041	|	111617	|	61.9476	|
+|	Con-blood 06	|	9399148	|	7436606	<br> 0.791200011	|	86905	|	85.5717	|
+|	Con-blood 07	|	9537954	|	7490155	<br> 0.785299971	|	101270	|	73.9622	|
+|	Con-blood 08	|	10311133	|	8206631	<br> 0.795900024	|	97891	|	83.8344	|
+|	Con-blood 09	|	8950627	|	7105008	<br> 0.793800032	|	86445	|	82.1911	|
+|	Con-blood 10	|	7769527	|	6142588	<br> 0.790599994	|	75020	|	81.8793	|
+|	Con-blood 11	|	8363100	|	6574233	<br> 0.786100011	|	88712	|	74.1076	|
+|	Con-blood 12	|	8963902	|	7054591	<br> 0.787000014	|	115395	|	61.1343	|
+|	Con-blood 13	|	8451271	|	6465222	<br> 0.764999963	|	97841	|	66.0789	|
+|	Con-blood 14	|	7719820	|	5874011	<br> 0.760899995	|	33980	|	172.8667	|
+|	IHF-heart 01	|	10058731	|	7484702	<br> 0.744100026	|	12608	|	593.647	|
+|	IHF-heart 02	|	5409870	|	3754450	<br> 0.694000041	|	3311	|	1133.9323	|
+|	IHF-heart 03	|	2876901	|	1845244	<br> 0.641399895	|	3850	|	479.2842	|
+|	IHF-heart 04	|	7131209	|	5386202	<br> 0.755299978	|	15138	|	355.8067	|
+|	IHF-heart 05	|	4848194	|	3518819	<br> 0.725799958	|	2307	|	1525.2792	|
+|	IHF-heart 06	|	6473466	|	4934076	<br> 0.762200033	|	12008	|	410.8991	|
+|	IHF-heart 07	|	9118397	|	6889861	<br> 0.755600025	|	13891	|	495.9946	|
+|	IHF-heart 08	|	9577801	|	7053093	<br> 0.736400036	|	14511	|	486.0515	|
+|	IHF-heart 09	|	8451541	|	6347107	<br> 0.750999966	|	11794	|	538.1641	|
+|	IHF-heart 10	|	7181175	|	5666665	<br> 0.789099973	|	13386	|	423.3277	|
+|	IHF-heart 11	|	8733149	|	6211889	<br> 0.711300013	|	8982	|	691.5931	|
+|	IHF-heart 12	|	9647905	|	7016921	<br> 0.727299968	|	16883	|	415.6205	|
+|	IHF-heart 13	|	13094278	|	9604653	<br> 0.733500007	|	13939	|	689.0489	|
+|	IHF-heart 14	|	8358983	|	5949924	<br> 0.711799988	|	8158	|	729.3361	|
+|	Con-heart 01	|	830352	|	289793	<br> 0.349000183	|	4339	|	66.788	|
+|	Con-heart 02	|	870928	|	450705	<br> 0.517499724	|	9699	|	46.4692	|
+|	Con-heart 03	|	2290585	|	662208	<br> 0.289099946	|	8290	|	79.8803	|
+|	Con-heart 04	|	870098	|	318108	<br> 0.365600197	|	1930	|	164.8228	|
+|	Con-heart 05	|	755868	|	361985	<br> 0.478899755	|	2954	|	122.5406	|
+|	Con-heart 06	|	737759	|	322327	<br> 0.436900126	|	10205	|	31.5852	|
 
 <a name="advice-on-data-analysis-VDJ-germline-segment-assignment"><h4>V(D)J germline segment assignment [<sup>目录</sup>](#content)</h4></a>
 
