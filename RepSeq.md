@@ -1654,7 +1654,7 @@ responding T cells in an individual use the same TCR Vα or Vβ region, CDR3 and
 
 <a name="machine-learning-application-in-immune-repertoire"><h2>免疫组库机器学习方法 [<sup>目录</sup>](#content)</h2></a>
 
-- [BMC Bioinformatics. 2017; 18: 401.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5588725/)
+- [Jared Ostmeyer et al. Statistical classifiers for diagnosing disease from immune repertoires: a case study using multiple sclerosis. BMC Bioinformatics. 2017; 18: 401.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5588725/)
 
 use the biochemical features encoded by the complementarity determining region 3 of each B cell receptor heavy chain in every patient repertoire as input to a detector function, which is fit to give the correct diagnosis for each patient using maximum likelihood optimization methods. The resulting statistical classifier assigns patients to one of two diagnosis categories, RRMS or other neurological disease, with 87% accuracy by leave-one-out cross-validation on training data (N = 23) and 72% accuracy on unused data from a separate study (N = 102)
 
@@ -1663,6 +1663,15 @@ use the biochemical features encoded by the complementarity determining region 3
 <p align='center'><img src=./picture/immuSeq-paper-machine-learning-application-in-immune-repertoire-case1-2.png width=800 /></p>
 
 <p align='center'><img src=./picture/immuSeq-paper-machine-learning-application-in-immune-repertoire-case1-3.png width=800 /></p>
+
+- [Greiff et al. Learning the High-Dimensional Immunogenomic Features That Predict Public and Private Antibody Repertoires. J Immunol, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28924003/)
+
+public clones possess predictable sequence features that differentiate them from private clones, which are believed to be generated largely stochastically
+
+Leveraging a machine learning approach capable of capturing the high-dimensional compositional information of each clonal sequence (defined by CDR3), we detected predictive public clone and private clone-specific **immunogenomic differences concentrated in CDR3's N1-D-N2 region**, which allowed the prediction of public and private status with 80% accuracy in humans and mice.
+
+总结：用SVM判别public clones vs. private clones
+
 
 <a name="basic-analysis-and-analysis-tools"><h2>TCR/BCR的基础分析及分析工具 [<sup>目录</sup>](#content)</h2></a>
 
