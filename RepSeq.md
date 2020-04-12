@@ -6,6 +6,7 @@
 		- [免疫细胞的发生与成熟过程](#the-development-of-lymphocyte)
 	- [免疫组库测序技术](#the-technology-of-immune-repertoires-sequencing)
     - [RepSeq的几大重要应用](#important-applications-of-repseq)
+    - [免疫组库面临的挑战](#chanlleges)
     - [几个基础性的问题](#some-basic-problems)
     - [技术标准](#standar-of-technology)
         - [挑战与 AIRR 社区目标](#challenge-and-community)
@@ -268,6 +269,38 @@ CDR3区域以及为什么选择CDR3区域作为靶向测序的区域：
 
 <a name="important-applications-of-repseq"><h3>RepSeq的几大重要应用 [<sup>目录</sup>](#content)</h3></a>
 
+- 免疫生物学研究
+
+	可以在一定程度上检测免疫系统的实际多样性，回答一些悬而未决的问题：
+
+	> - 免疫系统的多样性到底多大
+	>
+	> 	Glanville et al.利用Capture-Recapture 方法估计了 IGM  组库的多样性至少 3.5×10^10
+	>
+	> - 免疫系统 VDJ基因重排频率的决定因素和规律是不清楚的
+	>
+	>	有的人认为是由遗传信息决定的，有的人认为是随机的；Zvyagin  et  al.发现双胞胎 TCR 组库有着不同的特点，提示环境因素对免疫组库的组成起着很大作用
+
+- 免疫系统疾病的研究与临床应用 
+
+	艾滋病：监视艾滋病病人的免疫系统，找到一些起到中和 HIV 病毒的抗体或 TCR 序列，从而可以设计疫苗或对艾滋病患者进行病毒中和的治疗 [*](https://doi.org/10.1126/science.1207532)
+
+	自身免疫系统疾病：包含系统性红斑狼疮、类风湿关节炎、系统性血管炎、自身免疫性溶血性贫血等疾病 [*](https://doi.org/10.1007/s12016-017-8604-9)
+
+	造血干细胞移植预后评估：van Heijst et al.  通过对骨髓造血干细胞移植患者免疫组库的测序可以定量的检测免疫系统多样性的恢复 [*](https://doi.org/10.1038/nm.3100)
+
+- 疫苗研究
+
+	可以精确的描述免疫系统的特点和状态，当然可以展示生物体注射疫苗后的免疫系统的变化 [*](https://doi.org/10.1016/j.it.2014.04.005)
+
+- 癌症监控与治疗
+
+	血液癌症（如白血病）：白血病病人在经过治疗后的最小残余监控对于了解病情、预防复发有着重要的作用。Wu  et  al.  应用高通量测序技术诊断急性淋巴细胞白血病，通过对 43 对样本的实验，他们不仅可以检测出异常的克隆而且可以监控最小残余，比常规方法要灵敏 [*](https://doi.org/10.1126/scitranslmed.3003656)
+
+	肿瘤异质性（肿瘤浸润淋巴细胞）：Emerson et al.  通过对卵巢癌浸润 T 细胞的高通量测序研究发现浸润 T 细胞在肿瘤不同空间位置上是相似的 [*](https://doi.org/10.1002/path.4260)
+
+	肿瘤浸润淋巴细胞的挖掘：肿瘤的免疫治疗有着深远的作用和影响。Sherwood  et  al.  应用测序技术对直肠癌浸润 T 细胞组库测序发现癌组织与周围正常组织的浸润 T 组库有着显著的不同，但由于测序通量较低，肿瘤异质性大的原因并未发掘出有活性的免疫 T 细胞 [*](https://doi.org/10.1007/s00262-013-1446-2)
+
 autoimmune diseases（目前主要针对多multiple sclerosis）:
 
 >  - [J Neuroimmunol. 2009;213(1–2):123–30](https://www.ncbi.nlm.nih.gov/pubmed/19631394)
@@ -309,13 +342,47 @@ antibody discovery :
 > - [Zhu J, Wu X, Zhang B, McKee K, O’Dell S, Soto C, et al. De novo identification of VRC01 class HIV-1 neutralizing antibodies by next-generation sequencing of B-cell transcripts. Proc Natl Acad Sci U S A. 2013;110(43):E4088–97.](https://www.ncbi.nlm.nih.gov/pubmed/24106303)
 > - [Georgiou G, Ippolito GC, Beausang J, Busse CE, Wardemann H, Quake SR. The promise and challenge of high-throughput sequencing of the antibody repertoire. Nat Biotechnol. 2014;32(2):158–68.](https://www.ncbi.nlm.nih.gov/pubmed/24441474)
 
+<a name="chanlleges"><h3>免疫组库面临的挑战 [<sup>目录</sup>](#content)</h3></a>
+
+（1）测序存在错误、测序长度不足、测序深度不足 
+
+测序仪也会产生测序错误，这些错误对免疫组库的研究的影响很大，以致于无法区别是突变造成的还是测序错误。测序质量的控制和测序错误的纠正是有十分必要的。 
+
+测序长度不足，无法覆盖基因全长。免疫基因一条链的长度大约 400~600 bp，目前能达到要求的测序仪主要有 Roche 454  （400~1000 bp）  和  Illimina MiSeq （2×250  bp），但二者的测序深度不高。高测序深度的 Illumina  HiSeq2500 测序长度为  2×150  bp，目前可以覆盖 BCR/TCR 的 CDR3 区域，该区域是 BCR/TCR 基因变异最大区域，可以很好的代表特定的 BCR/TCR 克隆
+
+测序深度不足。BCR 和 TCR 多样性巨大，只有深度测序（deep sequencing）才能找到稀有克隆（rare clone），对免疫系统多样性进行更为准确的估计 [*](https://doi.org/10.1186/s12865-014-0029-0)
+
+（2）多重 PCR  扩增获取目的基因片段存在扩增偏好性 
+
+一般 PCR 仅使用一对引物，通过 PCR 扩增产生一个核酸片段而多重 PCR（multiplex PCR）  在同一 PCR 反应体系里加上二对以上引物，同时扩增出多个核酸片段的 PCR 反应。免疫基因多样性的进化通过基因复制和基因突变，想要扩增出目的 BCR/TCR 基因所有片段一对引物是不够的，只能通过设计多重 PCR 扩增引物。通常在 V 区和 J/C 区的保守区域设计引物实现多重 PCR 扩增。但由于引物不同 PCR 扩增的效率必然不同造成扩增偏差（amplification bias）
+
+Carlson  et  al.利用人工合成的 56 条 TCRG 组库模板来评估不同 V 区和 J 区引物的扩增偏差，证实扩增偏差的确存在，有些引物被大量扩增有些却几乎没有扩出来，通过优化不同引物浓度达到扩增平衡。并且证实 V 区和 J 区引物并无相互作用产生从而提出独立的提高不同 V 区和 J 区引物浓度的方法来矫正扩增偏差。通过几次优化找到最优的引物浓度组合来消除了 PCR 扩增偏差，并且在生物体实验也证实了有效性[*](https://doi.org/10.1038/ncomms3680)。但这种方法对新的引物不具有通用性，因而增加了寻找最佳引物浓度的复杂性
+
+UID（unique molecular identifiers）方法主要思想是在未大规模 PCR 扩增目标分子前为每个分子加入唯一的 UID，这种 UID 是随机合成的一般 12~16 个寡聚核苷酸  （random barcode），他们的随机组合会产生庞大的数量来为样品中特定的每个分子加上不同的标签，这样即使 PCR 扩增不均匀也可以通过计算的方法消除这种偏差，同时还能矫正 PCR 和测序错误。但这种方法需要更长的引物可能导致扩增效率下降和目标基因片段缩短，并且需要极高的通量才能覆盖所有的 UID，目前应用于 IGH/TCR  的  RNA 测序
+
+（3）免疫组库水平（repertoire-level）生物信息数据分析工具欠缺
+
+免疫组库水平（repertoire-level）的信息分析是和以前单条 BCR/TCR 基因序列分析不同的。早在 Sanger 测序法时，由于测序通量和测序价格限制，人们只能一次测出几十条基因序列，只能对这些序列进行序列水平（sequence-level）的分析。现有的一些数据分析的工具 IMGT/V-QUEST，iHMMune-align，JOINSOLVER可以进行对单个 BCR/TCR 序列进行全面的分析。而免疫组库水平的分析是要对整个免疫组库的全部序列进行分析以得出免疫系统整体功能状态信息
+
+高通量测序技术产生大量序列信息，这也催生了一些 BCR/TCR 基因高通量数据分析软件，如 IMGT/HighV-QUEST 和 IgBlast。它们都利用 BLAST 算法实现加速对序列的比对分析，但没有原始数据的质量控制和预处理。这些软件重点也主要集中于序列比对上，更缺乏免疫组库功能的分析。
+
+免疫组库的数据分析不仅要有数据的质量控制，预处理，不同建库方法和测序方法的纠正，还要有下游的免疫组库功能分析如克隆追踪，免疫组库多样性分析，寻找公共克隆，不同个体之间免疫系统比较等。有针对不同建库方法的综合全面的数据分析流程和软件无疑对免疫组库研究的效率和质量有较大提升。 
+
 <a name="some-basic-problems"><h3>几个基础性的问题 [<sup>目录</sup>](#content)</h3></a>
 
 （1）一个个体的免疫组库有多大？免疫组库的理论多样性有多高？
 
+BCR:
+
 10^10–10^11 B cells in a human adult ([Ganusov VV, De Boer RJ. Do most lymphocytes in humans really reside in the gut? Trends Immunol. 2007;28(12):514–8.](https://www.ncbi.nlm.nih.gov/pubmed/17964854))
 
 a theoretical diversity of > 10^14, which is further increased during adaptive immune responses, when activated B cells undergo a process of somatic hypermutation (SHM)
+
+[Glanville et al.](https://www.pnas.org/content/106/48/20216) 利用Capture-Recapture 方法估计了 IGM  组库的多样性至少 3.5×10^10
+
+TCR:
+
+This generation of diversity process can potentially yield a repertoire of **10^15** different TCR clonotypes( [Nikolich-Zugich J, Slifka MK, Messaoudi I. The many important facets of T-cell repertoire diversity. Nat Rev Immunol  2004;4:123–132.](http://www.ncbi.nlm.nih.gov/pubmed/15040585) )
 
 （2）免疫组库在不同的组织器官中的分布比例大概是多少？
 
@@ -1962,14 +2029,32 @@ To quantify clonal expansion, diversity can be divided into evenness($D^α/D^0$)
 
 <a name="collection-of-enligtning-papers"><h3>* 文章收藏 [<sup>目录</sup>](#content)</h3></a>
 
-最佳分析实战：
+免疫组库入门相关的系统介绍：
 
-[G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire sequencing analysis. Genome medicine, Nov 2015 20](https://www.ncbi.nlm.nih.gov/pubmed/26589402)
-
-免疫组库测序技术的review：
-
+> 中文文章：
+>
+> - 李鹏.免疫组库高通量数据分析流程的构建与应用.中山大学, 2015.
+> 
+> 英文文章：
+> 
 > - [Boyd SD, Joshi SA. High-throughput DNA sequencing analysis of antibody repertoires. Microbiol Spectr. 2014;2.](https://www.ncbi.nlm.nih.gov/pubmed/26104353)
+> 
 > - [Benichou J, Ben-Hamo R, Louzoun Y, Efroni S. Rep-seq: uncovering the immunological repertoire through next-generation sequencing. Immunology. 2012;135(3):183–91.](https://www.ncbi.nlm.nih.gov/pubmed/22043864)
+
+分析方法总结：
+
+> - [G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire sequencing analysis. Genome medicine, Nov 2015 20](https://www.ncbi.nlm.nih.gov/pubmed/26589402)
+
+技术探索与标准评估：
+
+> BCR-seq方法比较评估
+> 
+> - [Bashford-Rogers Rachael J M. Capturing needles in haystacks: a comparison of B-cell receptor sequencing methods. BMC immunology, 2014, Vol.15 , pp.29](https://doi.org/10.1186/s12865-014-0029-0)
+> 
+> - [Daniela Sint, Lorna Raso, Michael Traugott. Advances in multiplex PCR: balancing primer efficiencies and improving detection success. Methods in Ecology and Evolution. 2012:898-905.](https://dio.org/10.1111/j.2041-210X.2012.00215.x)
+> - [ Christopher S. Carlson. Using synthetic templates to design an unbiased multiplex PCR assay. Nature Communications, 2013, Vol.4 (1), pp.20216-20221](https://doi.org/10.1038/ncomms3680)
+
+
 
 
 
