@@ -2040,10 +2040,21 @@ To quantify clonal expansion, diversity can be divided into evenness($D^α/D^0$)
 > - [Boyd SD, Joshi SA. High-throughput DNA sequencing analysis of antibody repertoires. Microbiol Spectr. 2014;2.](https://www.ncbi.nlm.nih.gov/pubmed/26104353)
 > 
 > - [Benichou J, Ben-Hamo R, Louzoun Y, Efroni S. Rep-seq: uncovering the immunological repertoire through next-generation sequencing. Immunology. 2012;135(3):183–91.](https://www.ncbi.nlm.nih.gov/pubmed/22043864)
+> 
+> - [Georgiou, G., Ippolito, G., Beausang, J. et al. The promise and challenge of high-throughput sequencing of the antibody repertoire. Nat Biotechnol 32, 158–168 (2014). https://doi.org/10.1038/nbt.2782](https://www.nature.com/articles/nbt.2782)
+> 
+> - [Maecker H T, Lindstrom T M, Robinson W H, et al. New tools for classification and monitoring of autoimmune diseases[J]. Nat Rev Rheumatol,  2012, 8(6): 317-328.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3409841/)
+> 
+> - [Robinson WH. Sequencing the functional antibody repertoire--diagnostic and therapeutic discovery. Nat Rev Rheumatol. 2015;11(3):171-182. doi:10.1038/nrrheum.2014.220](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4382308/)
 
 分析方法总结：
 
 > - [G Yaari and SH Kleinstein. Practical guidelines for B-cell receptor repertoire sequencing analysis. Genome medicine, Nov 2015 20](https://www.ncbi.nlm.nih.gov/pubmed/26589402)
+> 
+> - [Wang C, Liu Y, Roskin KM, Jackson KJ, Boyd SD. Laboratory and Data Analysis Methods for Characterization of Human B Cell Repertoires by High-Throughput DNA Sequencing. Methods Mol Biol. 2015;1343:219-233. doi:10.1007/978-1-4939-2963-4_17](https://link.springer.com/protocol/10.1007%2F978-1-4939-2963-4_17)
+> 
+> - [Advanced Methodologies in High-Throughput Sequencing of Immune Repertoires.Trends in Biotechnology.2017.](https://doi.org/10.1016/j.tibtech.2016.09.010)
+
 
 技术探索与标准评估：
 
@@ -2052,7 +2063,15 @@ To quantify clonal expansion, diversity can be divided into evenness($D^α/D^0$)
 > - [Bashford-Rogers Rachael J M. Capturing needles in haystacks: a comparison of B-cell receptor sequencing methods. BMC immunology, 2014, Vol.15 , pp.29](https://doi.org/10.1186/s12865-014-0029-0)
 > 
 > - [Daniela Sint, Lorna Raso, Michael Traugott. Advances in multiplex PCR: balancing primer efficiencies and improving detection success. Methods in Ecology and Evolution. 2012:898-905.](https://dio.org/10.1111/j.2041-210X.2012.00215.x)
+> 
 > - [ Christopher S. Carlson. Using synthetic templates to design an unbiased multiplex PCR assay. Nature Communications, 2013, Vol.4 (1), pp.20216-20221](https://doi.org/10.1038/ncomms3680)
+
+成功的应用例子：
+
+> - [Van Heijst J W, Ceberio I, Lipuma L B, et al. Quantitative assessment of T cell repertoire recovery after hematopoietic stem cell transplantation[J]. Nat Med, 2013, 19(3): 372-377.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3594333/)
+> 
+> - [Wu D, Sherwood A, Fromm J R, et al. High-throughput sequencing detects minimal residual disease in acute T lymphoblastic leukemia[J]. Sci Transl Med, 2012, 4(134): 134ra63.]()
+
 
 
 
