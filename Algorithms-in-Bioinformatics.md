@@ -8,8 +8,10 @@
 	- [1.4. BLAST](#blast)
 		- [1.4.1. TCR/BCR克隆鉴定](#tcr-bcr-identification)
 	- [1.5. 基于后缀树的快速序列比对](#fast-alignment-based-on-suffix-tree)
+    - [1.6. Subread: seed-and-vote](#subread-alignment-algorithmn)
 - [2. Motif Finding](#motif)
 	- [2.1. MEME：EM算法](#motif-em)
+	- [2.2. position weight matrices (PWMs)](#motif-pwm)
 - [3. Bining for Metageonome](#bining)
 	- [3.1. CONCOCT](#bining-concoct)
 - [4. Genome Assembly](#genome-assembly)
@@ -18,9 +20,17 @@
 - [5. variants calling](#variants-calling)
 	- [5.1. 背景知识](#introduction-to-variants-calling)
 		- [5.1.1. base calling过程的错误及校正](#base-calling-error-and-correction)
+			- [5.1.1.1. GATK-BQSR](#base-calling-error-gatk-bqsr)
 		- [5.1.2. 比对过程的错误及校正](#mapping-error-and-correction)
-	- [5.2. snp calling](#snp-calling)
-		- [5.2.1. samtools/bcftools](#snp-calling-using-samtools-bcftools)
+	- [5.2. snp calling的数学原理](#snp-calling-mathmatic-principle)
+		- [5.2.1. 李恒samtools/bcftools](#snp-calling-mathmatic-principle-from-li-heng)
+		- [5.2.2. GATK](#snp-calling-mathmatic-principle-from-gatk)
+- [6. k-mer based sequence analysis](#k-mer-based-sequence-analysis)
+- [补充知识](#supplementary-knowledge)
+	- [*1. 哈迪-温伯格平衡(Hardy-Weinberg equilibrium)法则](#hwe)
+
+
+
 
 <h1 name="title">Algorithms in Bioinformatics</h1>
 
@@ -156,9 +166,10 @@ BLASR是第一个针对PacBio序列的比对工具，2012年发表在《BMC Bioi
 （2）根据上面列出的后缀子字符串，构建suffix trie（后缀字典树）
 
 
+<a name="subread-alignment-algorithm"><h3>1.6. Subread: seed-and-vote [<sup>目录</sup>](#content)</h3></a>
 
 
-
+Yang Liao, Gordon K. Smyth, Wei Shi. The Subread aligner: fast, accurate and scalable read mapping by seed-and-vote. Nucleic Acids Res. 2013 May 1;41(10):e108. 
 
 
 
@@ -176,6 +187,26 @@ BLASR是第一个针对PacBio序列的比对工具，2012年发表在《BMC Bioi
 
 <a name="motif"><h2>2. Motif Finding [<sup>目录</sup>](#content)</h2></a>
 
+Motif Finding问题，实际上包含两个问题：
+
+> （1）给定一系列的结合位点序列，找出一种可以表示这些结合位点序列组成的表示方式，成为一种序列模式（pattern）；
+>
+> （2）给出一些可能含有结合位点的序列，利用已经总结出来的这种结合位点的序列模式，将这些结合位点在给出的序列中找出来；
+
+转录因子结合位点与限制性内切酶识别位点的差别：
+
+> 限制性内切酶识别位点是相对简单，且确定的，比如像EcoRI的识别位点就可以简单地写成`GAATTC`，或者像HincII，它的识别位点有一些容错，为`GTYRAC`
+>
+> 限制性内切酶对识别位点要求很严格，只要有一个位点不对，它的识别效率就会显著下降
+>
+> 相比之下，转录因子的结合位点的可变性就高多了，比如$\lambda$操纵子的结合位点长度为8bp，其中只有两个位点是完全保守，其他位点都有不同程度的多样性
+
+从上面的总结可以看出，限制性内切酶对位点的识别高度严格保守，导致其识别效率要么是0，要么是1
+
+而转录因子则要求比较弱的序列模式即可，允许比较高的序列模式多样性，其识别和结合效率是一个连续变化的范围
+
+这其实和它们的生物学功能是对应的
+
 <a name="motif-em"><h3>2.1. MEME：EM算法 [<sup>目录</sup>](#content)</h3></a>
 
 <p align="center"><img src=./picture/MeRIP-seq-meme-principle-1.png width=800/></p>
@@ -183,6 +214,27 @@ BLASR是第一个针对PacBio序列的比对工具，2012年发表在《BMC Bioi
 <p align="center"><img src=./picture/MeRIP-seq-meme-principle-2.png width=800/></p>
 
 <p align="center"><img src=./picture/MeRIP-seq-meme-principle-3.png width=800/></p>
+
+<a name="motif-pwm"><h3>2.2. position weight matrices (PWMs) [<sup>目录</sup>](#content)</h3></a>
+
+$$
+\text{TACGAT} \\
+\text{TATAAT} \\
+\text{TATAAT} \\
+\text{GATACT} \\
+\text{TATGAT} \\
+\text{TATGTT}
+$$
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-Motif-Finding-PWM-1.png width=400/></p>
+
+某一个位点i的保守性：
+
+$$2+\sum_{b=A}^T f_{b,i}\log_2 f_{b,i}$$
+
+某一个位点i它的碱基组成为b的分值：
+
+$$f_{b,i}\log_2 f_{b,i}$$
 
 <a name="bining"><h2>3. Bining for Metageonome [<sup>目录</sup>](#content)</h2></a>
 
@@ -196,35 +248,37 @@ BLASR是第一个针对PacBio序列的比对工具，2012年发表在《BMC Bioi
 
 以 k-mer 长度等于5为例
 
-将相互之间成反向互补关系的 5-mers pairs 记做一种，则总共有512种 5-mers，对每一条contig计算其各自 5-mers 的组成频率从而构造出一个长度为v=512的向量 Z<sub>i</sub>：
+将相互之间成反向互补关系的 5-mers pairs 记做一种，则总共有512种 5-mers，对每一条contig计算其各自 5-mers 的组成频率从而构造出一个长度为v=512的向量 $Z_i$：
 
-<p align="center">Z<sub>i</sub> = (Z<sub>i,1</sub>, ..., Z<sub>i,v</sub>)</p>
+$$Z_i=(Z_{i,1},Z_{i,2},...,Z_{i,v})$$
 
-为了保证每个 5-mers 频率的计数非零（为后面的对数转换做准备），进行伪计数处理，然后用该序列的 5-mers的总数进行标准化，得到新的向量 Z<sub>i</sub><sup>'</sup>：
 
-<p align="center"><img src=./picture/Algorithms-Bioinf-bining-composition-formula.png height=80 /></p>
+为了保证每个 5-mers 频率的计数非零（为后面的对数转换做准备），进行伪计数处理，然后用该序列的 5-mers的总数进行标准化，得到新的向量 $Z_i'$：
+
+$$Z_{i,j}'=\frac{Z_{i.j}+1}{\sum_{k=1}^v Z_{i,k}}$$
 
 - Contig coverage features
 
-用段序列比对软件，将各个样本（总共有M个样本）的reads比对到contigs上，计算每条contigs在每个样本中的 coverage (Mapped reads * read length / contig length)，得到表示 congtig i 的 coverage 的向量 Y<sub>i</sub>：
+用段序列比对软件，将各个样本（总共有M个样本）的reads比对到contigs上，计算每条contigs在每个样本中的 coverage (Mapped reads * read length / contig length)，得到表示 congtig i 的 coverage 的向量 $Y_i$：
 
-<p align="center">Y<sub>i</sub> = (Y<sub>i,1</sub>, ..., Y<sub>i,M</sub>)</p>
+$$Y_i=(Y_{i,1},Y_{i,2},...,Y_{i,M})$$
+
 
 两轮标准化处理：
 
 > 伪计数处理：额外添加一条比对到该 contig 上的 read；再用该**样本内**所有 contigs（contigs总数为N）的 coverage 进行标准化，得到新的向量 Y<sub>i</sub><sup>'</sup>：
-> 
-> <p align="center"><img src=./picture/Algorithms-Bioinf-bining-coverage-formula-1.png height=80 /></p>
-> 
+>
+> $$Y_{i,j}'=\frac{Y_{i,j}+\text{read|ength}/\text{contigLength}}{\sum_{k=1}^NY_{k,j}}$$
+>
 > 然后再在**contig内部**进行标准化，得到新的向量 Y<sub>i</sub><sup>''</sup>：
-> 
-> <p align="center"><img src=./picture/Algorithms-Bioinf-bining-coverage-formula-2.png height=80 /></p>
+>
+> $$Y_{i,j}''=\frac{Y_{i,j}'}{\sum_{k=1}^M Y_{i,k}'}$$
 
 - Combine two features
 
 将表示某一个 contig i 的序列组成特征的向量 Z<sub>i</sub><sup>'</sup> 和 coverage 特征向量 Y<sub>i</sub><sup>''</sup>合并成组成一个新的特征向量 X<sub>i</sub>（向量长度为E=V+M），同时进行对数转换：
 
-<p align="center">X<sub>i</sub> = { log(Z<sub>i</sub><sup>'</sup>) , log(Y<sub>i</sub><sup>''</sup>) }
+$$X_i=\{\log(Z_i'),\log(Y_i'')\}$$
 
 - PCA，保留能解释至少90%的方差的主成分（共保留前D个主成分，D < E）
 
@@ -324,7 +378,7 @@ if $ratio\times cov(e_i) < cov(v)$，去除该edge
 	>
 	> 因为每一轮不同步滞后的那些DNA片段毕竟占少数，所以，对这个cluster整体的荧光信息的影响比较小，所以在测序反应刚开始的时候，base calling 的准确率是比较高的；但是随着反应的持续进行，不同步部分不断累积越来越多，那么干扰信息也就越来越强，也就越来越难判断当前碱基组成到底是哪个，这也就解释了为什么反应越到后面测序质量越差
 
-- **Phred 质量值校正**
+- **Phred 质量值与Base-Calling**
 
 	碱基质量的表示方式：Phred quality score (Q score)
 
@@ -348,7 +402,51 @@ if $ratio\times cov(e_i) < cov(v)$，去除该edge
 	>
 	> 这些 base calling 算法基本都是测序仪厂家开发出来的，将原始测序错误率降低了 ~5-30%
 
-	（1）SOAPsnp的校正策略
+<a name="base-calling-error-gatk-bqsr"><h5>5.1.1.1. GATK-BQSR [<sup>目录</sup>](#content)</h5></a>
+
+Phred碱基质量值是由测序仪内部自带的base-calling算法评估出来的，而这种base-calling算法由于受专利保护，掌握在测序仪生成商手中，研究人员并不能了解这个算法的细节，它对于人们来说就是一个黑盒子
+
+而测序仪的base-calling算法给出的质量评估并不十分准确，它带有一定程度的系统误差（非随机误差），使得实际测序质量值要么被低估，要么被高估
+
+BQSR试图利用机器学习的方法来对原始的测序质量值进行校正
+
+例如：
+
+> 对于一个给定的Run，我们发现，无论什么时候我在测序一个AA 的子序列时，改子序列后紧接着的一个任意碱基的测序错误率总是要比它的实际错误率高出1%，那么我就可以将这样的碱基找出来，将它的原始测序错误率减去1%来对它进行校正
+
+会影响测序质量评估准确性的因素有很多，主要包括序列组成、碱基在read中的位置、测序反应的cycle等等，它们以类似于叠加的形式协同产生影响，这些可能的影响因素被称作协变量 (covariable)
+
+注意：BQSR只校正碱基质量值而不改变碱基组成，特别是对于那些质量值偏低的碱基，我们只能说它被解析成当前碱基组成的准确性很低，但是我们又无法说明它实际更可能是哪种碱基，所以干脆不改
+
+那么，BQSR的工作原理是怎样的？
+
+BQSR本质上是一种回归模型
+
+前提假设：影响质量评估的因素只有reads group来源，测序的cycle和当前测序碱基的序列组成背景（这里将它上游的若干个连续位点的碱基组成看作它的背景，一般为2~6，BQSR中默认为6）
+
+则基于这个前提假设，我们可以得出以下结论：
+
+> 相同reads group来源，同处于一个cycle，且序列背景相同的碱基，它们具有相同的测序错误率，这样的碱基组成一个bin
+
+则可以建立这样的拟合模型：
+
+$$X_i=(RG_i,Cyc_i,Context_i) \quad \begin{matrix} f \\ \to \end{matrix} \quad y_i$$
+
+其中，i表示当前碱基，$RG_i$表示碱基所属的Reads Group来源，$Cyc_i$表示该碱基所在的测序cycle，$Context_i$表示该碱基的序列组成背景，$y_i$表示该碱基的实际测序质量(emprical quality)
+
+这三个分量可以直接通过输入的BAM文件的记录获得，那如何获得实际的实际测序质量呢？
+
+可以通过BAM文件中的比对结果推出
+
+用给定的大型基因组测序计划得到的人群变异位点作为输入，将样本中潜在变异位点与人群注释位点overlap的部分过滤掉，则剩下的那些位点，我们假设它们都是“假”的变异位点，是测序错误导致的误检
+
+则实际测序质量为：
+
+$$EQ=-10\log \frac{\#mismatch + 1}{\#bases + 2}$$
+
+注意：emprical quality是以bin为单位计算出来的
+
+这样，有了X和Y，就可以进行拟合模型的训练了，训练好的模型就可以用于碱基质量值的校正
 
 <a name="mapping-error-and-correction"><h4>5.1.2. 比对过程的错误及校正 [<sup>目录</sup>](#content)</h4></a>
 
@@ -394,7 +492,128 @@ if $ratio\times cov(e_i) < cov(v)$，去除该edge
 
 
 
-<a name="snp-calling"><h3>5.2. snp calling [<sup>目录</sup>](#content)</h3></a>
+<a name="snp-calling-mathmatic-principle"><h3>5.2. snp calling的数学原理 [<sup>目录</sup>](#content)</h3></a>
+
+<a name="snp-calling-mathmatic-principle-from-li-heng"><h4>5.2.1. 李恒samtools/bcftools [<sup>目录</sup>](#content)</h4></a>
+
+基本思路：
+
+> 先要对每个候选的变异位点，计算落在这个位点上的reads的allele的似然，然后基于这多条reads的allele likelihood，推断出出现哪种genotype的概率最大
+
+前提假设：
+
+> - **数据量与数据质量要求**：genotype置信度的推断依据与数据量和数据质量，低覆盖度或低质量的数据都会导致较低的置信度。
+>
+> 	只采用高测序质量和高比对质量的结果进行后续的分析
+>
+> - **二倍型 (Ploidy)**：默认提供的物种都是二倍型的，倍型的设定会影响到后续基因分型算法(genotyping algorithmn)的公式推导
+>
+> - **使用paired end reads**
+>
+> - **Single-sample vs multi-sample**
+>
+> 	对于单样本和单样本的情况，使用的genotying model是不一样的
+
+采用李恒在2011年的文章提出的方法计算
+
+
+<a name="snp-calling-mathmatic-principle-from-gatk"><h4>5.2.2. GATK [<sup>目录</sup>](#content)</h4></a>
+
+GATK进行SNP calling的核心算法为HaplotypeCaller，这个也是GATK中最核心的算法，理解了这个算法基本上就明白了GATK变异检测的原理
+
+HaplotypeCaller它本质上是对贝叶斯原理的应用，只是相于同类算法它有点不同之处
+
+算法思想概述：
+
+> HaplotypeCaller首先是根据所测的数据，先构建这个群体中的单倍体组合（我认为这也是Haplotype这个名字的由来），由于群体中的单倍体是有多个的，所以最好是多个人一起进行HaplotypeCaller这样构建出来的单倍体组合会越接近真实情况
+>
+> 构建出单倍体的组合之后（每一个单倍体都有一个依据数据得出的后验概率值），再用每个样本的实际数据去反算它们自己属于各个单倍体组合的后验概率，这个组合一旦计算出来了，对应位点上的碱基型（或者说是基因型，genotype）也就跟着计算出来了：
+>
+> 计算每一个后候选变异位置上的基因型（Genotype）后验概率，最后留下基因型（Genotype）中后验概率最高的哪一个
+
+下面进行详细地说明：
+
+在HaplotypeCaller中变异检测过程被分为以下四个大的步骤
+
+![](./picture/Algorithms-Bioinf-variants-calling-algorithmn-GATK-1.png)
+
+（1）确定候选变异区域（ActiveRegion）
+
+通过read在参考基因组上的比对情况，筛选出潜在的变异区域，这些区域在GATK中被称为ActiveRegion
+
+（2）通过对候选变异区域进行重新组装来确定单倍型
+
+对于每个ActiveRegion，GATK会利用**比对到该区域上的所有read**（如果有多个样本那么是所有这些样本的reads而不是单样本进行）构建一个类似于de Bruijn的图对ActiveRegion进行局部重新组装，构建出该区域中可能的单倍型序列。然后，使用Smith-Waterman算法将每个单倍型序列和参考基因组进行重新比对，重新检测出潜在的变异位点
+
+（3）依据所给定的read比对数据计算各个单倍型的似然值
+
+在步骤2的基础上，我们就得到了在ActiveRegion中所有可能的单倍型序列，接下来需要评估现有数据中对这些单倍型的支持情况
+
+GATK使用PairHMM算法把原本比对于该区域中的每一条read依次和这些单倍型序列进行两两比对，这样我们就可以得出一个read-单倍型序列成对的似然值矩阵，例如以单倍型为列，以read为行，将矩阵记作$(a_{i,j})$
+
+$$
+\begin{array}{l|c|c|c|c}
+0 & H_1 & H_2 & .. & H_m \\
+\hline
+r_1 & a_{11} & a_{12} & .. & a_{1m} \\
+r_2 & a_{21} & a_{22} & .. & a_{2m} \\
+.. & .. & .. & .. & .. \\
+r_n & a_{n1} & a_{n2} & .. & a_{nm} \\
+\hline
+\end{array}
+$$
+
+则矩阵中的某一个元素$a_{ij}$表示在read i支持单体型为$H_j$的似然
+
+这个似然值矩阵很重要，因为在获得这个矩阵之后，GATK会在每一个潜在的变异位点上把这些似然值相加合并，计算等位基因的边缘概率，这个边缘概率实际上是每一个read在该位点上支持其为变异的似然值
+
+（* 在该步骤中，Pair-HMM这实际上是GATK中最为耗费计算资源的那部分了，GATK的加速也是常常以此为突破口——比如GPU加速或者把Pair-HMM模块烧录到FPGA芯片中，也有人从算法本身出发发表了关于如何更快计算Pair-HMM的文章：`https://journals.sagepub.com/doi/pdf/10.1177/1176934318760543` ）
+
+（4）计算每一个样本在最佳单倍型组合下的基因型（Genotype）
+
+在完成了步骤3之后，我们就知道了**每一条read在每个候选变体位点上支持每一种等位基因（Allele）的概率**了。那么，最后要做的就是通过这些似然值，计算出候选变异位点上最可能的样本基因型，也就是Genotype——这也是发现真正变异的过程。这就需要应用贝叶斯原理来完成这个计算了——GATK这也是到这一步才使用了该原理，通过计算就可以得到每一种Genotype的可能性，最后选择后验概率最高的那一个Genotype作为结果输出至VCF中
+
+后面的分析中，对于每一个变异位点假设只有二等位形式——注意：这和一个ActiveRegion中存在多种单体型不矛盾，若一个ActiveRegion在群体中存在n个变异位点，在只考虑二等位形式的前提下，该区域具有的单体型总共有$2^n$种
+
+下面来推导某个样本中的某一个变异位点最可能的SNP形式
+
+该样本在该位点的genotype为G的后验概率为：
+
+$$P(G \mid D) = \frac{P(G)P(D \mid G)}{\sum_i P(G_i)P(D \mid G_i)} \quad (1)$$
+
+由于分母部分对于任何形式genotype都一样，即它是个定值，所以可以忽略，因此上面的公式可以简化成：
+
+$$P(G \mid D) = P(G)P(D \mid G) \quad \quad (2)$$
+
+其中，$P(G)$为genotype为G的先验概率，理论上为样本来源的群体中allele为G的频率，这个一般需要前期给定，若不给定的话，GATK会默认每种G的频率均等
+
+$P(D \mid G)$表示在已知样本genotype为G的前提下，对样本进行测序得到的测序数据为D（仅考虑该ActiveRegion范围内的）的条件概率，我们假设每条reads之间是相互独立的，所以
+
+$$P(D \mid G)=\prod_j P(D_j \mid G) \quad \quad (3)$$
+
+其中，$D_j$表示该样本测序数据D中的第j条read
+
+由于我们正常人都是二倍体，则对于某一条reads，它既可能来自于同源染色体1，记作$H_1$，也可能开自于同源染色体2，记作$H_2$，所以
+
+$$
+\begin{aligned}
+&\quad P(D_j \mid G) \\
+&= P(D_j,H_1 \mid G) + P(D_j,H_2 \mid G) \\
+&= P(H_1 \mid G)P(D_j \mid H_1) + P(H_2 \mid G)P(D_j \mid H_2)
+\end{aligned}
+$$
+
+由于理论上一条read来源于$H_1$还是$H_2$的概率是均等的，都为1/2，即$P(H_1 \mid G)=P(H_2 \mid G)=1/2$，所以
+
+$$P(D_j \mid G)=\frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{2} \quad (4)$$
+
+因此(3)可以改写成
+
+$$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{2}\right)$$
+
+现在如果想算出$P(G \mid D)$，就差$P(D_j \mid H_n)$了，那么，如何算$P(D_j \mid H_n)$呢？
+
+上面已经提到，$P(D_j \mid H_n)$表示的是由同源染色体$H_n$产生read $D_j$的条件概率，而每条同源染色体有它各自的单体型，所以这里可以把$H_n$理解为它对应的单体型，则$P(D_j \mid H_n)$可以理解为在特定单体型$H_n$的前提下，产生read $D_j$的条件概率
 
 <a name="snp-calling-using-samtools-bcftools"><h4>5.2.1. samtools/bcftools [<sup>目录</sup>](#content)</h4></a>
 
@@ -404,7 +623,7 @@ if $ratio\times cov(e_i) < cov(v)$，去除该edge
 
 	如果采用的是高覆盖的的测序策略，那么基本上可以利用reads之间的相互校验来得到更为准确的信息
 
-	但是如果采用的是低覆盖多样本的策略，我们可以减少采样的波动/不稳定性，可以鉴定出存在多个样本中的variants，且能得到许多在群体中罕见的variants
+	但是如果采用的是低覆盖多样本的策略，我们可以减少采样的波动/不稳定性（高覆盖意味着样本量就比较少，采样就很可能不具有代表性，即意味着采样的波动/不稳定性），可以鉴定出存在多个样本中的variants，且能得到许多在群体中罕见的variants
 
 	但是低覆盖度也不能太低，如果低到无法区分出到底是测序错误还是实际变异，也不行。经过摸索，得出结论，每个样本的覆盖度在2-6x之间比较合理
 
@@ -443,7 +662,7 @@ if $ratio\times cov(e_i) < cov(v)$，去除该edge
 | Symbol | Description |
 |:---|:---|
 | $n$	| Number of samples |
-| $m_i$	| Ploidy of the $i$-th sample ($1≤i≤n$) |
+| $m_i$	| Ploidy of the $i$-th sample ($1≤i≤n$)，即i样本的倍型 |
 | $M$	| Total number of chromosomes in samples: $M=\sum_i m_i$ |
 | $d_i$ | Sequencing data (bases and qualities) for the $i$-th sample |
 | $g_i$ | Genotype (the number of reference alleles) of the $i$-th sample ( $0≤g_i≤m_i$ ) |
@@ -457,41 +676,220 @@ if $ratio\times cov(e_i) < cov(v)$，去除该edge
 > - 对于同一个位点，不同reads的测序错误或mapping误差相互独立；
 > - 只考虑二等位情况；
 
-对于某一个样本的某一个位点，有$k$条 reads 比对上，其中有$l$条 ($0 \le l\le k$) 序列在该位点的碱基组成与 reference 一致，剩余 $k-l$ 条与 reference 不同，其中第 $j$ 条上该碱基的测序错误率为 $\epsilon_j$，则该样本的基因型为 $g \in \{1,2\}$ （$g=1$表示该样本在位点为纯合型，但可能与reference一致，也可能与reference不同；$g=2$表示该位点为杂合型） 的概率为
+- 估计某个样本出现特定基因型g的概率：$L(g)$
 
-$$
-\begin{aligned}
-&\quad L(g) \\
-&= Pr(d \mid g) \\
-&= \prod_{j=1}^l Pr_j(A)\prod_{j=l+1}^k Pr_j(\overline A) \\
-&= \prod_{j=1}^l [Pr_j(B \mid A)+Pr_j(\overline B \mid A)]\prod_{j=l+1}^k [Pr_j(B \mid \overline A)+Pr_j(\overline B \mid \overline A)] \\
-&= \prod_{j=1}^l \left[ \frac{g}{m}(1-\epsilon_j) + \frac{m-g}{m}\epsilon_j \right] \prod_{j=l+1}^k \left[  \frac{m-g}{m}(1-\epsilon_j) +  \frac{g}{m}\epsilon_j\right] \\
-&= \frac{1}{m^k}\prod_{j=1}^l [g(1-\epsilon_j) + (m-g)\epsilon_j] \prod_{j=l+1}^k [(m-g)(1-\epsilon_j) + g\epsilon_j]
-\end{aligned}
-$$
+	对于某一个样本的某一个位点，有$k$条 reads 比对上，其中有$l$条 ($0 \le l\le k$) 序列在该位点的碱基组成与 reference 一致，剩余 $k-l$ 条与 reference 不同，其中第 $j$ 条上该碱基的测序错误率为 $\epsilon_j$，则该样本的基因型与ref一致的有 $g \in [0,m]$ 种的概率为
 
-其中，$m$ 是该物种的倍性，普通人是二倍体，因此一般 $m=2$
+	$$
+	\begin{aligned}
+	&\quad L(g) \\
+	&= Pr(d \mid g) \\
+	&= \prod_{i=1}^l Pr_i(A)\prod_{j=l+1}^k Pr_j(\overline A)  & (1)\\
+	&= \prod_{i=1}^l [Pr_i(B , A)+Pr_i(\overline B , A)]\prod_{j=l+1}^k [Pr_j(B , \overline A)+Pr_j(\overline B , \overline A)] & (2)\\
+	&= \prod_{i=1}^l [Pr_i(B,C) + Pr_i(\overline B,\overline C)] \prod_{j=l+1}^k [Pr_j(B,\overline C) + Pr_j(\overline B,C)] & (3)\\
+	\end{aligned}
+	$$
 
-事件$A=\{碱基与ref一致\}$，则$\overline A=\{碱基与ref不一致\}$
+	> 其中，$m$ 是该物种的倍性，普通人是二倍体，因此一般 $m=2$
+	>
+	> 事件$A=\{测序碱基与\text{ref}一致\}$，则$\overline A=\{测序碱基与\text{ref}不一致\}$
+	>
+	> 事件$B=\{该碱基的测序是正确的\}$，则$\overline B=\{该碱基的测序是错误的\}$
+	>
+	> 事件$C=\{实际碱基与\text{ref}一致\}$，则$\overline C=\{实际碱基与\text{ref}不一致\}$
 
-事件$B=\{该碱基的测序是正确的\}$，则$\overline B=\{该碱基的测序是错误的\}$
+	上面公式中，从(2)到(3)的推导涉及到最基本的逻辑常识，这里就不再赘述了
 
+	由于测序错误与基因组的组成无关，即$B \bot C$，因此上面的公式可以向下继续推导：
 
+	$$
+	\begin{aligned}
+	&=  \prod_{i=1}^l [Pr_i(C)Pr_i(B) + Pr_i(\overline C)Pr_i(\overline B)] \prod_{j=l+1}^k [Pr_j(\overline C)Pr_j(B) + Pr_j(C)Pr_j(\overline B)] & (4)\\
+	&= \prod_{i=1}^l \left[ \frac{g}{m}(1-\epsilon_i) + \frac{m-g}{m}\epsilon_i \right] \prod_{j=l+1}^k \left[  \frac{m-g}{m}(1-\epsilon_j) +  \frac{g}{m}\epsilon_j\right] & (5)\\
+	&= \frac{1}{m^k}\prod_{i=1}^l [g(1-\epsilon_i) + (m-g)\epsilon_i] \prod_{j=l+1}^k [(m-g)(1-\epsilon_j) + g\epsilon_j] & (6)
+	\end{aligned}
+	$$
 
+	上面公式中，(4)到(5)的推导利用了：
 
+	$$
+	\begin{aligned}
+	&Pr(B)=1-\epsilon, \quad Pr(\overline B)=\epsilon & (7)\\
+	&Pr(C)=\frac gm , \quad Pr(\overline C)=\frac{m-g}{m} & (8)
+	\end{aligned}
+	$$
 
+	\(7\)公式很好理解，在这里就不作更多的解释
 
+	对公式(8)，下面作一下简单的解释：
 
+	> 由于上面的前提假设中就已经提到，只考虑双等位情况，ref allele即是双等位中的一种，则对于一个m倍体的个体，它该等位基因座上有m个等位基因，其中与ref allele一致的有g个，则剩下m-g个基因座上的allele与ref allele不一致
+	>
+	> 则，随机从这m个基因座中抽一个，其基因型与ref一致的概率为$Pr(C)=g/m$，与ref不一致的概率为$Pr(\overline C)=1-g/m=(m-g)/m$
 
+- 估计某一个位点的allele frequency：$\psi$
 
+	假设某一个位点与ref一致的allele的频率为$\psi$，从多个样本的测序数据中估计出这个频率的数值，基本思想为：
 
+	> 推导出$Pr(D\mid \psi)$的表达式
+	>
+	> 然后基于极大似然估计（如下）来求出$\psi^*$
+	>
+	> $$\psi^* = \arg \max_{\psi} Pr(D\mid \psi)$$
 
+	对于第i个样本，它的倍型为$m_i$，基因型为$g_i$，测序数据为$d_i$，根据HWE（Hardy-Weinberg，哈迪-温伯格法则，简称哈温平衡）：
 
+	> 哈迪-温伯格(Hardy-Weinberg)法则
+	>
+	> 核心思想：一个不发生突变、迁移和选择的无限大的相互交配的群体中，基因频率和基因型频率将逐代保持不变
+	>
+	> 哈迪-温伯格定律可分为3个部分：
+	>
+	> （1）在一个无穷大的随机交配的群体中，没有进化的压力（突变、迁移和自然选择）；
+	> （2）基因频率逐代不变；
+	>
+	> （3）随机交配一代以后基因型频率将保持平衡：
+	>
+	>  $p^2$表示AA的基因型的频率，$2pq$表示Aa基因型的频率$q^2$表示aa基因型的频率。其中p是A基因的频率；q是a基因的频率。基因型频率之和应等于1，即$p^2+ 2pq + q^2 = 1$
 
+	在该位点与ref一致的allele的频率为$\psi$情况下，出现我们的测序数据D的概率，即$\psi$的似然为：
 
+	$$
+	\begin{aligned}
+	&\quad L(\psi)\\
+	&= Pr(D \mid \psi ) \\
+	&=\prod_{i=1}^n Pr_i(d_i \mid \psi) & (1)\\
+	&=\prod_{i=1}^n \sum_{g=0}^{m_i} Pr_i(d_i,g \mid \psi) & (2)\\
+	&= \prod_{i=1}^n \sum_{g=0}^{m_i} Pr_i(d_i \mid g)Pr_i(g\mid \psi) & (3)\\
+	&= \prod_{i=1}^n \sum_{g=0}^{m_i} L_i(g)Binomial(g,m_i,\psi) & (4)\\
+	&= \prod_{i=1}^n \sum_{g=0}^{m_i} L_i(g) \left(\begin{matrix} m_i \\ g\end{matrix}\right) \psi^g(1-\psi)^{m_i-g} & (5)
+	\end{aligned}
+	$$
 
+	上面公式中第（3）步到第（4）步的推导，利用了$Pr(g \mid \psi)=Binomial(g,m,\psi)$，即对于某一个$m$倍体样本，在群体的ref allele频率为$\psi$的情况下，它与ref allele一致的allele数为g的概率，这相当于在进行m重伯努利实验：
 
+	> 由于只考虑双等位型，则可以把ref allele 记为A，不一致的allel记为a，且$Pr(A)=\psi,Pr(a)=1-\psi$，则对于一个m倍体的个体，其ref allele的数量为g，则它的基因型为$A_1A_2...A_ga_{g+1}a_{g+2}...a_{m}$
+	>
+	> 在哈温平衡的理想群体中，这样基因型的个体可以看作是由m次伯努实验得到g次结果为1的事件得到的，则出现这样的事件的概率就为
+	>
+	> $$Binomial(g,m,\psi)=\left(\begin{matrix} m \\ g\end{matrix}\right) \psi^g(1-\psi)^{m-g}$$
 
+	下面可以通过极大似然估计来得到ref allele的频率$\psi$：
+
+	$$\psi^* = \arg \max_{\psi} L(\psi)$$
+
+	由于
+
+	$$L(\psi)=\prod_{i=1}^n \sum_{g=0}^{m_i} L_i(g) \left(\begin{matrix} m_i \\ g\end{matrix}\right) \psi^g(1-\psi)^{m_i-g}$$
+
+	其中含有隐变量g，所以我们要进行的是含有隐变量的极大似然估计
+
+	对于含有隐变量的极大似然估计，首选的最优化方法一般是EM算法，其中第t步到第t+1步的迭代关系式为：
+
+	$$\psi^{(t+1)}=\frac 1M \sum_{i=1}^n \frac{\sum_g gL_i(g)Binomial(g,m_i,\psi^{(t)})}{\sum_g L_i(g)Binomial(g,m_i,\psi^{(t)})}$$
+
+- 估计non-reference alleles的数量
+
+	首先定义一个名词：
+
+	> site reference allele count：在一个位点上与ref allele一致的allele的数量，则对于样本i来说，它的site reference allele count可以记作$G_i$
+
+	定义向量$\vec G=(G_1,G_2,...,G_n)$，表示所有样本在某一个位点的site reference allele count
+
+	$X=\sum_i G_i$表示所有样本的site reference allele count的总和
+
+	$$Pr(\vec G = \vec g \mid X=k)= \mathbb{I}(k=\sum_{i=1}^n g_i) \frac{\prod_{i=1}^n \left( \begin{matrix} m_i \\ g_i\end{matrix} \right)}{\left( \begin{matrix} M \\ k\end{matrix} \right)}$$
+
+	其中，$\mathbb{I}(k=\sum_{i=1}^n g_i)$中的$\mathbb{I}(·)$表示布尔函数，即$\mathbb{I}(True)=1 \, \text{or} \, \mathbb{I}(False)=0$，也可以用克罗内克函数(Kronecker delta function) $\delta_{··}$ 表示，不过为了避免引入不必要的复杂概念对后续推导过程的干扰，这里还是使用常规的布尔函数表示
+
+	则群体中site reference allele count 为k似然为：
+
+	$$
+	\begin{aligned}
+	&\quad L(k) \\
+	&=Pr(D \mid X=k) & (1)\\
+	&= \sum_{\vec g} Pr(D,\vec G = \vec g \mid X=k)  & (2)\\
+	&= \sum_{\vec g} Pr(G = \vec g \mid X=k) Pr(D \mid \vec G = \vec g) & (3)\\
+	&= \sum_{\vec g} \left( \mathbb{I}(k=\sum_{i=1}^n g_i) \frac{\prod_{i=1}^n \left( \begin{matrix} m_i \\ g_i\end{matrix} \right)}{\left( \begin{matrix} M \\ k\end{matrix} \right)} \right)\left(\prod_{i=1}^n L_i(g_i)\right) & (4)\\
+	&= \frac{1}{\left( \begin{matrix} M \\ k\end{matrix} \right)} \sum_{\vec g} \left(\mathbb{I}(k=\sum_{i=1}^n g_i)\prod_{i=1}^n \left( \begin{matrix} m_i \\ g_i\end{matrix} \right) L_i(g_i)\right) & (5)
+	\end{aligned}
+	$$
+
+	其中，$k$要满足$0 \le k \le M=\sum_{i=1}^n m_i$，即群体的site reference allele count来自于群体的总染色体数M，不能超过M，否则这就是一个不可能事件，则$L(k)=0$
+
+	为了方便后续的推导，定义一个变量：
+
+	$$z_{jl}=\sum_{\vec g = (g_1,...,g_j)} \left(\mathbb{I}(l=\sum_{i=1}^j g_i)\prod_{i=1}^j \left( \begin{matrix} m_i \\ g_i\end{matrix} \right) L_i(g_i)\right)$$
+
+	其中$j\le n$，即上式只考虑前$j$个样本的情况，相当于上面公式(5)的右半部分
+
+	假设$j$个样本的最后一个，即第$j$个样本的为$m_j$倍体，rel allele数为$g_j$，则扣除最后一个样本的值为$Z_{j-1,l-g_j}$，那么$Z_{j,l}$与$Z_{j-1,l-g_j}$之间的有什么关系呢？
+
+	先写出$Z_{j-1,l-g_j}$的公式：
+
+	$$Z_{j-1,l-g_j}=\sum_{\vec g = (g_1,...,g_{j-1})} \left(\mathbb{I}(l-g_j=\sum_{i=1}^{j-1} g_i)\prod_{i=1}^{j-1} \left( \begin{matrix} m_i \\ g_i\end{matrix} \right) L_i(g_i)\right)$$
+
+	可以看出：
+
+	$$Z_{jl}=\sum_{g_j=0}^{m_j} Z_{j-1,l-g_j} \left( \begin{matrix} m_j \\ g_j\end{matrix} \right) L_j(g_j)$$
+
+	根据上面的公式的特点，可以采用迭代的方法最终算出$Z_{nk}$，则可以进一步算出$L(k)$：
+
+	$$L(k)=\frac{Z_{nk}}{\left( \begin{matrix} M \\ k\end{matrix} \right)}$$
+
+<a name="k-mer-based-sequence-analysis"><h2>6. k-mer based sequence analysis [<sup>目录</sup>](#content)</h2></a>
+
+<a name="k-mer-based-sequence-analysis"><h3>6.1. SEEKR: noncoding RNA similarity [<sup>目录</sup>](#content)</h3></a>
+
+方法思想：
+
+<p align='center'><img src=./picture/Algorithms-Bioinf-k-mer-SEEKR-1.png /></p>
+
+方法流程：
+
+<p align='center'><img src=./picture/Algorithms-Bioinf-k-mer-SEEKR-2.png /></p>
+
+性能表现：在较低信噪比下，仍能给出相对准确的预测
+
+<p align='center'><img src=./picture/Algorithms-Bioinf-k-mer-SEEKR-3.png width=400/></p>
+
+<a name="supplementary-knowledge"><h2>补充知识 [<sup>目录</sup>](#content)</h2></a>
+
+<a name="hwe"><h3>*1. 哈迪-温伯格平衡(Hardy-Weinberg equilibrium)法则 [<sup>目录</sup>](#content)</h3></a>
+
+哈温平衡针对的是理想群体，即的前提假设：
+
+> - 群体无穷大
+> - 随机交配
+> - 没有进化的力量
+
+分析讨论哈温平衡的三个假设：
+
+**（1）群体无穷大**
+
+若一个群体的大小有限，可能导致基因频率和预期的比例随机发生偏差。这种基因频率的改变就称遗传漂变（genetic draft）
+
+所谓的无穷大完全是设想的。没有任何群体具有无穷的个体。然而样本的误差仅对一个相当小群体的基因频率有明显的影响。实际应用时群体不需无穷大，只要不至太小即可
+
+**（2）随机交配**
+
+随机交配（random mating）是指各基因型之间的交配和群体中这些基因型的频率成正比。更为特别的是两个基因型之间交配的概率等于两个基因型频率的乘积
+
+为了说明随机交配，现以人类的M-N血型为例来解释：
+
+> M-N血型是由于在细胞的表面上存在一种抗原，与ABO系统的抗原相似。但在M-N系统中除了产生不相容以外，在输血时并不会产生凝血。M-N血型是由带有两共显性等位基因$L^M$和$L^N$的座位决定的。在爱斯基摩人的群体中，3种M-N基因型频率分别为$L^M/L^M$= 0.835, $L^M/L^N$ =0.156，$L^N/L^N$= 0.009。若爱期基摩人的婚配是随机的，那么$L^M/L^M$男人和$L^M/L^M$女人婚配的率就应等于$L^M/L^M$基因型频率乘以$L^M/L^M$的频率，即0.835×0.835= 0.679。其它基因型之间的婚配率的计算也与此相似
+
+注意：**随机交配是针对所有性状**
+
+> 若随机交配是针对所有性状，那么人类群体就不能符合哈迪-温伯格定律的要求了：人类择偶并不是随机的，而是对智商、外貌、性格、身高、肤色、学历以及社会地位等都有一定的要求
+>
+> 虽然对某些性状的要求不是随机的，但大部分人对血型等并无要求，甚至有的人并不知道自己的M-N系统的具体血型。因此哈迪-温伯格定律要求的随机性是指诸如像血型这样一些性状，而不是那样非随机性状的座位
+
+**（3）没有进化的力量**
+
+在哈迪-温伯格定律中人们只关注遗传是否会改变基因频率以及繁殖怎样会影响到基因型频率。因此其它的进化力量可被排除
+
+在没有进化力量作用在群体上时，只适用于某些座位，其它的座位可能照样受到进化力量的影响
 
 
 ---
@@ -504,14 +902,26 @@ $$
 
 (3) [生信算法《三代测序序列比对利器-BLASR，更小更快更方便 》](https://mp.weixin.qq.com/s/7xZVvyShcwjPGbgKiLniag)
 
-(4) Alneberg, J. et al. Binning metagenomic contigs by coverage and composition. Nat. Methods 11, 1144–1146 (2014).
+(4) Stormo, G. DNA binding sites: representation and discovery. Bioinformatics 16, 16–23 (2000).
 
-(5) Beaulaurier J, Zhu S, Deikus G, et al. Metagenomic binning and association of plasmids with bacterial host genomes using DNA methylation.[J]. Nature Biotechnology, 2017, 36(1).
+(5) Alneberg, J. et al. Binning metagenomic contigs by coverage and composition. Nat. Methods 11, 1144–1146 (2014).
 
-(6)  Nurk S., Meleshko D., Korobeynikov A., Pevzner P. A. metaSPAdes: a new versatile de novo metagenomics assembler.	Genome Research, 2017 
+(6) Beaulaurier J, Zhu S, Deikus G, et al. Metagenomic binning and association of plasmids with bacterial host genomes using DNA methylation.[J]. Nature Biotechnology, 2017, 36(1).
 
-(7) Nielsen R, Paul JS, Albrechtsen A, Song YS. Genotype and SNP calling from next-generation sequencing data. Nat Rev Genet. 2011;12(6):443–451.
+(7)  Nurk S., Meleshko D., Korobeynikov A., Pevzner P. A. metaSPAdes: a new versatile de novo metagenomics assembler.	Genome Research, 2017 
 
-(8) Li H. A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data. Bioinformatics. 2011;27(21):2987–2993.
+(8) Nielsen R, Paul JS, Albrechtsen A, Song YS. Genotype and SNP calling from next-generation sequencing data. Nat Rev Genet. 2011;12(6):443–451.
 
-(9) [Samtools math notes](http://www.broadinstitute.org/gatk/media/docs/Samtools.pdf)
+(9) Li H. A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data. Bioinformatics. 2011;27(21):2987–2993.
+
+(10) [Samtools math notes](http://www.broadinstitute.org/gatk/media/docs/Samtools.pdf)
+
+(11) 黄树嘉·知识星球《达尔文生信星球》
+
+(12) [GATK官方文档《Methods and Algorithms: HaplotypeCaller in a nutshell》](https://software.broadinstitute.org/gatk/documentation/article?id=11068)
+
+(13) [GATK官方文档《Methods and Algorithms: Assigning per-sample genotypes (HaplotypeCaller)》](https://software.broadinstitute.org/gatk/documentation/article?id=11079)
+
+(14) Kirk JM, Kim SO, Inoue K, et al. Functional classification of long non-coding RNAs by k-mer content. Nat Genet. 2018 Oct;50(10):1474-1482.
+
+(15) [CSDN · Marphy11《哈迪-温伯格平衡(Hardy-Weinberg equilibrium)法则》](https://blog.csdn.net/lj695242104/article/details/41014339)
