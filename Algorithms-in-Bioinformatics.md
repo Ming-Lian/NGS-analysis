@@ -553,12 +553,12 @@ GATK使用PairHMM算法把原本比对于该区域中的每一条read依次和�
 
 $$
 \begin{array}{l|c|c|c|c}
-0 & H_1 & H_2 & .. & H_m \\ 
+0 & H_1 & H_2 & .. & H_m \newline
 \hline
-r_1 & a_{11} & a_{12} & .. & a_{1m} \\
-r_2 & a_{21} & a_{22} & .. & a_{2m} \\
-.. & .. & .. & .. & .. \\
-r_n & a_{n1} & a_{n2} & .. & a_{nm} \\
+r_1 & a_{11} & a_{12} & .. & a_{1m} \newline
+r_2 & a_{21} & a_{22} & .. & a_{2m} \newline
+.. & .. & .. & .. & .. \newline
+r_n & a_{n1} & a_{n2} & .. & a_{nm} \newline
 \hline
 \end{array}
 $$
@@ -597,8 +597,8 @@ $$P(D \mid G)=\prod_j P(D_j \mid G)\tag{3}$$
 
 $$
 \begin{aligned}
-&\quad P(D_j \mid G) \\
-&= P(D_j,H_1 \mid G) + P(D_j,H_2 \mid G) \\
+&\quad P(D_j \mid G) \newline
+&= P(D_j,H_1 \mid G) + P(D_j,H_2 \mid G) \newline
 &= P(H_1 \mid G)P(D_j \mid H_1) + P(H_2 \mid G)P(D_j \mid H_2)
 \end{aligned} \tag{4}
 $$
