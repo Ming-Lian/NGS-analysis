@@ -682,11 +682,11 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 
 	$$
 	\begin{aligned}
-	&\quad L(g) \\
-	&= Pr(d \mid g) \\
-	&= \prod_{i=1}^l Pr_i(A)\prod_{j=l+1}^k Pr_j(\overline A)  & (1)\\
-	&= \prod_{i=1}^l [Pr_i(B , A)+Pr_i(\overline B , A)]\prod_{j=l+1}^k [Pr_j(B , \overline A)+Pr_j(\overline B , \overline A)] & (2)\\
-	&= \prod_{i=1}^l [Pr_i(B,C) + Pr_i(\overline B,\overline C)] \prod_{j=l+1}^k [Pr_j(B,\overline C) + Pr_j(\overline B,C)] & (3)\\
+	&\quad L(g) \newline
+	&= Pr(d \mid g) \newline
+	&= \prod_{i=1}^l Pr_i(A)\prod_{j=l+1}^k Pr_j(\overline A)  & (1)\newline
+	&= \prod_{i=1}^l [Pr_i(B , A)+Pr_i(\overline B , A)]\prod_{j=l+1}^k [Pr_j(B , \overline A)+Pr_j(\overline B , \overline A)] & (2)\newline
+	&= \prod_{i=1}^l [Pr_i(B,C) + Pr_i(\overline B,\overline C)] \prod_{j=l+1}^k [Pr_j(B,\overline C) + Pr_j(\overline B,C)] & (3)\newline
 	\end{aligned}
 	$$
 
@@ -704,8 +704,8 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 
 	$$
 	\begin{aligned}
-	&=  \prod_{i=1}^l [Pr_i(C)Pr_i(B) + Pr_i(\overline C)Pr_i(\overline B)] \prod_{j=l+1}^k [Pr_j(\overline C)Pr_j(B) + Pr_j(C)Pr_j(\overline B)] & (4)\\
-	&= \prod_{i=1}^l \left[ \frac{g}{m}(1-\epsilon_i) + \frac{m-g}{m}\epsilon_i \right] \prod_{j=l+1}^k \left[  \frac{m-g}{m}(1-\epsilon_j) +  \frac{g}{m}\epsilon_j\right] & (5)\\
+	&=  \prod_{i=1}^l [Pr_i(C)Pr_i(B) + Pr_i(\overline C)Pr_i(\overline B)] \prod_{j=l+1}^k [Pr_j(\overline C)Pr_j(B) + Pr_j(C)Pr_j(\overline B)] & (4)\newline
+	&= \prod_{i=1}^l \left[ \frac{g}{m}(1-\epsilon_i) + \frac{m-g}{m}\epsilon_i \right] \prod_{j=l+1}^k \left[  \frac{m-g}{m}(1-\epsilon_j) +  \frac{g}{m}\epsilon_j\right] & (5)\newline
 	&= \frac{1}{m^k}\prod_{i=1}^l [g(1-\epsilon_i) + (m-g)\epsilon_i] \prod_{j=l+1}^k [(m-g)(1-\epsilon_j) + g\epsilon_j] & (6)
 	\end{aligned}
 	$$
@@ -714,7 +714,7 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 
 	$$
 	\begin{aligned}
-	&Pr(B)=1-\epsilon, \quad Pr(\overline B)=\epsilon & (7)\\
+	&Pr(B)=1-\epsilon, \quad Pr(\overline B)=\epsilon & (7)\newline
 	&Pr(C)=\frac gm , \quad Pr(\overline C)=\frac{m-g}{m} & (8)
 	\end{aligned}
 	$$
@@ -756,13 +756,13 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 
 	$$
 	\begin{aligned}
-	&\quad L(\psi)\\
-	&= Pr(D \mid \psi ) \\
-	&=\prod_{i=1}^n Pr_i(d_i \mid \psi) & (1)\\
-	&=\prod_{i=1}^n \sum_{g=0}^{m_i} Pr_i(d_i,g \mid \psi) & (2)\\
-	&= \prod_{i=1}^n \sum_{g=0}^{m_i} Pr_i(d_i \mid g)Pr_i(g\mid \psi) & (3)\\
-	&= \prod_{i=1}^n \sum_{g=0}^{m_i} L_i(g)Binomial(g,m_i,\psi) & (4)\\
-	&= \prod_{i=1}^n \sum_{g=0}^{m_i} L_i(g) \left(\begin{matrix} m_i \\ g\end{matrix}\right) \psi^g(1-\psi)^{m_i-g} & (5)
+	&\quad L(\psi)\newline
+	&= Pr(D \mid \psi ) \newline
+	&=\prod_{i=1}^n Pr_i(d_i \mid \psi) & (1)\newline
+	&=\prod_{i=1}^n \sum_{g=0}^{m_i} Pr_i(d_i,g \mid \psi) & (2)\newline
+	&= \prod_{i=1}^n \sum_{g=0}^{m_i} Pr_i(d_i \mid g)Pr_i(g\mid \psi) & (3)\newline
+	&= \prod_{i=1}^n \sum_{g=0}^{m_i} L_i(g)Binomial(g,m_i,\psi) & (4)\newline
+	&= \prod_{i=1}^n \sum_{g=0}^{m_i} L_i(g) \left(\begin{matrix} m_i \newline g\end{matrix}\right) \psi^g(1-\psi)^{m_i-g} & (5)
 	\end{aligned}
 	$$
 
@@ -806,12 +806,12 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 
 	$$
 	\begin{aligned}
-	&\quad L(k) \\
-	&=Pr(D \mid X=k) & (1)\\
-	&= \sum_{\vec g} Pr(D,\vec G = \vec g \mid X=k)  & (2)\\
-	&= \sum_{\vec g} Pr(G = \vec g \mid X=k) Pr(D \mid \vec G = \vec g) & (3)\\
-	&= \sum_{\vec g} \left( \mathbb{I}(k=\sum_{i=1}^n g_i) \frac{\prod_{i=1}^n \left( \begin{matrix} m_i \\ g_i\end{matrix} \right)}{\left( \begin{matrix} M \\ k\end{matrix} \right)} \right)\left(\prod_{i=1}^n L_i(g_i)\right) & (4)\\
-	&= \frac{1}{\left( \begin{matrix} M \\ k\end{matrix} \right)} \sum_{\vec g} \left(\mathbb{I}(k=\sum_{i=1}^n g_i)\prod_{i=1}^n \left( \begin{matrix} m_i \\ g_i\end{matrix} \right) L_i(g_i)\right) & (5)
+	&\quad L(k) \newline
+	&=Pr(D \mid X=k) & (1)\newline
+	&= \sum_{\vec g} Pr(D,\vec G = \vec g \mid X=k)  & (2)\newline
+	&= \sum_{\vec g} Pr(G = \vec g \mid X=k) Pr(D \mid \vec G = \vec g) & (3)\newline
+	&= \sum_{\vec g} \left( \mathbb{I}(k=\sum_{i=1}^n g_i) \frac{\prod_{i=1}^n \left( \begin{matrix} m_i \newline g_i\end{matrix} \right)}{\left( \begin{matrix} M \\ k\end{matrix} \right)} \right)\left(\prod_{i=1}^n L_i(g_i)\right) & (4)\newline
+	&= \frac{1}{\left( \begin{matrix} M \\ k\end{matrix} \right)} \sum_{\vec g} \left(\mathbb{I}(k=\sum_{i=1}^n g_i)\prod_{i=1}^n \left( \begin{matrix} m_i \newline g_i\end{matrix} \right) L_i(g_i)\right) & (5)
 	\end{aligned}
 	$$
 
