@@ -442,7 +442,7 @@ $$X_i=(RG_i,Cyc_i,Context_i) \quad \begin{matrix} f \\ \to \end{matrix} \quad y_
 
 则实际测序质量为：
 
-$$EQ=-10\log \frac{\#mismatch + 1}{\#bases + 2}$$
+$$EQ=-10\log \frac{\sharp mismatch + 1}{\sharp bases + 2}$$
 
 注意：emprical quality是以bin为单位计算出来的
 
@@ -465,32 +465,6 @@ $$EQ=-10\log \frac{\#mismatch + 1}{\#bases + 2}$$
 对于基因组中的高变区域，reads的mapping很困难，一个解决方案是使用更长的reads或者双端测序，但是对于diversity极高的区域，比如 MHC (major histocompatibility complex ) 区域，这些方法还是显得力不从心，这个时候就采用 de novo 拼接的策略了
 
 结合长reads和de novo 拼接的方法，基因组中高变区域鉴定的大多数情况都可以得到有效地解决
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <a name="snp-calling-mathmatic-principle"><h3>5.2. snp calling的数学原理 [<sup>目录</sup>](#content)</h3></a>
 
@@ -843,11 +817,11 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 
 方法思想：
 
-<p align='center'><img src=./picture/Algorithms-Bioinf-k-mer-SEEKR-1.png /></p>
+<p align='center'><img src=./picture/Algorithms-Bioinf-k-mer-SEEKR-1.png width=600/></p>
 
 方法流程：
 
-<p align='center'><img src=./picture/Algorithms-Bioinf-k-mer-SEEKR-2.png /></p>
+<p align='center'><img src=./picture/Algorithms-Bioinf-k-mer-SEEKR-2.png width=600/></p>
 
 性能表现：在较低信噪比下，仍能给出相对准确的预测
 
