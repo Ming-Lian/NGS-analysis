@@ -553,7 +553,7 @@ GATK使用PairHMM算法把原本比对于该区域中的每一条read依次和�
 
 $$
 \begin{array}{l|c|c|c|c}
-0 & H_1 & H_2 & .. & H_m \\
+0 & H_1 & H_2 & .. & H_m \\ 
 \hline
 r_1 & a_{11} & a_{12} & .. & a_{1m} \\
 r_2 & a_{21} & a_{22} & .. & a_{2m} \\
@@ -579,17 +579,17 @@ $$
 
 该样本在该位点的genotype为G的后验概率为：
 
-$$P(G \mid D) = \frac{P(G)P(D \mid G)}{\sum_i P(G_i)P(D \mid G_i)} \quad (1)$$
+$$P(G \mid D) = \frac{P(G)P(D \mid G)}{\sum_i P(G_i)P(D \mid G_i)} \tag{1}$$
 
 由于分母部分对于任何形式genotype都一样，即它是个定值，所以可以忽略，因此上面的公式可以简化成：
 
-$$P(G \mid D) = P(G)P(D \mid G) \quad \quad (2)$$
+$$P(G \mid D) = P(G)P(D \mid G) \tag{2}$$
 
 其中，$P(G)$为genotype为G的先验概率，理论上为样本来源的群体中allele为G的频率，这个一般需要前期给定，若不给定的话，GATK会默认每种G的频率均等
 
 $P(D \mid G)$表示在已知样本genotype为G的前提下，对样本进行测序得到的测序数据为D（仅考虑该ActiveRegion范围内的）的条件概率，我们假设每条reads之间是相互独立的，所以
 
-$$P(D \mid G)=\prod_j P(D_j \mid G) \quad \quad (3)$$
+$$P(D \mid G)=\prod_j P(D_j \mid G)\tag{3}$$
 
 其中，$D_j$表示该样本测序数据D中的第j条read
 
@@ -600,16 +600,16 @@ $$
 &\quad P(D_j \mid G) \\
 &= P(D_j,H_1 \mid G) + P(D_j,H_2 \mid G) \\
 &= P(H_1 \mid G)P(D_j \mid H_1) + P(H_2 \mid G)P(D_j \mid H_2)
-\end{aligned}
+\end{aligned} \tag{4}
 $$
 
 由于理论上一条read来源于$H_1$还是$H_2$的概率是均等的，都为1/2，即$P(H_1 \mid G)=P(H_2 \mid G)=1/2$，所以
 
-$$P(D_j \mid G)=\frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{2} \quad (4)$$
+$$P(D_j \mid G)=\frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{2} \tag{5}$$
 
 因此(3)可以改写成
 
-$$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{2}\right)$$
+$$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{2}\right) \tag{6}$$
 
 现在如果想算出$P(G \mid D)$，就差$P(D_j \mid H_n)$了，那么，如何算$P(D_j \mid H_n)$呢？
 
@@ -923,5 +923,6 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 (13) [GATK官方文档《Methods and Algorithms: Assigning per-sample genotypes (HaplotypeCaller)》](https://software.broadinstitute.org/gatk/documentation/article?id=11079)
 
 (14) Kirk JM, Kim SO, Inoue K, et al. Functional classification of long non-coding RNAs by k-mer content. Nat Genet. 2018 Oct;50(10):1474-1482.
+
 
 (15) [CSDN · Marphy11《哈迪-温伯格平衡(Hardy-Weinberg equilibrium)法则》](https://blog.csdn.net/lj695242104/article/details/41014339)
