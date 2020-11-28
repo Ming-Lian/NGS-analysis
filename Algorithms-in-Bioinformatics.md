@@ -8,6 +8,10 @@
 	- [1.4. BLAST](#blast)
 		- [1.4.1. TCR/BCR克隆鉴定](#tcr-bcr-identification)
 	- [1.5. 基于后缀树的快速序列比对](#fast-alignment-based-on-suffix-tree)
+		- [1.5.1. Trie树](#fast-alignment-based-on-suffix-tree-trie-tree)
+        		- [1.5.1.1. Trie树及基本操作](#fast-alignment-based-on-suffix-tree-trie-tree-1)
+        		- [1.5.1.2. Trie树的应用](#fast-alignment-based-on-suffix-tree-trie-tree-2)
+      		- [1.5.2. Suffix Trie树](#fast-alignment-based-on-suffix-tree-suffix-trie-tree)
     - [1.6. Subread: seed-and-vote](#subread-alignment-algorithmn)
 - [2. Motif Finding](#motif)
 	- [2.1. MEME：EM算法](#motif-em)
@@ -142,15 +146,113 @@ BLASR是第一个针对PacBio序列的比对工具，2012年发表在《BMC Bioi
 
 <a name="fast-alignment-based-on-suffix-tree"><h3>1.5. 基于后缀树的快速序列比对 [<sup>目录</sup>](#content)</h3></a>
 
-一个长度为n的字符串S，它的后缀树定义为一棵满足如下条件的树：
+<a name="fast-alignment-based-on-suffix-tree-trie-tree"><h4>1.5.1. Trie树 [<sup>目录</sup>](#content)</h4></a>
 
-> 1. 从根到树叶的路径与S的后缀一一对应。即每条路径惟一代表了S的一个后缀；
->
-> 2. 每条边都代表一个非空的字符串；
->
-> 3. 所有内部节点（根节点除外）都有至少两个子节点。
+<a name="fast-alignment-based-on-suffix-tree-trie-tree-1"><h5>1.5.1.1. Trie树及基本操作 [<sup>目录</sup>](#content)</h5></a>
 
-由于并非所有的字符串都存在这样的树，因此S通常使用一个终止符号进行填充（通常使用$）。 
+（1） 定义
+
+Trie 树，也叫“字典树”。顾名思义，它是一个树形结构。它是一种专门处理字符串匹配的数据结构，用来解决**在一组字符串集合中快速查找某个字符串的问题**
+
+假设有 5 个字符串，它们分别是：code，cook，five，file，fat。现在需要在里面多次查找某个字符串是否存在。如果每次查找，都是拿要查找的字符串跟这 5 个字符串依次进行字符串匹配，那效率就比较低，有没有更高效的方法呢？
+
+如果将这 5 个字符串组织成下图的结构，从肉眼上扫描过去感官上是不是比查找起来会更加迅速。
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-1.jpg /></p>
+
+通过上图，可以发现 Trie树 的三个特点：
+
+- 根节点不包含字符，除根节点外每一个节点都只包含一个字符
+- 从根节点到某一节点，路径上经过的字符连接起来，为该节点对应的字符串
+- 每个节点的所有子节点包含的字符都不相同
+
+（2）Trie树构造
+
+在构造过程中的每一步，都相当于往 Trie 树中插入一个字符串。当所有字符串都插入完成之后，Trie 树就构造好了
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-2.gif /></p>
+
+（3）Trie树的插入操作
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-3.gif /></p>
+
+Trie树的插入操作很简单，其实就是将单词的每个字母逐一插入 Trie树。插入前先看字母对应的节点是否存在，存在则共享该节点，不存在则创建对应的节点
+
+比如要插入新单词cook，就有下面几步：
+
+- 插入第一个字母 c，发现 root 节点下方存在子节点 c，则共享节点 c
+- 插入第二个字母 o，发现 c 节点下方存在子节点 o，则共享节点 o
+- 插入第三个字母 o，发现 o 节点下方不存在子节点 o，则创建子节点 o
+- 插入第三个字母 k，发现 o 节点下方不存在子节点 k，则创建子节点 k
+- 至此，单词 cook 中所有字母已被插入 Trie树 中，然后设置节点 k 中的标志位，标记路径 root->c->o->o->k 这条路径上所有节点的字符可以组成一个单词cook
+
+（4）Trie树的查询操作
+
+在 Trie 树中查找一个字符串的时候，比如查找字符串 code，可以将要查找的字符串分割成单个的字符 c，o，d，e，然后从 Trie 树的根节点开始匹配
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-4.jpg /></p>
+
+如果要查找的是字符串cod(鳕鱼)呢？还是可以用上面同样的方法，从根节点开始，沿着某条路径来匹配，如图所示，绿色的路径，是字符串cod匹配的路径。但是，路径的最后一个节点「d」并不是橙色的，并不是单词标志位，所以cod字符串不存在。也就是说，cod是某个字符串的前缀子串，但并不能完全匹配任何字符串。
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-5.jpg /></p>
+
+（5）删除操作
+
+Trie树的删除操作与二叉树的删除操作有类似的地方，需要考虑删除的节点所处的位置，这里分三种情况进行分析：
+
+> 1. 删除整个单词（比如hi）
+> 
+> 	<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-6.gif /></p>
+> 
+> 	- 从根节点开始查找第一个字符h
+> 	- 找到h子节点后，继续查找h的下一个子节点i
+> 	- i是单词hi的标志位，将该标志位去掉
+> 	- i节点是hi的叶子节点，将其删除
+> 	- 删除后发现h节点为叶子节点，并且不是单词标志位，也将其删除
+> 
+> 	重复以上过程直到遇到内部节点
+> 
+> 	这样就完成了hi单词的删除操作
+> 
+> 2. 删除前缀单词（比如cod）
+> 
+> 	这种方式删除比较简单。
+> 
+> 	只需要将cod单词整个字符串查找完后，d节点因为不是叶子节点，只需将其单词标志去掉即可。
+> 
+> 	<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-7.gif /></p>
+> 
+> 3. 删除分支单词（比如cook）
+> 
+> 	<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-8.gif /></p>
+> 
+> 	与 **删除整个单词** 情况类似，区别点在于删除到 cook 的第一个 o 时，该节点为非叶子节点，停止删除，这样就完成cook字符串的删除操作
+
+<a name="fast-alignment-based-on-suffix-tree-trie-tree-2"><h5>1.5.1.2. Trie树的应用 [<sup>目录</sup>](#content)</h5></a>
+
+（1）前缀匹配
+
+例如：找出一个字符串集合中所有以 五分钟 开头的字符串。我们只需要用所有字符串构造一个 trie树，然后输出以 五−>分−>钟 开头的路径上的关键字即可。
+
+trie树前缀匹配常用于搜索提示。如当输入一个网址，可以自动搜索出可能的选择。当没有完全匹配的搜索结果，可以返回前缀最相似的可能。
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-trie-tree-9.jpg /></p>
+
+（2）字符串检索
+
+给定一组字符串，查找某个字符串是否出现过，思路就是从根节点开始一个一个字符进行比较：
+
+- 如果沿路比较，发现不同的字符，则表示该字符串在集合中不存在。
+
+- 如果所有的字符全部比较完并且全部相同，还需判断最后一个节点的标志位（标记该节点是否代表一个关键字）。
+
+<a name="fast-alignment-based-on-suffix-tree-suffix-trie-tree"><h4>1.5.2. Suffix Trie树 [<sup>目录</sup>](#content)</h4></a>
+
+suffix trie树是一种特殊的trie树：
+
+> - 索引对象：普通的trie树——给定的字符串集合来构建trie树；suffix trie树——给定的某一个字符串的所有后缀子字符串集合
+> 
+> - 节点字符数：普通的trie树，除了根节点外，任意节点只能包含一个字符；suffix trie树，除了根节点外，任意节点可以包含多个字符组成字符串
 
 以字符串S=banana为例，来说明如何构建后缀树：
 
@@ -164,6 +266,12 @@ BLASR是第一个针对PacBio序列的比对工具，2012年发表在《BMC Bioi
 - $
 
 （2）根据上面列出的后缀子字符串，构建suffix trie（后缀字典树）
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-1.png /></p>
+
+（3）合并未分支路径，以节省存储空间
+
+<p align="center"><img src=./picture/Algorithms-Bioinf-alignment-suffix-tree-2.png /></p>
 
 
 <a name="subread-alignment-algorithm"><h3>1.6. Subread: seed-and-vote [<sup>目录</sup>](#content)</h3></a>
@@ -900,3 +1008,5 @@ $$P(D \mid G)=\prod_j \left( \frac{P(D_j \mid H_1)}{2} + \frac{P(D_j \mid H_2)}{
 
 
 (15) [CSDN · Marphy11《哈迪-温伯格平衡(Hardy-Weinberg equilibrium)法则》](https://blog.csdn.net/lj695242104/article/details/41014339)
+
+(16) [【 五分钟学算法】看动画轻松理解「Trie树」](https://mp.weixin.qq.com/s/Y5_r4C5a9gU0FDtqXD9bkQ)
