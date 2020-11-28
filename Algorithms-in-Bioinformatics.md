@@ -12,7 +12,7 @@
         		- [1.5.1.1. Trie树及基本操作](#fast-alignment-based-on-suffix-tree-trie-tree-1)
         		- [1.5.1.2. Trie树的应用](#fast-alignment-based-on-suffix-tree-trie-tree-2)
       		- [1.5.2. Suffix Trie树](#fast-alignment-based-on-suffix-tree-suffix-trie-tree)
-    - [1.6. Subread: seed-and-vote](#subread-alignment-algorithmn)
+	- [1.6. Subread: seed-and-vote](#subread-alignment-algorithmn)
 - [2. Motif Finding](#motif)
 	- [2.1. MEME：EM算法](#motif-em)
 	- [2.2. position weight matrices (PWMs)](#motif-pwm)
