@@ -9,7 +9,7 @@
 		- [1.4.1. TCR/BCR克隆鉴定](#tcr-bcr-identification)
 	- [1.5. 基于后缀树的快速序列比对](#fast-alignment-based-on-suffix-tree)
 		- [1.5.1. Trie树](#fast-alignment-based-on-suffix-tree-trie-tree)
-        		- [1.5.1.1. Trie树及基本操作](#fast-alignment-based-on-suffix-tree-trie-tree-1)
+			- [1.5.1.1. Trie树及基本操作](#fast-alignment-based-on-suffix-tree-trie-tree-1)
 			- [1.5.1.2. Trie树的应用](#fast-alignment-based-on-suffix-tree-trie-tree-2)
 		- [1.5.2. Suffix Trie树](#fast-alignment-based-on-suffix-tree-suffix-trie-tree)
 	- [1.6. Subread: seed-and-vote](#subread-alignment-algorithmn)
